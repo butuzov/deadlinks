@@ -1,8 +1,7 @@
 """
-doc.md
-~~~~~~
-doc.md is a documentation markdown generator for cli tools, easy way to get
-markdown page for every single option of your cli tool.
+deadlinks
+~~~~~~~~~
+deadlinks checker for your static website. It's better keep house clean, right?
 """
 
 import re
@@ -16,7 +15,6 @@ def read_version() -> str:
     """Reads version of the package"""
 
     init = Path(__file__).parent / "deadlinks" / "__init__.py"
-    print(init)
 
     if not Path(init).is_file():
         raise RuntimeError("Cannot source for Version - deadlinks/__init__.py")
@@ -60,7 +58,7 @@ def read_descriptions() -> Tuple[str, str]:
             c = raw.get(title, [])
             if not c:
                 prev = raw.get(prev_title, [])
-                raw.update({prev_title: prev[: len(prev)]})
+                raw.update({prev_title: prev[:len(prev)]})
 
             c.append(lines[i])
             raw.update({title: c})
@@ -86,7 +84,9 @@ def requirements() -> List[str]:
     install_requires: List[str] = []
 
     with open(requirements_txt, "rb") as fh:
-        install_requires = [i.strip() for i in fh.read().decode("utf-8").split("\n")]
+        install_requires = [
+            i.strip() for i in fh.read().decode("utf-8").split("\n")
+        ]
 
     return install_requires
 
@@ -110,6 +110,9 @@ CLASSIFIERS.append("Intended Audience :: Developers")
 CLASSIFIERS.append("Intended Audience :: System Administrators")
 CLASSIFIERS.append("Topic :: Utilities")
 
+# Environment
+CLASSIFIERS.append("Environment :: Console)
+
 # Classifiers - Python
 CLASSIFIERS.append("Programming Language :: Python")
 CLASSIFIERS.append("Programming Language :: Python :: 3.6")
@@ -117,7 +120,7 @@ CLASSIFIERS.append("Programming Language :: Python :: 3.7")
 # Required Packages
 
 # Licence
-LICENSE = "MIT"
+LICENSE = "Apache License 2.0"
 CLASSIFIERS.append("License :: OSI Approved :: {} License".format(LICENSE))
 
 # platforms
