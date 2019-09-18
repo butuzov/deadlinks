@@ -1,15 +1,9 @@
 from urllib.parse import urlparse
 from deadlinks.url import URL
-from deadlinks.exceptions import (
-    URLIsNotValid,
-    UnknownIgnoreType,
-    MatchedIgnorePatterns,
-    SettingsOutOfTheRange,
-    SettingsNotANumber,
-)
 
 
 class Settings:
+
     """ handles general settings for """
 
     def __init__(
@@ -32,12 +26,12 @@ class Settings:
         # baseurl
         self.base = URL(url)
         if not self.base.is_valid():
-            raise URLIsNotValid("")
+            raise Exception("fuck")
 
         match_domains = self.base.match_domains(self.ignored("domains"))
         match_pathes = self.base.match_pathes(self.ignored("pathes"))
         if match_domains or match_pathes:
-            raise MatchedIgnorePatterns(
+            raise Exception(
                 "Baseurl {} matchs one of the ignore pattern".format(self.base)
             )
 
@@ -48,12 +42,12 @@ class Settings:
             if 0 <= retry <= 10:
                 self._retry = retry
             else:
-                raise SettingsOutOfTheRange((
+                raise Exception((
                     'Setting "retry" out of the allowed range. '
                     'allowed value from 0 to 10'
                 ).format(retry))
         else:
-            raise SettingsNotANumber(
+            raise Exception(
                 'Setting "retry" isn\'t a number ({})'.format(retry)
             )
 
@@ -64,12 +58,12 @@ class Settings:
             if 1 <= threads <= 10:
                 self._threads = threads
             else:
-                raise SettingsOutOfTheRange((
+                raise Exception((
                     'Setting "threads" out of the allowed range. '
                     'allowed value from 1 to 10'
                 ).format(threads))
         else:
-            raise SettingsNotANumber(
+            raise Exception(
                 'Setting "threads" isn\'t a number ({})'.format(threads)
             )
 

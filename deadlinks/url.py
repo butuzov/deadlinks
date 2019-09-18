@@ -1,27 +1,45 @@
-from urllib.parse import urlparse, urljoin
-from re import compile
-from typing import List, Callable
+from __future__ import annotations
+from typing import List
 
-import requests
+from urllib.parse import urlparse, urljoin
+
+import re
+__RE_LINKS__ = re.compile("<a([^>]+)>")
+
+# filters
+CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
+ANCHORS = lambda x: x.split("#")[0]   # removed part after anchor
+
+# requests
+from deadlinks.request import request
 
 
 class URL:
+
+    r""" URL provides URL abstraction
+
+    """
 
     def __init__(self, location):
         self._url = urlparse(location)
         self._exists = False
         # do i really need it?
-        self._reachable = False
-        self._text = None
-        # url cleaners
 
-        self.filter_clean = lambda x: x.strip("\"'\n ")
-        self.filter_noachor = lambda x: x.strip("\"'\n ")
-        self.re_links: Callable = compile("<a([^>]+)>")
+        # some predefined states
+        self._exists = None  # Is URL exists (assume 200 response)?
+        self._text = None    # taxt place holder.
+        self._referrers = [] # list of refferers
+
+        self._links = []
 
     def is_valid(self):
         """deines url valid if scheme and netloc present"""
+
         return self._url.scheme and self._url.netloc
+
+    def add_referrer(self, url: str):
+        if url not in self._referrers:
+            self._referrers.append(url)
 
     def match_domains(self, domains):
         """ match ignored pathes (argument pathes) to url.netloc"""
@@ -39,74 +57,73 @@ class URL:
                 return True
         return False
 
-    def exists(self, is_external: bool = False):
+    def exists(self, is_external: bool = False, retries: int = 1):
         """ return "found" status of the page """
 
-        if self._exists:
+        if self._exists is not None:
             return self._exists
 
-        print("after check", self.url())
-
-        # TODO - more flexible try catch strategy
         try:
-            resp = (requests.head if is_external else requests.get)(self.url())
-            response_group = resp.status_code // 100
-        except requests.exceptions.SSLError:
+            response = request(self.url(), is_external, retries)
+        except Exception as e:
             self._exists = False
-            return False
-        except requests.exceptions.MissingSchema:
-            self._exists = False
-            return False
-        except requests.exceptions.ConnectionError:
-            self._exists = False
-            return False
-        except requests.exceptions.InvalidURL:
-            self._exists = False
+            self._error = e
             return False
 
-        # Group 20X, OK
-        # - change status to Found.
-        # - grab links if internal url
-        if response_group == 2:
+        # Group of 2XX responses. In general we think its OK to mark URL as
+        # reachable and exists
+        if response.status_code // 100 == 2:
             self._exists = True
-            self._reachable = True
-            if resp.text:
-                self._links = self._consume_links(resp.text)
+            if isinstance(response.text, str):
+                self._links = self._consume_links(response.text)
             return True
 
-        # dummy
         self._exists = False
-        return self._exists
+        self._error = response.status_code
+        return False
+
+    def error(self) -> str:
+        return str(self._error)
 
     def url(self) -> str:
         """return url based on abstraction, minus ending slash"""
+
         return self._url.geturl().rstrip("/")
 
     def __str__(self) -> str:
         """stringer"""
+
         return self.url()
+
+    def __repr__(self) -> str:
+        """stringer"""
+
+        return "{}#{}<{}>".format(self.__class__.__name__, id(self), self.url())
 
     def _consume_links(self, text) -> List[str]:
         """ parse response text into list of links """
 
         links = []
-        for attr in self.re_links.findall(text):
+        for attr in __RE_LINKS__.findall(text):
             links += [
                 s.split("=")[1:][0]
                 for s in attr.split(" ")
                 if s[0:5] == "href="
             ]
 
-        return list(map(self.filter_noachor, map(self.filter_clean, links)))
+        return list(map(ANCHORS, map(CLEANER, links)))
+        # return list(set(map(ANCHORS, map(CLEANER, links))))
 
     def get_links(self):
         """ return links found at the page """
+
         if not self._exists:
             return []
         return self._links
 
     def is_external(self, url) -> bool:
         """ compare domain and port """
+
         base_scheme, this_scheme = url._url.scheme, self._url.scheme
         base, this = url._url.netloc, self._url.netloc
 
@@ -137,3 +154,18 @@ class URL:
         """
 
         return urljoin(self._url.geturl(), url)
+
+    def __hash__(self) -> int:
+        return hash(self.url())
+
+    def __eq__(self, other: URL) -> bool:
+        return self.url() == other.url()
+
+
+if __name__ == "__main__":
+    urls = set()
+    urls.add(URL("http://google.com"))
+    urls.add(URL("http://google.com"))
+    urls.add(URL("https://google.com"))
+
+    print(len(urls), urls)

@@ -90,9 +90,15 @@ def requirements() -> List[str]:
 
     return install_requires
 
+# ------------------------------------------------------------------------------
+
+# Author
+AUTHOR = "Butuzov Oleg"
+AUTHOR_EMAIL = "butuzov@made.ua"
+URL = "https://github.com/butuzov/deadlinks"
 
 # Classifiers
-CLASSIFIERS = ["Natural Language :: English"]
+CLASSIFIERS : List[str] = ["Natural Language :: English"]
 
 # General Information
 NAME = "deadlinks"
@@ -100,21 +106,22 @@ DESCRIPTION, LONG_DESCRIPTION = read_descriptions()
 VERSION = read_version()
 CLASSIFIERS.append("Development Status :: 1 - Planning")
 
-# Author
-AUTHOR = "Butuzov Oleg"
-AUTHOR_EMAIL = "butuzov@made.ua"
-URL = "https://github.com/butuzov/deadlinks"
+
 
 # Classifiers - Audience and Topic
 CLASSIFIERS.append("Intended Audience :: Developers")
 CLASSIFIERS.append("Intended Audience :: System Administrators")
+
+
+# Topic
 CLASSIFIERS.append("Topic :: Utilities")
 
 # Environment
-CLASSIFIERS.append("Environment :: Console)
+CLASSIFIERS.append("Environment :: Console")
 
 # Classifiers - Python
 CLASSIFIERS.append("Programming Language :: Python")
+CLASSIFIERS.append("Programming Language :: Python :: 3.5")
 CLASSIFIERS.append("Programming Language :: Python :: 3.6")
 CLASSIFIERS.append("Programming Language :: Python :: 3.7")
 # Required Packages
@@ -123,7 +130,7 @@ CLASSIFIERS.append("Programming Language :: Python :: 3.7")
 LICENSE = "Apache License 2.0"
 CLASSIFIERS.append("License :: OSI Approved :: {} License".format(LICENSE))
 
-# platforms
+# PPlatforms
 PLATFORMS = ["MacOS", "Unix"]
 for OS in PLATFORMS:
     CLASSIFIERS.append("Operating System :: {}".format(OS))
