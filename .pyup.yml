@@ -6,7 +6,7 @@ update: all
 # update schedule
 # default: empty
 # allowed: "every day", "every week", ..
-schedule: "every week"
+schedule: "every day"
 
 # search for requirement files
 # default: True
@@ -33,9 +33,6 @@ branch_prefix: pyup/
 
 # Specify requirement files by hand, default is empty
 requirements:
-- requirements.txt:
-    update: all
-    pin: true
 - requirements.txt:
     update: all
     pin: true

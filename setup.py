@@ -4,7 +4,7 @@ deadlinks
 deadlinks checker for your static website. It's better keep house clean, right?
 """
 
-import re
+import re, sys
 
 from pathlib import Path
 from typing import Tuple, Dict, List
@@ -74,21 +74,33 @@ def read_descriptions() -> Tuple[str, str]:
         raise RuntimeError("Cannot find Descriptions in README.rst")
 
 
-def requirements() -> List[str]:
-    """requirements txt parser"""
+def require(section: str = "install") -> List[str]:
+    """require txt parser"""
 
-    requirements_txt = Path(__file__).parent / "requirements.txt"
-    if not Path(requirements_txt).is_file():
+    require_txt = Path(__file__).parent / "require.txt"
+    if not Path(require_txt).is_file():
         return []
 
-    install_requires: List[str] = []
+    requires: Dict[str, List[str]] = defaultdict(list)
 
-    with open(requirements_txt, "rb") as fh:
-        install_requires = [
-            i.strip() for i in fh.read().decode("utf-8").split("\n")
-        ]
+    with open(require_txt, "rb") as fh:
+        key: str = ""
+        pkg: str = ""
+        for i in fh.read().decode("utf-8").split("\n"):
+            if not len(i.strip()):
+                "empty line"
+                continue
 
-    return install_requires
+            if i[0] == "#":
+                "section key "
+                key = i[2:]
+                continue
+
+            # actual package
+            requires[key].append(i.strip())
+
+    return requires[section]
+
 
 # ------------------------------------------------------------------------------
 
@@ -98,7 +110,7 @@ AUTHOR_EMAIL = "butuzov@made.ua"
 URL = "https://github.com/butuzov/deadlinks"
 
 # Classifiers
-CLASSIFIERS : List[str] = ["Natural Language :: English"]
+CLASSIFIERS: List[str] = ["Natural Language :: English"]
 
 # General Information
 NAME = "deadlinks"
@@ -106,12 +118,9 @@ DESCRIPTION, LONG_DESCRIPTION = read_descriptions()
 VERSION = read_version()
 CLASSIFIERS.append("Development Status :: 1 - Planning")
 
-
-
 # Classifiers - Audience and Topic
 CLASSIFIERS.append("Intended Audience :: Developers")
 CLASSIFIERS.append("Intended Audience :: System Administrators")
-
 
 # Topic
 CLASSIFIERS.append("Topic :: Utilities")
@@ -120,7 +129,7 @@ CLASSIFIERS.append("Topic :: Utilities")
 CLASSIFIERS.append("Environment :: Console")
 
 # Classifiers - Python
-CLASSIFIERS.append("Programming Language :: Python")
+CLASSIFIERS.append("Programming Language :: Python :: 3 :: Only")
 CLASSIFIERS.append("Programming Language :: Python :: 3.5")
 CLASSIFIERS.append("Programming Language :: Python :: 3.6")
 CLASSIFIERS.append("Programming Language :: Python :: 3.7")
@@ -135,21 +144,34 @@ PLATFORMS = ["MacOS", "Unix"]
 for OS in PLATFORMS:
     CLASSIFIERS.append("Operating System :: {}".format(OS))
 
+# --
+TESTS = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
+TESTS_RUNNER = ['pytest-runner'] if TESTS else []
+
 # Setup
 setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    keywords="documentation",
+    keywords=["documentation", "website", "spider", "crawler", "link-checker"],
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     packages=find_packages(exclude=["tests*"]),
-    install_requires=requirements(),
+    install_requires=require("install"),
+    tests_require=require("tests"),
+    setup_requires=(require("install") + TESTS_RUNNER),
+    test_suite="pytest",
+    extras_require={
+        'test': require("tests"),
+        'all': require("install") + require("tests") + require("linters"),
+        'lint': require("linters")
+    },
     scripts=["bin/deadlinks"],
     zip_safe=False,
-    classifiers=CLASSIFIERS,
+    python_requires='>=3',
     url=URL,
     license=LICENSE,
     platforms=PLATFORMS,
+    classifiers=CLASSIFIERS,
 )

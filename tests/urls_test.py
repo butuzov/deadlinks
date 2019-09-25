@@ -6,6 +6,7 @@ from deadlinks.url import URL
 @pytest.fixture(scope="module")
 def url():
     """return valid config object"""
+
     return URL("https://google.com")
 
 
@@ -68,13 +69,13 @@ def test_is_interal(base, url):
     assert not (URL(url).is_external(URL(base)))
 
 
-def test_links():
-    u = URL("https://example.com/")
-    assert u.exists()
-    assert len(u.get_links()) == 1
+# def test_links():
+#     u = URL("https://example.com/")
+#     assert u.exists()
+#     assert len(u.get_links()) == 1
 
-    expected = "https://example.com"
-    assert str(u) == expected and u.url() == expected
+#     expected = "https://example.com"
+#     assert str(u) == expected and u.url() == expected
 
 
 @pytest.mark.parametrize(
@@ -122,4 +123,22 @@ def test_ignored(ignore_domains, ignore_pathes, url):
     "http://github.com",
 ])
 def test_is_valid(url):
+    """ tests URL for valid (for crawler) format"""
+
     assert URL(url).is_valid()
+
+
+def test_links(server):
+    """ checks for a perticular number of links, not caring about quality """
+
+    u = URL("http://{}:{}".format(*server))
+
+    assert u.exists()
+    assert len(u.get_links()) == 24
+
+
+def test_retries(server):
+    """ retrys cehcking """
+    u = URL("http://{}:{}/limk-20".format(*server))
+    assert not u.exists(retries=0)
+    print(u._error)

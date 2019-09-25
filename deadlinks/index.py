@@ -17,45 +17,57 @@ deadlinks.index
 
 """
 
-from typing import Set
+from typing import Set, List
 from deadlinks.url import URL
 
 
 class Index:
 
+    _index: Set[URL] = set()
+
+
     def __init__(self):
+
         self._index: Set[URL] = set()
+
 
     def __len__(self):
         return len(self._index)
 
+
     def __iter__(self):
         return iter(self._index)
+
 
     def __contains__(self, link: URL) -> bool:
         return link in self._index
 
-    def put(self, link: URL):
+
+    def put(self, link: URL) -> None:
         r""" puts new links into the index """
 
         self._index.add(link)
 
-    def add(self, link: URL):
+
+    def add(self, link: URL) -> None:
         r""" alias of the put """
 
         return self.put(link)
 
-    def all(self):
+
+    def all(self) -> Set[URL]:
         r""" return all index urls """
 
         return self._index
 
-    def succeed(self):
+
+    def succeed(self) -> List[URL]:
         """filters failed urls from all db"""
 
-        return filter(lambda x: x.exists(), self._index)
+        return list(filter(lambda x: x.exists(), self._index))
 
-    def failed(self):
+
+    def failed(self) -> List[URL]:
         """filters failed urls from all db"""
 
-        return filter(lambda x: not x.exists(), self._index)
+        return list(filter(lambda x: not x.exists(), self._index))

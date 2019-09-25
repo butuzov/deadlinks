@@ -1,0 +1,18 @@
+# top-most EditorConfig file
+root = true
+
+[*]
+end_of_line = lf                   # Unix-style newlines
+insert_final_newline = true
+charset = utf-8
+
+indent_style = space               # default identation - spaces
+indent_size = 4                    # default identation - size
+
+insert_final_newline = true        # new line at the end of file
+trim_trailing_whitespace = true    # no extra sapces at the end of lines
+
+max_line_length = 100              #
+
+[*.py]
+max_line_length = 100

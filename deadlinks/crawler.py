@@ -35,13 +35,8 @@ from deadlinks.settings import Settings
 
 class Crawler:
 
-    r"""Runs Crawler logic
+    r"""Runs Crawler logic"""
 
-
-    """
-
-    crawling = False
-    queue = Queue()
 
     def __init__(self, settings: Settings):
         r"""
@@ -52,12 +47,16 @@ class Crawler:
         self.settings = settings
         self.index = Index()
 
+        self.crawling = False
+        self.queue = Queue()
+
         # Initialization of the Queue and Index
         self.add(settings.get_base_url())
         self.queue.put(settings.get_base_url())
 
         self.threads = settings.threads()
         self.retry = settings.retries()
+
 
     def crawl(self):
         r""" Starts the crawling process """
@@ -74,10 +73,12 @@ class Crawler:
         else:
             self.indexer()
 
+
     def add(self, link: URL):
         r""" add link to indexed urls db in order to keep links state """
 
         self.index.add(link)
+
 
     def update(self, url):
         r""" update state or the url by checking its data and other details."""
@@ -127,6 +128,7 @@ class Crawler:
             # # update link source
             link.add_referrer(url.url())
 
+
     def indexer(self, n=0) -> None:
         r""" runs indexation operation using piped source. """
 
@@ -136,6 +138,10 @@ class Crawler:
                 self.update(url)
                 self.queue.task_done()
             else:
+
+                if n == 0:
+                    break
+
                 time.sleep(n / 10)
 
 
