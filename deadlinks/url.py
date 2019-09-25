@@ -4,8 +4,6 @@ from typing import List
 from urllib.parse import urlparse, urljoin
 import re
 
-# 3rd party
-
 # library
 from deadlinks.request import request
 
