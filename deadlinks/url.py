@@ -22,13 +22,19 @@ URL representation with benefits
 :license:   Apache2, see LICENSE for more details.
 """
 
+# -- Constants -----------------------------------------------------------------
+
 from typing import List
+
 from urllib.parse import (urlparse, urljoin)
-from re import compile
+from re import compile as _compile
 
-from .request import request
+from requests import RequestException
 
-__RE_LINKS__ = compile('<a\s{1}([^>]+)>') # pylint: disable=W1401
+from deadlinks.request import request
+
+# -- Constants -----------------------------------------------------------------
+__RE_LINKS__ = _compile('<a\s{1}([^>]+)>') # pylint: disable=W1401
 
 # filters
 CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
@@ -36,11 +42,9 @@ ANCHORS = lambda x: x.split("#")[0] # removed part after anchor
 
 
 class URL:
-    r"""
-    URL abstraction representation.
-    """
+    """ URL abstraction representation. """
 
-    def __init__(self, location):
+    def __init__(self, location: str) -> None:
         self._url = urlparse(location)
         self._exists = False
 
@@ -52,81 +56,80 @@ class URL:
         self._links = [] # type: List[str]
         self._error = "" # type: str
 
-    def is_valid(self):
-        r"""checks if scheme and domain exists in url"""
-        return self._url.scheme and self._url.netloc
+    def is_valid(self) -> bool:
+        """ Checks if scheme and domain exists in url. """
+        has_scheme = self._url.scheme == ""
+        has_domain = self._url.netloc == ""
+        return not has_domain and not has_scheme
 
     def add_referrer(self, url: str) -> None:
-        r"""add a page that links to self object"""
+        """ Add a page that links (refferer) to self object. """
         if url in self._referrers:
             return
         self._referrers.append(url)
 
-    def get_refferers(self) -> List[str]:
-        r""" return URL refferers """
+    def get_referrers(self) -> List[str]:
+        """ Return URL refferers list. """
         return self._referrers
 
-    def match_domains(self, domains) -> bool:
-        """ match ignored pathes (argument pathes) to url.netloc"""
+    def match_domains(self, domains: List[str]) -> bool:
+        """ Match ignored pathes (argument pathes) to `url.netloc`. """
         for domain in domains:
             if domain in self._url.netloc:
                 return True
         return False
 
     def match_pathes(self, pathes: List[str]) -> bool:
-        """ match ignored pathes (argument pathes) to url.path"""
+        """ Match ignored pathes (argument pathes) to `url.path`. """
         for path in pathes:
             if path in self._url.path:
                 return True
         return False
 
-    def exists(self, is_external: bool = False, retries: int = 0):
-        """ return "found" status of the page """
+    def exists(self, is_external: bool = False, retries: int = 0) -> bool:
+        """ Return "found" (or "not found") status of the page as bool. """
 
         if self._exists is not None:
             return self._exists
 
-        self._attempts += 1
-
         try:
             response = request(self.url(), is_external, retries)
-        except Exception as exception:
+        except RequestException as exception:
             self._exists = False
-            self._error = exception
+            self._error = str(exception)
             return False
 
         # Group of 2XX responses. In general we think its OK to mark URL as
         # reachable and exists
         if response.status_code // 100 == 2:
             self._exists = True
-            self._links = self._consume_links(response.text)
+            self._links = URL.consume_links(response.text)
             return True
 
         self._exists = False
-        self._error = response.status_code
+        self._error = str(response.status_code)
         return False
 
     def error(self) -> str:
-        """error to string"""
-        return str(self._error)
+        """ Return an error. """
+        return self._error
 
     def url(self) -> str:
-        """return url based on abstraction, minus ending slash"""
-
+        """ Return url based on abstraction, minus ending slash. """
         return self._url.geturl().rstrip("/")
 
     def __str__(self) -> str:
-        """stringer"""
-
+        """ Converts URL object to string (actual URL). """
         return self.url()
 
     def __repr__(self) -> str:
-        """object stringer representation"""
+        """ Object stringer representation. """
 
         return "{}#{}<{}>".format(self.__class__.__name__, id(self), self.url())
 
-    def _consume_links(self, text) -> List[str]:
-        """ parse response text into list of links """
+    @staticmethod
+    def consume_links(text: str) -> List[str]:
+        """ Parse response text into list of links. """
 
         links = []
         for attr in __RE_LINKS__.findall(text):
@@ -161,8 +164,8 @@ class URL:
 
         return list(map(ANCHORS, map(CLEANER, links)))
 
-    def get_links(self):
-        """ return links found at the page """
+    def get_links(self) -> List[str]:
+        """ Return links found at the page. """
         if not self._exists:
             return []
         return self._links

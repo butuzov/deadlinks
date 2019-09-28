@@ -22,6 +22,8 @@ deadlinks.request
 :license:   Apache2, see LICENSE for more details.
 """
 
+# -- Imports -------------------------------------------------------------------
+
 from requests import Session, Response
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry

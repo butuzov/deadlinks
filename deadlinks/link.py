@@ -19,27 +19,45 @@ deadlinks.link
 Link representation based on URL object, due typing imcompatibility
 Link do same thing that URL
 
+
+TODO
+- [ ] Fix issue with W0212
+
 :copyright: (c) 2019 by Oleg Butuziv.
 :license:   Apache2, see LICENSE for more details.
 """
 
+# -- Imports -------------------------------------------------------------------
+
 from typing import Union
 
-from .url import URL
+from deadlinks.url import URL
 
 
 class Link(URL):
+    """
+    Link URL with benefits
+
+    Real reason why this exists, it's impossible situation on using class as
+    type definition, in one (two) of the methods.
+
+    In Python 3.5 its OK to use quoted class name.
+    In Python 3.6 we can import annotations from __future__
+    What we can't do is to try catch, python version handling or
+    `__future__ import` as this is compile time operation. Therefore,
+    lets use Link.
+    """
 
     def is_external(self, url: Union[URL, str]) -> bool:
-        """ compare domain and port """
+        """ Check if url is external to Link object. """
 
         if isinstance(url, str):
             url = URL(url)
         elif not isinstance(url, URL):
             raise TypeError("url of type {}".format(type(url)))
 
-        base_scheme, this_scheme = url._url.scheme, self._url.scheme
-        base, this = url._url.netloc, self._url.netloc
+        base_scheme, this_scheme = url._url.scheme, self._url.scheme # pylint: disable-msg=W0212
+        base, this = url._url.netloc, self._url.netloc # pylint: disable-msg=W0212
 
         # we assiming that www.domain.com and domain.com are same
         pattern = "www."
@@ -60,13 +78,15 @@ class Link(URL):
 
     def __hash__(self) -> int:
         """return hash of url object - url converted to string"""
-
         return hash(self.url())
 
-    def __eq__(self, other: Union[URL, str]) -> bool:
-        """compare two links"""
+    def __eq__(self, other: object) -> bool:
+        """ Compare two links """
 
         if isinstance(other, str):
             other = Link(other)
+
+        if not isinstance(other, URL):
+            raise TypeError("`url` expected to be str or Link ")
 
         return self.url() == other.url()

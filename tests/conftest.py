@@ -1,12 +1,18 @@
-# std lib
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import socket
-from threading import Thread
+"""
+conftest.py
+--------------
 
-# mocking
+Provides general fixtures
+
+"""
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from socket import (socket, SOCK_STREAM, AF_INET)
+from threading import Thread
+from re import compile as _compile
+from textwrap import dedent
+
 import pytest
-import re, textwrap
-from collections import Counter
 
 from deadlinks import (Crawler, Settings)
 
@@ -31,9 +37,9 @@ class RequestHandler(BaseHTTPRequestHandler):
     ALL         6       21      27
     """
 
-    EXISTING_LINK = re.compile(r'link-(\d{1,})')
+    EXISTING_LINK = _compile(r'link-(\d{1,})')
 
-    INDEX_PAGE_CONTENTS = textwrap.dedent(
+    INDEX_PAGE_CONTENTS = dedent(
         """\
             <b>arguments</b><br/>
             <a href="link-1">(0) existing link</a>
@@ -91,7 +97,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a href="more/links">(22) more link</a>
         """)
 
-    OTHER_PAGE_CONTENTS = textwrap.dedent(
+    OTHER_PAGE_CONTENTS = dedent(
         """\
             more links for crawler
             <a href="/link-1">(0) seen link</a>
@@ -100,10 +106,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         """)
 
     def log_message(self, *args):
-        pass
+        """ Ignoring logging """
 
     def do_GET(self):
-        r"""handling request"""
+        """handling request"""
 
         message = ""
 
@@ -130,19 +136,19 @@ def server():
     """ starts a server for testing web crawling """
 
     # getting free port
-    s = socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)
-    s.bind(('localhost', 0))
-    sa = s.getsockname()
-    s.close()
+    _socket = socket(AF_INET, type=SOCK_STREAM)
+    _socket.bind(('localhost', 0))
+    sa = _socket.getsockname()
+    _socket.close()
 
     # starting web service and yealding port
 
-    mock_server = HTTPServer((sa[0], sa[1]), RequestHandler)
-    mock_server_thread = Thread(target=mock_server.serve_forever)
-    mock_server_thread.setDaemon(True)
-    mock_server_thread.start()
+    _server = HTTPServer((sa[0], sa[1]), RequestHandler)
+    _server_thread = Thread(target=_server.serve_forever)
+    _server_thread.setDaemon(True)
+    _server_thread.start()
 
     yield sa
 
     # teardown webservice
-    mock_server.shutdown()
+    _server.shutdown()

@@ -11,7 +11,8 @@ ignore=
 [MESSAGES CONTROL]
 # Ignoring some of the rules
 # W0105 - String statement has no effect, WHY? Inline Comments.
-disable=W0105,W0511
+# C0103 - Using lovercased variables in __main__
+disable=W0105,W0511,C0103
 
 ################################################################################
 [REPORTS]

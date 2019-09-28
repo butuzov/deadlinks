@@ -12,6 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+deadlinks.__init__
+~~~~~~~~~~~~~~~~~~
+
+deadlinks module __init__ file
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
+# -- Imports -------------------------------------------------------------------
+
 from deadlinks.url import URL
 from deadlinks.link import Link
 from deadlinks.index import Index

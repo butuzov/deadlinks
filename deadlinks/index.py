@@ -22,22 +22,24 @@ Provides a collection interface
 :license:   Apache2, see LICENSE for more details.
 """
 
-from typing import Set, List
+# -- Imports -------------------------------------------------------------------
 
-from .link import Link
+from typing import (Set, List, Iterator)
+
+from deadlinks.link import Link
 
 
 class Index:
     r""" Links collection """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._index = set() # type: Set[Link]
 
-    def __len__(self):
+    def __len__(self) -> int:
         """ Find out how many links in this index."""
         return len(self._index)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Link]:
         """ Iterating over a index. """
         return iter(self._index)
 

@@ -1,5 +1,6 @@
 # install
 requests>=2.22.0
+click
 # linters
 pylint>=2.3.1
 yapf>=0.28.0

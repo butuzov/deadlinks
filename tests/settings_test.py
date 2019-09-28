@@ -25,15 +25,14 @@ from deadlinks.exceptions import (
 
 @pytest.fixture
 def settings():
-    r"""default settings fixture"""
-
+    """ defaults """
     return Settings("http://localhost")
 
 
 # --- Base Url -----------------------------------------------------------------
 @pytest.mark.parametrize('base', ["localhost", "1012031023"])
 def test_base_bad(base):
-    r"""Bad Url form, no scheme"""
+    """ Bad Url form, no scheme """
     with pytest.raises(DeadlinksSettingsBase):
         Settings(base)
 

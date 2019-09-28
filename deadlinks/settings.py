@@ -14,7 +14,7 @@
 
 """
 deadlinks.settings
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Handles settings passed to crawler.
 
@@ -22,8 +22,12 @@ Handles settings passed to crawler.
 :license:   Apache2, see LICENSE for more details.
 """
 
-from .link import Link
-from .exceptions import (
+# -- Imports -------------------------------------------------------------------
+
+from typing import (Optional, List, Dict, Any, Union)
+
+from deadlinks.link import Link
+from deadlinks.exceptions import (
     DeadlinksSettingsPathes,
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
@@ -31,8 +35,6 @@ from .exceptions import (
     DeadlinksSettingsChange,
     DeadlinksSettingsDomains,
 )
-
-from typing import Optional, List, Dict, Union
 
 
 class Settings:
@@ -46,8 +48,8 @@ class Settings:
     _retry = None # type: Optional[int]
     _base = None # type: Optional[Link]
 
-    def __init__(self, url, **kwargs):
-        r""" Instantiate settings class """
+    def __init__(self, url: str, **kwargs: Any) -> None:
+        """ Instantiate settings class """
 
         defaults = Settings.defaults(kwargs)
 
@@ -63,8 +65,8 @@ class Settings:
         self.base = Link(url)
 
     @staticmethod
-    def defaults(kwargs) -> Dict[str, Union[bool, List[str], Optional[int]]]:
-        r""" Return default arguments merged with user provided data"""
+    def defaults(kwargs: Dict) -> Dict[str, Union[bool, List[str], Optional[int]]]:
+        """ Return default arguments merged with user provided data. """
 
         _defaults = {
             'check_external_urls': False,
@@ -79,10 +81,11 @@ class Settings:
     # -- Base URL --------------------------------------------------------------
     @property
     def base(self) -> Link:
+        """ Getter for BaseURl """
         return self._base
 
     @base.setter
-    def base(self, value: Link):
+    def base(self, value: Link) -> None:
         if not (self._base is None): #pylint: disable-msg=C0325
             error = "BaseUrl is already set to {}"
             raise DeadlinksSettingsBase(error.format(self._base))
@@ -93,16 +96,17 @@ class Settings:
         self._base = value
 
     @base.deleter
-    def base(self):
+    def base(self) -> None: #pylint: disable-msg=R0201
         raise DeadlinksSettingsChange("Change not allowed")
 
     # -- Ignored Domains -------------------------------------------------------
     @property
     def domains(self) -> List[str]:
+        """ Getter for Ignored Domains """
         return self._domains
 
     @domains.setter
-    def domains(self, values: List[str]):
+    def domains(self, values: List[str]) -> None:
         if not (self._domains is None): #pylint: disable-msg=C0325
             error = "Ignored Domains is already defined"
             raise DeadlinksSettingsDomains(error)
@@ -124,16 +128,17 @@ class Settings:
         self._domains = values
 
     @domains.deleter
-    def domains(self):
+    def domains(self) -> None: #pylint: disable-msg=R0201
         raise DeadlinksSettingsChange("Change not allowed.")
 
     # -- Ignored Pathes --------------------------------------------------------
     @property
     def pathes(self) -> List[str]:
+        """ Getter for Ignored Pathes """
         return self._pathes
 
     @pathes.setter
-    def pathes(self, values: List[str]):
+    def pathes(self, values: List[str]) -> None:
         if not (self._pathes is None): #pylint: disable-msg=C0325
             error = "Ignored Pathes is already defined."
             raise DeadlinksSettingsPathes(error)
@@ -150,7 +155,7 @@ class Settings:
         self._pathes = list(set(values)) # only uniq values
 
     @pathes.deleter
-    def pathes(self):
+    def pathes(self) -> None: #pylint: disable-msg=R0201
         raise DeadlinksSettingsChange("Change not allowed.")
 
     # -- Retries ---------------------------------------------------------------
@@ -175,11 +180,12 @@ class Settings:
     """
 
     @property
-    def retry(self) -> bool:
+    def retry(self) -> int:
+        """ Getter for retry information """
         return self._retry
 
     @retry.setter
-    def retry(self, value: int):
+    def retry(self, value: int) -> None:
         if not (self._retry is None): #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 
@@ -199,7 +205,7 @@ class Settings:
         raise DeadlinksSettingsRetry('Setting "retry" is not a number')
 
     @retry.deleter
-    def retry(self):
+    def retry(self) -> None: #pylint: disable-msg=R0201
         raise DeadlinksSettingsChange("Change not allowed")
 
     # -- External -------------------------------------------------------------
@@ -212,17 +218,18 @@ class Settings:
 
     @property
     def external(self) -> bool:
+        """ Getter for External Indexation State """
         return self._external
 
     @external.setter
-    def external(self, value: bool):
+    def external(self, value: bool) -> None:
         if not (self._external is None): #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 
         self._external = bool(value)
 
     @external.deleter
-    def external(self):
+    def external(self) -> None: #pylint: disable-msg=R0201
         raise DeadlinksSettingsChange("Change not allowed")
 
     # -- Threads -------------------------------------------------------------
@@ -232,11 +239,12 @@ class Settings:
     """
 
     @property
-    def threads(self):
-        return self._threads
+    def threads(self) -> int:
+        """ Getter for number of threads to run """
+        return int(self._threads)
 
     @threads.setter
-    def threads(self, value: Optional[int]):
+    def threads(self, value: Optional[int]) -> None:
         if not (self._threads is None): #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 
@@ -255,7 +263,7 @@ class Settings:
         raise DeadlinksSettingsThreads('Setting "threads" is not a number')
 
     @threads.deleter
-    def threads(self):
+    def threads(self) -> None: #pylint: disable-msg=R0201
         raise DeadlinksSettingsChange("Change not allowed")
 
 
