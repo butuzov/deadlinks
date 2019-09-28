@@ -18,7 +18,7 @@ deadlinks.crawler
 
 Crawl the links on from the provided start point.
 
-:copyright: (c) 2019 by Oleg Butuziv.
+:copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
 
@@ -28,9 +28,9 @@ import time
 
 from typing import List
 
-from deadlinks.link import Link
-from deadlinks.index import Index
-from deadlinks.settings import Settings
+from .link import Link
+from .index import Index
+from .settings import Settings
 
 
 class Crawler:

@@ -18,18 +18,27 @@ deadlinks.settings
 
 Handles settings passed to crawler.
 
-:copyright: (c) 2019 by Oleg Butuziv.
+:copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
 
-from deadlinks.link import Link
-from deadlinks.exceptions import *
+from .link import Link
+from .exceptions import (
+    DeadlinksSettingsPathes,
+    DeadlinksSettingsThreads,
+    DeadlinksSettingsBase,
+    DeadlinksSettingsRetry,
+    DeadlinksSettingsChange,
+    DeadlinksSettingsDomains,
+)
 
 from typing import Optional, List, Dict, Union
 
 
 class Settings:
     """ handles general settings for """
+
+    # pylint: disable=R0902
     _external = None # type: Optional[bool]
     _threads = None # type: Optional[int]
     _domains = None # type: Optional[List[str]]
@@ -53,7 +62,7 @@ class Settings:
         # next we create base url and check for ignore patterns
         self.base = Link(url)
 
-
+    @staticmethod
     def defaults(kwargs) -> Dict[str, Union[bool, List[str], Optional[int]]]:
         r""" Return default arguments merged with user provided data"""
 
@@ -74,18 +83,18 @@ class Settings:
 
     @base.setter
     def base(self, value: Link):
-        if not (self._base is None):
+        if not (self._base is None): #pylint: disable-msg=C0325
             error = "BaseUrl is already set to {}"
-            raise DeadlinksSettinsBase(error.format(self._base))
+            raise DeadlinksSettingsBase(error.format(self._base))
 
         if not value.is_valid():
-            raise DeadlinksSettinsBase("URL {} is not valid".format(value))
+            raise DeadlinksSettingsBase("URL {} is not valid".format(value))
 
         self._base = value
 
     @base.deleter
     def base(self):
-        raise DeadlinksSettinsChange("Change not allowed")
+        raise DeadlinksSettingsChange("Change not allowed")
 
     # -- Ignored Domains -------------------------------------------------------
     @property
@@ -94,29 +103,29 @@ class Settings:
 
     @domains.setter
     def domains(self, values: List[str]):
-        if not (self._domains is None):
+        if not (self._domains is None): #pylint: disable-msg=C0325
             error = "Ignored Domains is already defined"
-            raise DeadlinksSettinsDomain(error)
+            raise DeadlinksSettingsDomains(error)
 
         for domain in values:
             if not isinstance(domain, str):
                 error = 'Domain "{}" is not a string'
-                raise DeadlinksSettinsDomain(error.format(domain))
+                raise DeadlinksSettingsDomains(error.format(domain))
 
             # TODO - Should I add a better check for 3986 ?
             if not domain:
                 error = 'Empty Domain is not accepted.'
-                raise DeadlinksSettinsDomain(error.format(domain))
+                raise DeadlinksSettingsDomains(error.format(domain))
 
             if len(domain) > 255:
                 error = 'Domain "{}" should conform to rfc3986.'
-                raise DeadlinksSettinsDomain(error.format(domain))
+                raise DeadlinksSettingsDomains(error.format(domain))
 
         self._domains = values
 
     @domains.deleter
     def domains(self):
-        raise DeadlinksSettinsChange("Change not allowed.")
+        raise DeadlinksSettingsChange("Change not allowed.")
 
     # -- Ignored Pathes --------------------------------------------------------
     @property
@@ -125,34 +134,54 @@ class Settings:
 
     @pathes.setter
     def pathes(self, values: List[str]):
-        if not (self._pathes is None):
+        if not (self._pathes is None): #pylint: disable-msg=C0325
             error = "Ignored Pathes is already defined."
-            raise DeadlinksSettinsPathes(error)
+            raise DeadlinksSettingsPathes(error)
 
         for path in values:
             if not isinstance(path, str):
                 error = 'Path "{}" is not a string.'
-                raise DeadlinksSettinsPathes(error.format(path))
+                raise DeadlinksSettingsPathes(error.format(path))
 
             if not path:
                 error = 'Empty Path is not accepted.'
-                raise DeadlinksSettinsPathes(error.format(path))
+                raise DeadlinksSettingsPathes(error.format(path))
 
         self._pathes = list(set(values)) # only uniq values
 
     @pathes.deleter
     def pathes(self):
-        raise DeadlinksSettinsChange("Change not allowed.")
+        raise DeadlinksSettingsChange("Change not allowed.")
 
     # -- Retries ---------------------------------------------------------------
+
+    """
+    Retry is additional requests we going to send to url in case if it responds
+    with 502,503,504. Delay between requests exponential.
+
+        Value | Delay (seconds)
+        1     | 1
+        2     | 2
+        3     | 4
+        4     | 8
+        5     | 16
+        6     | 32
+        7     | 64
+        8     | 108
+        9     | 216
+        10    | 432
+
+       Beware of setting values above 5.
+    """
+
     @property
     def retry(self) -> bool:
         return self._retry
 
     @retry.setter
     def retry(self, value: int):
-        if not (self._retry is None):
-            raise DeadlinksSettinsChange("Change not allowed")
+        if not (self._retry is None): #pylint: disable-msg=C0325
+            raise DeadlinksSettingsChange("Change not allowed")
 
         # retry validation
         if value is None:
@@ -165,31 +194,42 @@ class Settings:
                 return
 
             error = 'Setting "retry" value out of the allowed range (0...10).'
-            raise DeadlinksSettinsRetry(error)
+            raise DeadlinksSettingsRetry(error)
 
-        raise DeadlinksSettinsRetry('Setting "retry" is not a number')
+        raise DeadlinksSettingsRetry('Setting "retry" is not a number')
 
     @retry.deleter
     def retry(self):
-        raise DeadlinksSettinsChange("Change not allowed")
+        raise DeadlinksSettingsChange("Change not allowed")
 
     # -- External -------------------------------------------------------------
+
+    """
+    Should crawler check external urls existense?
+        True - Check existance of external urls
+        False - Ignore external urls while indexing website
+    """
+
     @property
     def external(self) -> bool:
         return self._external
 
     @external.setter
     def external(self, value: bool):
-        if not (self._external is None):
-            raise DeadlinksSettinsChange("Change not allowed")
+        if not (self._external is None): #pylint: disable-msg=C0325
+            raise DeadlinksSettingsChange("Change not allowed")
 
         self._external = bool(value)
 
     @external.deleter
     def external(self):
-        raise DeadlinksSettinsChange("Change not allowed")
+        raise DeadlinksSettingsChange("Change not allowed")
 
     # -- Threads -------------------------------------------------------------
+
+    """
+    Concurrent execution of indexation. "Off" by default.
+    """
 
     @property
     def threads(self):
@@ -197,8 +237,8 @@ class Settings:
 
     @threads.setter
     def threads(self, value: Optional[int]):
-        if not (self._threads is None):
-            raise DeadlinksSettinsChange("Change not allowed")
+        if not (self._threads is None): #pylint: disable-msg=C0325
+            raise DeadlinksSettingsChange("Change not allowed")
 
         if value is None:
             self._threads = 1
@@ -210,13 +250,13 @@ class Settings:
                 return
 
             error = 'Setting "threads" value out of the allowed range (1...10).'
-            raise DeadlinksSettinsThreads(error)
+            raise DeadlinksSettingsThreads(error)
 
-        raise DeadlinksSettinsThreads('Setting "threads" is not a number')
+        raise DeadlinksSettingsThreads('Setting "threads" is not a number')
 
     @threads.deleter
     def threads(self):
-        raise DeadlinksSettinsChange("Change not allowed")
+        raise DeadlinksSettingsChange("Change not allowed")
 
 
 if __name__ == "__main__":

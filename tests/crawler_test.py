@@ -13,7 +13,6 @@ import pytest
 
 
 @pytest.mark.timeout(5)
-@pytest.mark.timeout(2)
 def test_single_thread_timeout(server):
     """ testing for whilte True condition of the indexer """
     c = Crawler(Settings(

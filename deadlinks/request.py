@@ -12,29 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-r"""
+"""
 deadlinks.request
+~~~~~~~~~~~~~~~~~
 
+`requests` wrapper for getting requests.Response
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
 
-import requests
-
-from requests import Session
-from urllib3.util.retry import Retry
+from requests import Session, Response
 from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
-def request(url: str, is_external: bool = False, total_retries_attempts: int = 1):
-    r"""request a internet resourse N times using get or head methods
+def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> Response:
+    r"""Request a web resource and return Response
 
-
+    Perform GET  - for the local resource
+            HEAD - for the remote resource
+    Return Response of the request.
     """
+
+    _retry = Retry(
+        total=retries_attempts,
+        backoff_factor=1,
+        status_forcelist=[502, 503, 504],
+    )
+
     session = Session()
+    session.mount(url, HTTPAdapter(max_retries=_retry))
 
-    session.mount(
-        url,
-        HTTPAdapter(
-            max_retries=Retry(
-                total=total_retries_attempts, backoff_factor=1, status_forcelist=[502, 503, 504])))
-
-    return (session.head if is_external else session.get)(url, allow_redirects=True)
+    method_to_call = (session.head if is_external else session.get)
+    return method_to_call(url, allow_redirects=True)

@@ -12,34 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+deadlinks.exceptions
+~~~~~~~~~~~~~~~~~~~~
+
+Exceptions used for deadlinks package.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
 
 class DeadlinksExeption(BaseException):
-    pass
+    """ General Exception """
 
 
 class DeadlinksSettings(DeadlinksExeption):
-    pass
+    """ Error on Settings object """
 
 
-class DeadlinksSettinsBase(DeadlinksSettings):
-    pass
+class DeadlinksSettingsBase(DeadlinksSettings):
+    """ Error on Settings object related to `BaseUrl` property """
 
 
-class DeadlinksSettinsThreads(DeadlinksSettings):
-    pass
+class DeadlinksSettingsThreads(DeadlinksSettings):
+    """ Error on Settings object related to `threads` property """
 
 
-class DeadlinksSettinsRetry(DeadlinksSettings):
-    pass
+class DeadlinksSettingsRetry(DeadlinksSettings):
+    """ Error on Settings object related to `retry` property """
 
 
-class DeadlinksSettinsChange(DeadlinksSettings):
-    pass
+class DeadlinksSettingsChange(DeadlinksSettings):
+    """ Error on Settings object related to settings change  """
 
 
-class DeadlinksSettinsDomain(DeadlinksSettings):
-    pass
+class DeadlinksSettingsDomains(DeadlinksSettings):
+    """ Error on Settings object related to `IgnoredDomains` property """
 
 
-class DeadlinksSettinsPathes(DeadlinksSettings):
-    pass
+class DeadlinksSettingsPathes(DeadlinksSettings):
+    """ Error on Settings object related to `IgnoredPathes` property """

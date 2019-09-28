@@ -23,8 +23,9 @@ Link do same thing that URL
 :license:   Apache2, see LICENSE for more details.
 """
 
-from deadlinks import URL
 from typing import Union
+
+from .url import URL
 
 
 class Link(URL):

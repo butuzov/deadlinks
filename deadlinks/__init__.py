@@ -25,7 +25,7 @@ __all__ = [
     "URL",
     "Link",
     "Index",
+    "Crawler",
     "request",
     "Settings",
-    "Crawler",
 ]

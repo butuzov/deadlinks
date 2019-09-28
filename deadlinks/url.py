@@ -18,24 +18,17 @@ deadlinks.url
 
 URL representation with benefits
 
-:copyright: (c) 2019 by Oleg Butuziv.
+:copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
 
-# try:
-#     from __future__ import annotations
-# except SyntaxError:
-#     URL = 'URL'
-
 from typing import List
+from urllib.parse import (urlparse, urljoin)
+from re import compile
 
-from urllib.parse import urlparse, urljoin
-import re
+from .request import request
 
-# libraryr
-from deadlinks.request import request
-
-__RE_LINKS__ = re.compile("<a\s{1}([^>]+)>") # pylint: disable=W1401
+__RE_LINKS__ = compile('<a\s{1}([^>]+)>') # pylint: disable=W1401
 
 # filters
 CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
@@ -69,7 +62,8 @@ class URL:
             return
         self._referrers.append(url)
 
-    def get_refferers(self) -> List:
+    def get_refferers(self) -> List[str]:
+        r""" return URL refferers """
         return self._referrers
 
     def match_domains(self, domains) -> bool:

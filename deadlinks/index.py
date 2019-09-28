@@ -18,50 +18,49 @@ deadlinks.index
 
 Provides a collection interface
 
-:copyright: (c) 2019 by Oleg Butuziv.
+:copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
 
 from typing import Set, List
-from deadlinks.link import Link
+
+from .link import Link
 
 
 class Index:
+    r""" Links collection """
 
     def __init__(self):
-
         self._index = set() # type: Set[Link]
 
     def __len__(self):
+        """ Find out how many links in this index."""
         return len(self._index)
 
     def __iter__(self):
+        """ Iterating over a index. """
         return iter(self._index)
 
     def __contains__(self, link: Link) -> bool:
+        """ Checks links existance in the index. """
         return link in self._index
 
     def put(self, link: Link) -> None:
-        r""" puts new links into the index """
-
+        """ Puts a link to the index. """
         self._index.add(link)
 
     def add(self, link: Link) -> None:
-        r""" alias of the put """
-
+        """ Alias of the puts method. """
         return self.put(link)
 
-    def all(self) -> Set[Link]:
-        r""" return all index urls """
-
-        return self._index
+    def all(self) -> List[Link]:
+        """ Return links in the index. """
+        return list(self._index)
 
     def succeed(self) -> List[Link]:
-        """filters failed urls from all db"""
-
-        return list(filter(lambda x: x.exists(), self._index))
+        """ Filters succeed urls from index. """
+        return list(filter(lambda x: x.exists(), self))
 
     def failed(self) -> List[Link]:
-        """filters failed urls from all db"""
-
-        return list(filter(lambda x: not x.exists(), self._index))
+        """ Filters failed urls from index. """
+        return list(filter(lambda x: not x.exists(), self))
