@@ -17,13 +17,13 @@ jobs:
   - &MyPy
     stage: lint
     cache: false
-    script: make lint-mypy
+    script: make mypy
 
   - <<: *MyPy
     python: "3.7"
 
 script:
-- make run-tests
+- make tests
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
