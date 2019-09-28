@@ -8,6 +8,8 @@ import pytest
 import re, textwrap
 from collections import Counter
 
+from deadlinks import (Crawler, Settings)
+
 
 class RequestHandler(BaseHTTPRequestHandler):
     r"""
@@ -46,7 +48,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a style=background:#f00; href=link-8>(7) existing link</a>
             <a href=link-9 style=background:#f00;>(8) existing link</a>
 
-            <hr>
+            <hr>coverage run --source jedi -m py.test
             <b>relative links</b><br/>
             <a href=/link-10>(9)existing link</a>
             <a href="/link-11">(10)existing link</a>
@@ -63,12 +65,16 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a onlick="this.location=http://google.com">js</a>
             <a href>just href</a>
             <a href=''>just href</a>
+            <a href=''>just href</a>
             <a href="">just href</a>
+            <a href=">just href</a>
+            <a href=' >just href</a>
+            <a href= >just href</a>
 
             <hr>
             <b>external links</b><br/>
             <a href="http://google.com">(14) http google</a>
-            <a href="https://google.de">(15) google germany</a>
+            <a href=https://google.de>(15) google germany</a>
             <a href="http://google.com.ua:80/">(16) google ukraine (port 80)</a>
             <a href="http://example.com/">(17) example.com</a>
 
@@ -93,10 +99,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a href='/limk-20'>mistyped  link 2</a>
         """)
 
-
-    def log_message(self, format, *args):
+    def log_message(self, *args):
         pass
-
 
     def do_GET(self):
         r"""handling request"""

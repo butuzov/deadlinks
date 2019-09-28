@@ -13,16 +13,19 @@
 # limitations under the License.
 
 from deadlinks.url import URL
+from deadlinks.link import Link
+from deadlinks.index import Index
+from deadlinks.crawler import Crawler
+from deadlinks.request import request
 from deadlinks.settings import Settings
 
 __version__ = "0.0.0"
 
-__all__ = ["URL"]
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()
+__all__ = [
+    "URL",
+    "Link",
+    "Index",
+    "request",
+    "Settings",
+    "Crawler",
+]

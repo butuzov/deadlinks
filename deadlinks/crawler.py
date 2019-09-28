@@ -16,27 +16,25 @@
 deadlinks.crawler
 ~~~~~~~~~~~~~~~~~
 
-What it should be doing
+Crawl the links on from the provided start point.
 
 :copyright: (c) 2019 by Oleg Butuziv.
 :license:   Apache2, see LICENSE for more details.
 """
 
-from typing import Set
-
 from threading import Thread
 from queue import Queue
 import time
 
-from deadlinks.url import URL
+from typing import List
+
+from deadlinks.link import Link
 from deadlinks.index import Index
 from deadlinks.settings import Settings
 
 
 class Crawler:
-
     r"""Runs Crawler logic"""
-
 
     def __init__(self, settings: Settings):
         r"""
@@ -46,17 +44,16 @@ class Crawler:
 
         self.settings = settings
         self.index = Index()
+        self._ignored = [] # type: List[Link]
 
         self.crawling = False
         self.queue = Queue()
 
         # Initialization of the Queue and Index
-        self.add(settings.get_base_url())
-        self.queue.put(settings.get_base_url())
+        self.add(settings.base)
+        self.queue.put(settings.base)
 
-        self.threads = settings.threads()
-        self.retry = settings.retries()
-
+        self.retry = settings.retry
 
     def crawl(self):
         r""" Starts the crawling process """
@@ -65,22 +62,21 @@ class Crawler:
             return
 
         self.crawling = True
-        if self.threads > 1:
-            for i in range(1, 1 + self.threads):
+
+        if self.settings.threads > 1:
+            for i in range(1, 1 + self.settings.threads):
                 t = Thread(target=self.indexer, args=[i], daemon=True)
                 t.start()
             self.queue.join()
         else:
             self.indexer()
 
-
-    def add(self, link: URL):
+    def add(self, link: Link):
         r""" add link to indexed urls db in order to keep links state """
 
         self.index.add(link)
 
-
-    def update(self, url):
+    def update(self, url: Link):
         r""" update state or the url by checking its data and other details."""
 
         # is it external to website url?
@@ -99,19 +95,19 @@ class Crawler:
 
         for href in url.get_links():
 
-            # so we building here a URL object for combined urls of
-            # url and additional part suplied by href
-            link = URL(url.link(href))
+            # creating relative url
+            link = Link(url.link(href))
 
             # if checking external links disabled, we return to next link in the loop
-            if (not self.settings.index_external() and
-                    link.is_external(self.settings.base)):
+            if (not self.settings.external and \
+                link.is_external(self.settings.base)):
                 continue
 
             # if any ignored patterns found, we return to next link in the loop
-            match_domains = link.match_domains(self.settings.ignored("domains"))
-            match_pathes = link.match_pathes(self.settings.ignored("pathes"))
+            match_domains = link.match_domains(self.settings.domains)
+            match_pathes = link.match_pathes(self.settings.pathes)
             if match_domains or match_pathes:
+                self._ignored.append(link)
                 continue
 
             # check if link is already indexed and update source of the link
@@ -128,6 +124,8 @@ class Crawler:
             # # update link source
             link.add_referrer(url.url())
 
+    def ignored(self) -> List[Link]:
+        return self._ignored
 
     def indexer(self, n=0) -> None:
         r""" runs indexation operation using piped source. """

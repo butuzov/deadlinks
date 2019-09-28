@@ -11,7 +11,7 @@ test:
 
 .PHONY:*
 tests:
-	$(PYTEST) tests --cov
+	$(PYTEST) tests
 
 pylint:
 	$(PYLINT) deadlinks

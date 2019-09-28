@@ -12,62 +12,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-r"""
+"""
 deadlinks.index
+~~~~~~~~~~~~~~~
 
+Provides a collection interface
+
+:copyright: (c) 2019 by Oleg Butuziv.
+:license:   Apache2, see LICENSE for more details.
 """
 
 from typing import Set, List
-from deadlinks.url import URL
+from deadlinks.link import Link
 
 
 class Index:
 
-    _index: Set[URL] = set()
-
-
     def __init__(self):
 
-        self._index: Set[URL] = set()
-
+        self._index = set() # type: Set[Link]
 
     def __len__(self):
         return len(self._index)
 
-
     def __iter__(self):
         return iter(self._index)
 
-
-    def __contains__(self, link: URL) -> bool:
+    def __contains__(self, link: Link) -> bool:
         return link in self._index
 
-
-    def put(self, link: URL) -> None:
+    def put(self, link: Link) -> None:
         r""" puts new links into the index """
 
         self._index.add(link)
 
-
-    def add(self, link: URL) -> None:
+    def add(self, link: Link) -> None:
         r""" alias of the put """
 
         return self.put(link)
 
-
-    def all(self) -> Set[URL]:
+    def all(self) -> Set[Link]:
         r""" return all index urls """
 
         return self._index
 
-
-    def succeed(self) -> List[URL]:
+    def succeed(self) -> List[Link]:
         """filters failed urls from all db"""
 
         return list(filter(lambda x: x.exists(), self._index))
 
-
-    def failed(self) -> List[URL]:
+    def failed(self) -> List[Link]:
         """filters failed urls from all db"""
 
         return list(filter(lambda x: not x.exists(), self._index))

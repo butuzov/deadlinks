@@ -1,6 +1,6 @@
-.venv
+.venv*
 .cache
 .vscode
-
+.tox/*
 __pycache__
 *egg*

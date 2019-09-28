@@ -1,49 +1,76 @@
-# standard library
-from __future__ import annotations
+# Copyright 2019 Oleg Butuzov. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+deadlinks.url
+~~~~~~~~~~~~~
+
+URL representation with benefits
+
+:copyright: (c) 2019 by Oleg Butuziv.
+:license:   Apache2, see LICENSE for more details.
+"""
+
+# try:
+#     from __future__ import annotations
+# except SyntaxError:
+#     URL = 'URL'
+
 from typing import List
+
 from urllib.parse import urlparse, urljoin
 import re
 
-# library
+# libraryr
 from deadlinks.request import request
 
-__RE_LINKS__ = re.compile("<a\s{1}([^>]+)>")   # pylint: disable=W1401
+__RE_LINKS__ = re.compile("<a\s{1}([^>]+)>") # pylint: disable=W1401
 
 # filters
-CLEANER = lambda x: x.strip("\"'\n ")   # removes quotes, spaces and new lines
-ANCHORS = lambda x: x.split("#")[0]   # removed part after anchor
+CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
+ANCHORS = lambda x: x.split("#")[0] # removed part after anchor
 
 
 class URL:
-    r""" URL provides URL abstraction
-
+    r"""
+    URL abstraction representation.
     """
-
 
     def __init__(self, location):
         self._url = urlparse(location)
         self._exists = False
 
         # some predefined states
-        self._exists = None   # Is URL exists (assume 200 response)?
-        self._text = None   # taxt place holder.
-        self._referrers: List[str] = []   # list of refferers
-        self._attempts: int = 0   # number of attempts we tryied to reach page.
-
-        self._links: List[str] = []
-        self._error: str = ""
-
+        self._exists = None # Is URL exists (assume 200 response)?
+        self._text = None # taxt place holder.
+        self._referrers = [] # type: List[str]
+        self._attempts = 0 # type: int
+        self._links = [] # type: List[str]
+        self._error = "" # type: str
 
     def is_valid(self):
         r"""checks if scheme and domain exists in url"""
         return self._url.scheme and self._url.netloc
 
-
     def add_referrer(self, url: str) -> None:
         r"""add a page that links to self object"""
-        if url not in self._referrers:
-            self._referrers.append(url)
+        if url in self._referrers:
+            return
+        self._referrers.append(url)
 
+    def get_refferers(self) -> List:
+        return self._referrers
 
     def match_domains(self, domains) -> bool:
         """ match ignored pathes (argument pathes) to url.netloc"""
@@ -52,14 +79,12 @@ class URL:
                 return True
         return False
 
-
     def match_pathes(self, pathes: List[str]) -> bool:
         """ match ignored pathes (argument pathes) to url.path"""
         for path in pathes:
             if path in self._url.path:
                 return True
         return False
-
 
     def exists(self, is_external: bool = False, retries: int = 0):
         """ return "found" status of the page """
@@ -80,34 +105,31 @@ class URL:
         # reachable and exists
         if response.status_code // 100 == 2:
             self._exists = True
-            if isinstance(response.text, str):
-                self._links = self._consume_links(response.text)
+            self._links = self._consume_links(response.text)
             return True
 
         self._exists = False
         self._error = response.status_code
         return False
 
-
     def error(self) -> str:
         """error to string"""
         return str(self._error)
 
-
     def url(self) -> str:
         """return url based on abstraction, minus ending slash"""
-        return self._url.geturl().rstrip("/")
 
+        return self._url.geturl().rstrip("/")
 
     def __str__(self) -> str:
         """stringer"""
-        return self.url()
 
+        return self.url()
 
     def __repr__(self) -> str:
         """object stringer representation"""
-        return "{}#{}<{}>".format(self.__class__.__name__, id(self), self.url())
 
+        return "{}#{}<{}>".format(self.__class__.__name__, id(self), self.url())
 
     def _consume_links(self, text) -> List[str]:
         """ parse response text into list of links """
@@ -119,12 +141,13 @@ class URL:
                 "href not found"
                 continue
 
-            href = attr[pos + 5:]
+            href = attr[pos + 5:].strip()
+
             if not href:
-                "empty href"
                 continue
 
-            link: str
+            link = "" # type: str
+
             quoted = href[0] in {'"', "'"}
             if quoted:
                 end_pos = href[1:].find(href[0])
@@ -144,39 +167,11 @@ class URL:
 
         return list(map(ANCHORS, map(CLEANER, links)))
 
-
     def get_links(self):
         """ return links found at the page """
-
         if not self._exists:
             return []
         return self._links
-
-
-    def is_external(self, url: URL) -> bool:
-        """ compare domain and port """
-
-        base_scheme, this_scheme = url._url.scheme, self._url.scheme
-        base, this = url._url.netloc, self._url.netloc
-
-        # we assiming that www.domain.com and domain.com are same
-        ptrn = "www."
-        base = base[len(ptrn):] if base.startswith(ptrn) else base
-        this = this[len(ptrn):] if this.startswith(ptrn) else this
-
-        # we assume that http://domain.com and http://domain.com:80/ are same
-        if this_scheme == "http" and base_scheme == "http":
-            ptrn = ":80"
-            base = base[:-(len(ptrn))] if base.endswith(ptrn) else base
-            this = this[:-(len(ptrn))] if this.endswith(ptrn) else this
-
-        if this_scheme == "https" and base_scheme == "https":
-            ptrn = ":443"
-            base = base[:-(len(ptrn))] if base.endswith(ptrn) else base
-            this = this[:-(len(ptrn))] if this.endswith(ptrn) else this
-
-        return base != this
-
 
     def link(self, href: str) -> str:
         """
@@ -189,19 +184,7 @@ class URL:
         return urljoin(self._url.geturl(), href)
 
 
-    def __hash__(self) -> int:
-        """return hash of url object - url converted to string"""
-
-        return hash(self.url())
-
-
-    def __eq__(self, other: URL) -> bool:
-        """compare two links"""
-
-        return self.url() == other.url()
-
-
-if __name__ == "__main__":   # pragma: no cover
+if __name__ == "__main__": # pragma: no cover
     urls = set()
     urls.add(URL("http://google.com"))
     urls.add(URL("http://google.com"))

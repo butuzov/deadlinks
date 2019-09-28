@@ -9,6 +9,7 @@ import re, sys
 from pathlib import Path
 from typing import Tuple, Dict, List
 from setuptools import find_packages, setup
+from collections import defaultdict
 
 
 def read_version() -> str:
@@ -21,7 +22,7 @@ def read_version() -> str:
 
     regexp = re.compile(r'^__version__\W*=\W*"([\d.abrc]+)"')
 
-    with open(init) as fh:
+    with open(str(init)) as fh:
         for line in fh:
             print(line)
             match = regexp.match(line)
@@ -39,9 +40,9 @@ def read_descriptions() -> Tuple[str, str]:
         raise RuntimeError("Cannot source for Descriptions - README.rst")
 
     # raw prefiltered chapters
-    raw: Dict[str, List[str]] = dict()
+    raw = dict() # type: Dict[str, List[str]]
 
-    with open(readme_rst, "rb") as fh:
+    with open(str(readme_rst), "rb") as fh:
         prev_title, title, lines = "", "", fh.read().decode("utf-8").split("\n")
 
         for i in range(0, len(lines)):
@@ -66,7 +67,8 @@ def read_descriptions() -> Tuple[str, str]:
 
     del raw[""]
 
-    chapters: Dict[str, str] = {k: "\n".join(v) for k, v in raw.items()}
+
+    chapters = {k: "\n".join(v) for k, v in raw.items()} # type: Dict[str, str]
 
     try:
         return chapters["deadlinks"], chapters["Description"]
@@ -81,11 +83,10 @@ def require(section: str = "install") -> List[str]:
     if not Path(require_txt).is_file():
         return []
 
-    requires: Dict[str, List[str]] = defaultdict(list)
+    requires = defaultdict(list) # type: Dict[str, List[str]]
 
-    with open(require_txt, "rb") as fh:
-        key: str = ""
-        pkg: str = ""
+    with open(str(require_txt), "rb") as fh:
+        key = "" # type: str
         for i in fh.read().decode("utf-8").split("\n"):
             if not len(i.strip()):
                 "empty line"
@@ -110,7 +111,7 @@ AUTHOR_EMAIL = "butuzov@made.ua"
 URL = "https://github.com/butuzov/deadlinks"
 
 # Classifiers
-CLASSIFIERS: List[str] = ["Natural Language :: English"]
+CLASSIFIERS = ["Natural Language :: English"] # type: List[str]
 
 # General Information
 NAME = "deadlinks"
