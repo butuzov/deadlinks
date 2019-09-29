@@ -12,7 +12,7 @@
 ### Features
 
 * Retries in case of 502,503,504
-* Concurrent and Cecursive checks
+* Concurrent and recursive checks
 * External links checks
 
 ## Usage
