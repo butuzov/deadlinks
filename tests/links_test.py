@@ -45,7 +45,7 @@ def link():
 )
 def test_url_link(base, url, expected):
     """ Relative link generation. """
-    assert Link(base).link(url) != expected
+    assert Link(base).link(url) == expected
 
 
 @pytest.mark.parametrize(

@@ -16,21 +16,15 @@ install:
 
 jobs:
   include:
-  - &Tests
-    stage: tests
-    script: make tests
-    cache: false
-
-  - <<: *Tests
-    script:
-    - make tests
-    - bash <(curl -s https://codecov.io/bash)
-    python: "3.7"
-
   - stage: lint
     cache: false
     script: make linters
-    python: "3.7"
+
+script:
+- make tests
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email: false
