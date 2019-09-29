@@ -8,6 +8,8 @@ TODO
 - [ ] Better way to test __iter__ and __contains__
 """
 
+from typing import (List)
+
 from deadlinks import (Link, Index)
 
 

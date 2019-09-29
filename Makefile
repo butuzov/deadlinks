@@ -11,7 +11,7 @@ test:
 
 .PHONY:*
 tests:
-	$(PYTEST) tests
+	$(PYTEST) tests --cov
 
 pylint:
 	$(PYLINT) deadlinks
@@ -20,6 +20,7 @@ mypy:
 	$(MYPY) deadlinks
 
 linters: pylint mypy
+
 
 # this part for active development only (do not change)
 temp: linters

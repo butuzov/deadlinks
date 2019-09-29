@@ -4,11 +4,13 @@ deadlinks
 deadlinks checker for your static website. It's better keep house clean, right?
 """
 
-import re, sys
+from typing import (Tuple, Dict, List)
 
-from pathlib import Path
-from typing import Tuple, Dict, List
 from setuptools import find_packages, setup
+
+from re import compile as _compile
+import re, sys
+from pathlib import Path
 from collections import defaultdict
 
 
@@ -20,12 +22,10 @@ def read_version() -> str:
     if not Path(init).is_file():
         raise RuntimeError("Cannot source for Version - deadlinks/__init__.py")
 
-    regexp = re.compile(r'^__version__\W*=\W*"([\d.abrc]+)"')
-
+    version = _compile(r'^__version__\W*=\W*"([\d.abrc]+)"')
     with open(str(init)) as fh:
         for line in fh:
-            print(line)
-            match = regexp.match(line)
+            match = version.match(line)
             if match is not None:
                 return match.group(1)
 
@@ -67,7 +67,6 @@ def read_descriptions() -> Tuple[str, str]:
 
     del raw[""]
 
-
     chapters = {k: "\n".join(v) for k, v in raw.items()} # type: Dict[str, str]
 
     try:
@@ -77,9 +76,9 @@ def read_descriptions() -> Tuple[str, str]:
 
 
 def require(section: str = "install") -> List[str]:
-    """require txt parser"""
+    """requirements txt parser"""
 
-    require_txt = Path(__file__).parent / "require.txt"
+    require_txt = Path(__file__).parent / "requirements.txt"
     if not Path(require_txt).is_file():
         return []
 
@@ -87,18 +86,19 @@ def require(section: str = "install") -> List[str]:
 
     with open(str(require_txt), "rb") as fh:
         key = "" # type: str
-        for i in fh.read().decode("utf-8").split("\n"):
-            if not len(i.strip()):
-                "empty line"
+        for line in fh.read().decode("utf-8").split("\n"):
+
+            if not len(line.strip()):
+                " empty line "
                 continue
 
-            if i[0] == "#":
-                "section key "
-                key = i[2:]
+            if line[0] == "#":
+                " section key "
+                key = line[2:]
                 continue
 
             # actual package
-            requires[key].append(i.strip())
+            requires[key].append(line.strip())
 
     return requires[section]
 
@@ -110,14 +110,14 @@ AUTHOR = "Butuzov Oleg"
 AUTHOR_EMAIL = "butuzov@made.ua"
 URL = "https://github.com/butuzov/deadlinks"
 
-# Classifiers
-CLASSIFIERS = ["Natural Language :: English"] # type: List[str]
-
 # General Information
 NAME = "deadlinks"
 DESCRIPTION, LONG_DESCRIPTION = read_descriptions()
 VERSION = read_version()
-CLASSIFIERS.append("Development Status :: 1 - Planning")
+
+# Classifiers
+CLASSIFIERS = ["Natural Language :: English"]
+CLASSIFIERS.append("Development Status :: 2 - Pre-Alpha")
 
 # Classifiers - Audience and Topic
 CLASSIFIERS.append("Intended Audience :: Developers")
@@ -166,11 +166,11 @@ setup(
     extras_require={
         'test': require("tests"),
         'all': require("install") + require("tests") + require("linters"),
-        'lint': require("linters")
+        'lint': require("linters"),
     },
     scripts=["bin/deadlinks"],
     zip_safe=False,
-    python_requires='>=3',
+    python_requires='>=3.5',
     url=URL,
     license=LICENSE,
     platforms=PLATFORMS,

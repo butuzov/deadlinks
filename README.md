@@ -1,2 +1,0 @@
-# deadlinks
-deadlinks checker
