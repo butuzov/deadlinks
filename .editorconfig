@@ -16,3 +16,6 @@ max_line_length = 100              #
 
 [*.py]
 max_line_length = 100
+
+[*.md]
+indent_size = 2

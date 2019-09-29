@@ -6,12 +6,13 @@ deadlinks checker for your static website. It's better keep house clean, right?
 
 from typing import (Tuple, Dict, List)
 
+from pathlib import Path
+from re import compile as _compile
+from collections import defaultdict
+import sys
+
 from setuptools import find_packages, setup
 
-from re import compile as _compile
-import re, sys
-from pathlib import Path
-from collections import defaultdict
 
 
 def read_version() -> str:
@@ -45,15 +46,15 @@ def read_descriptions() -> Tuple[str, str]:
     with open(str(readme_rst), "rb") as fh:
         prev_title, title, lines = "", "", fh.read().decode("utf-8").split("\n")
 
-        for i in range(0, len(lines)):
-            if not lines[i]:
+        for i, line in enumerate(lines):
+            if not line:
                 continue
 
-            if lines[i][0] in ("-", "=") and len(lines[i]) == len(lines[i - 1]):
+            if line[0] in ("-", "=") and len(line) == len(lines[i - 1]):
                 title = lines[i - 1]
                 continue
 
-            if not lines[i][0] or not title or prev_title == title:
+            if not line[0] or not title or prev_title == title:
                 continue
 
             c = raw.get(title, [])
@@ -61,7 +62,7 @@ def read_descriptions() -> Tuple[str, str]:
                 prev = raw.get(prev_title, [])
                 raw.update({prev_title: prev[:len(prev)]})
 
-            c.append(lines[i])
+            c.append(line)
             raw.update({title: c})
             prev_title = title
 
@@ -88,7 +89,7 @@ def require(section: str = "install") -> List[str]:
         key = "" # type: str
         for line in fh.read().decode("utf-8").split("\n"):
 
-            if not len(line.strip()):
+            if not line.strip():
                 " empty line "
                 continue
 
