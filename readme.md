@@ -1,7 +1,7 @@
 # deadlinks
 
-[![Travis (.org)](https://img.shields.io/travis/butuzov/deadlinks/develop)](https://travis-ci.org/butuzov/deadlinks)
-[![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/develop/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
+[![Travis (.org)](https://img.shields.io/travis/butuzov/deadlinks/master)](https://travis-ci.org/butuzov/deadlinks)
+[![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/master/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cff8901ed5974425a61dff833f8f81b8)](https://codacy.com/manual/butuzov/deadlinks)
 
 ## Description
