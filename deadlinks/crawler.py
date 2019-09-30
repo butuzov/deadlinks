@@ -125,9 +125,26 @@ class Crawler:
             # Update link source
             link.add_referrer(url.url())
 
+    def ignores(self) -> bool:
+        """ return "ignore" state of the crawler """
+        ignore_domains = len(self.settings.domains) > 0
+        ignore_pathes = len(self.settings.pathes) > 0
+        return ignore_domains or ignore_pathes
+
+    @property
     def ignored(self) -> List[Link]:
         """ Return URLs we have ignore to check. """
         return self._ignored
+
+    @property
+    def succeed(self) -> List[Link]:
+        """ Return URLs we exists. """
+        return self.index.succeed()
+
+    @property
+    def failed(self) -> List[Link]:
+        """ Return URLs failed to exist. """
+        return self.index.failed()
 
     def indexer(self, thread_number: int = 0) -> None:
         """ Runs indexation operation using piped source. """

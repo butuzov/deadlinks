@@ -22,7 +22,7 @@ URL representation with benefits
 :license:   Apache2, see LICENSE for more details.
 """
 
-# -- Constants -----------------------------------------------------------------
+# -- Imports -------------------------------------------------------------------
 
 from typing import List
 
@@ -34,7 +34,8 @@ from requests import RequestException
 from deadlinks.request import request
 
 # -- Constants -----------------------------------------------------------------
-__RE_LINKS__ = _compile('<a\s{1}([^>]+)>') # pylint: disable=W1401
+
+__RE_LINKS__ = _compile(r'<a\s{1}([^>]+)>') # pylint: disable=W1401
 
 # filters
 CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines

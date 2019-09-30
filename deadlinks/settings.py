@@ -41,7 +41,7 @@ class Settings:
     """ handles general settings for """
 
     # pylint: disable=R0902
-    _external = None # type: Optional[bool]
+    _external = None # type: bool
     _threads = None # type: Optional[int]
     _domains = None # type: Optional[List[str]]
     _pathes = None # type: Optional[List[str]]
@@ -185,7 +185,7 @@ class Settings:
         return self._retry
 
     @retry.setter
-    def retry(self, value: int) -> None:
+    def retry(self, value: Optional[int]) -> None:
         if not (self._retry is None): #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 

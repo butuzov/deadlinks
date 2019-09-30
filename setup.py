@@ -14,7 +14,6 @@ import sys
 from setuptools import find_packages, setup
 
 
-
 def read_version() -> str:
     """Reads version of the package"""
 
@@ -169,7 +168,10 @@ setup(
         'all': require("install") + require("tests") + require("linters"),
         'lint': require("linters"),
     },
-    scripts=["bin/deadlinks"],
+    entry_points='''
+        [console_scripts]
+        deadlinks=deadlinks.main:cli
+    ''',
     zip_safe=False,
     python_requires='>=3.5',
     url=URL,

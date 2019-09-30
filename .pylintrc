@@ -4,23 +4,36 @@
 # Set the cache size for astng objects.
 cache-size=500
 
+jobs=1
+
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=
+ignore=tests
 
 [MESSAGES CONTROL]
 # Ignoring some of the rules
-# W0105 - String statement has no effect, WHY? Inline Comments.
+# W0105 - Inline Comments.
 # C0103 - Using lovercased variables in __main__
-disable=W0105,W0511,C0103
+# E0401 - Codacity error.
+# disable=W0105,W0511,C0103,E0401
+disable=all
+enable= E0001,E0100,E0101,E0102,E0103,E0104,E0105,E0106,E0107,E0110,E0113,E0114,E0115,E0116,E0117,E0108,
+        E0202,E0203,E0211,E0236,E0238,E0239,E0240,E0241,E0301,E0302,E0601,E0603,E0604,E0701,
+        E0702,E0703,E0704,E0710,E0711,E0712,E1003,E1102,E1111,E0112,E1120,E1121,E1123,E1124,E1125,E1126,
+        E1127,E1132,E1200,E1201,E1205,E1206,E1300,E1301,E1302,E1303,E1304,E1305,E1306,
+        C0123,C0200,C0303,C1001,
+        W0101,W0102,W0104,W0106,W0107,W0108,W0109,W0110,W0120,W0122,W0124,W0150,W0199,W0221,W0222,W0233,W0404,W0410,W0601,W0602,W0604,W0611,W0612,W0622,W0623,W0702,W0705,W0711,W1300,W1301,W1302,W1303,W1305,W1306,W1307
+        R0102,R0201,R0202,R0203
 
 ################################################################################
 [REPORTS]
-output-format=colorized
+output-format=parseable
 
 # Include message's id in output
 include-ids=yes
 
+# Tells whether to display a full report or only the messages
+# reports=yes
 
 # Python expression which should return a note less than 10 (10 is the highest
 # note).You have access to the variables errors warning, statement which
@@ -159,7 +172,7 @@ ignored-argument-names=_.*
 [IMPORTS]
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,rexec,TERMIOS,Bastion
+deprecated-modules=optparse,regsub,rexec,TERMIOS,Bastion
 
 # Create a graph of every (i.e. internal and external) dependencies in the
 # given file (report R0402 must not be disabled)
@@ -173,6 +186,13 @@ ext-import-graph=
 # not be disabled)
 int-import-graph=
 
+# Force import order to recognize a module as part of a third party library.
+known-third-party=enchant
+
+# Analyse import fallback blocks. This can be used to support both Python 2 and
+# 3 compatible code, which means that the block might have code that exists
+# only in one or another interpreter, leading to false positives when analysed.
+analyse-fallback-blocks=no
 
 ################################################################################
 # checks for :

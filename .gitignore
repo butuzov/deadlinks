@@ -4,3 +4,4 @@
 .tox/*
 __pycache__
 *egg*
+.coverage

@@ -1,8 +1,8 @@
 # deadlinks
 
-[![Travis (.org)](https://img.shields.io/travis/butuzov/deadlinks)](https://travis-ci.org/butuzov/deadlinks)
+[![Travis (.org)](https://img.shields.io/travis/butuzov/deadlinks/develop)](https://travis-ci.org/butuzov/deadlinks)
 [![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/develop/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cff8901ed5974425a61dff833f8f81b8)](https://codacy.com/manual/butuzov/deadlinks)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cff8901ed5974425a61dff833f8f81b8/develop/)](https://codacy.com/manual/butuzov/deadlinks)
 
 ## Description
 
@@ -16,7 +16,15 @@
 
 ## Usage
 
-Todo
+```bash
+# run 10 instances of crawler against https://gobyexample.com.ua
+# with the additional check for the external links (except ones that
+# match play.golang.org)
+deadlinks https://gobyexample.com.ua -n 10 -e -d play.golang.org
+
+# get more help with
+deadlinks --help
+```
 
 ## Installing
 

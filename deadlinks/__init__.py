@@ -25,16 +25,18 @@ deadlinks module __init__ file
 # -- Imports -------------------------------------------------------------------
 
 from deadlinks.url import URL
+from deadlinks.help import CLI
 from deadlinks.link import Link
 from deadlinks.index import Index
 from deadlinks.crawler import Crawler
 from deadlinks.request import request
 from deadlinks.settings import Settings
 
-__version__ = "0.0.0"
+__version__ = "0.0.1"
 
 __all__ = [
     "URL",
+    "CLI",
     "Link",
     "Index",
     "Crawler",

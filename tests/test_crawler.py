@@ -90,8 +90,8 @@ def test_retry(succeed_retries, do_retries, expect_exists, expect_failed):
     ))
     c.start()
 
-    assert expect_failed == len(c.index.failed())
-    assert expect_exists == len(c.index.succeed())
+    assert expect_failed == len(c.failed)
+    assert expect_exists == len(c.succeed)
 
     _server.shutdown()
 
@@ -135,10 +135,10 @@ def test_crawler(server, external, domains, pathes, indexed, failed, succeed, ig
     assert len(c.index) == indexed
 
     # failed urls
-    assert len(c.index.failed()) == failed
+    assert len(c.failed) == failed
 
     # succeed urls
-    assert len(c.index.succeed()) == succeed
+    assert len(c.succeed) == succeed
 
     # ignored
-    assert len(c.ignored()) == ignored
+    assert len(c.ignored) == ignored

@@ -2,3 +2,6 @@
 exclude_paths:
   - '.vscode/**'
   - tests/**
+engines:
+  pylint:
+    enabled: true

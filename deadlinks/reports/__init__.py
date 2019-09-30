@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright 2019 Oleg Butuzov. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +13,10 @@
 # limitations under the License.
 
 """
-deadlinks.cli.deadlinks
-~~~~~~~~~~~~~~~~~~~~
+deadlinks.reports.__init__
+~~~~~~~~~~~~~~~~~~
 
-Actual planned CLI.
+deadlinks module __init__ file
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
@@ -26,22 +24,8 @@ Actual planned CLI.
 
 # -- Imports -------------------------------------------------------------------
 
-from sys import version_info
-from sys import exit as _exit
+from deadlinks.reports.console import Console
 
-_PYTHON_MIN = version_info[:2] >= (3, 5)
-
-if not _PYTHON_MIN:
-    _PYTHON_VER = ".".join(map(str, version_info[:2]))
-    _ERROR = "ERROR: deadlinks requires a minimum of Python3 version 3.5. Current version: {}"
-    raise SystemExit(_ERROR.format(_PYTHON_VER))
-
-
-# -- app -------------------------------------------------------------------
-def main():
-    """ TODO """
-    raise NotImplementedError("TODO: implement CLI")
-
-
-if __name__ == "__main__":
-    _exit(main())
+__all__ = [
+    'Console',
+]

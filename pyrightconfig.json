@@ -1,0 +1,12 @@
+{
+    "pythonPlatform": "Darwin",
+    "pythonVersion": "3.7",
+    "venvPath": ".",
+    "venv": ".venv-3.7",
+
+    "typingsPath": ".typestubs",
+
+    "ignore":  [".vscode", ".сache", ".tox"],
+    "include": [ "deadlinks" ],
+    "exclude": [ "tests"]
+}
