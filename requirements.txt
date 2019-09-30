@@ -1,6 +1,6 @@
 # install
 requests>=2.22.0
-click
+click==7.0
 urllib3
 # linters
 pylint>=2.3.1
