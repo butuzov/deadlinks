@@ -18,7 +18,7 @@ jobs:
   include:
   - stage: lint
     cache: false
-    script: make linters
+    script: make lints
 
 script:
 - make tests
