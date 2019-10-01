@@ -28,7 +28,29 @@ deadlinks --help
 
 ## Installing
 
-### From Source
+### From Source (Python 3.5)
+
+While developing on mac with Python 3.5 I have found that simple install from source doesn't work, as expected.
+
+```bash
+# installation into virtual environment
+python3.5 -m venv .venv
+source .venv/bin/activate
+
+# update pip
+curl https://bootstrap.pypa.io/get-pip.py | python3.5
+# we expect to get pip version above 19.2.3
+pip --version
+
+# clone repo
+git clone https://github.com/butuzov/deadlinks.git
+cd deadlinks
+git checkout develop
+pip install -r requirments.txt
+python setup.py install
+```
+
+### From Source (Python 3.6, 3.7)
 
 ```bash
 # installation into virtual environment
