@@ -33,6 +33,7 @@ from deadlinks.request import request
 from deadlinks.settings import Settings
 
 __version__ = "0.0.1"
+__title__ = "deadlinks"
 
 __all__ = [
     "URL",
