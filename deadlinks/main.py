@@ -31,7 +31,7 @@ from deadlinks.settings import Settings
 from deadlinks.crawler import Crawler
 from deadlinks.exceptions import DeadlinksExeption
 from deadlinks.reports import Console
-from deadlinks.__init__ import __version__, __title__
+from deadlinks.__init__ import __app_version__, __app_package__
 
 # ~ Options ~~~~~
 
@@ -137,7 +137,11 @@ options['color'] = {
 @click.option(*options['show']['keys'], **options['show']['params'])
 @click.option(*options['export']['keys'], **options['export']['params'])
 @click.option(*options['color']['keys'], **options['color']['params'])
-@click.version_option(message='%(prog)s: v%(version)s', prog_name=__title__, version=__version__)
+@click.version_option(
+    message='%(prog)s: v%(version)s',
+    prog_name=__app_package__,
+    version=__app_version__,
+)
 @click.pass_context
 def cli(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
     """ checking links from web resource for dead/alive status. """

@@ -133,6 +133,6 @@ def test_version(runner):
 
     assert result.exit_code == 0
 
-    from deadlinks.__init__ import __title__, __version__
+    from deadlinks.__init__ import __app_version__, __app_package__
 
-    assert result.output.rstrip("\n") == "{}: v{}".format(__title__, __version__)
+    assert result.output.rstrip("\n") == "{}: v{}".format(__app_package__, __app_version__)
