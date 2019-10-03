@@ -127,7 +127,7 @@ options['color'] = {
 # ~ Actual command decoration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-@click.command(cls=CLI, context_settings={"ignore_unknown_options": True})
+@click.command(__app_package__, cls=CLI, context_settings={"ignore_unknown_options": True})
 @click.argument('url', nargs=1, required=True, metavar='<URL>')
 @click.option(*options['external']['keys'], **options['external']['params'])
 @click.option(*options['threads']['keys'], **options['threads']['params'])
