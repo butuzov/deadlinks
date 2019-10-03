@@ -87,7 +87,7 @@ setup(
     },
     entry_points='''
         [console_scripts]
-        deadlinks=deadlinks.main:cli
+        deadlinks=deadlinks.__main__:main
     ''',
     zip_safe=False,
     python_requires='>=3.5',

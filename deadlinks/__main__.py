@@ -143,7 +143,7 @@ options['color'] = {
     version=__app_version__,
 )
 @click.pass_context
-def cli(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
+def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
     """ checking links from web resource for dead/alive status. """
 
     try:
@@ -165,3 +165,6 @@ def cli(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
 
     except DeadlinksExeption as e:
         ctx.fail(str(e))
+
+if __name__ == "__main__":
+    main()

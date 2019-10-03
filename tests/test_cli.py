@@ -16,7 +16,7 @@ import pytest
 
 from click.testing import CliRunner
 
-from deadlinks.main import cli
+from deadlinks.__main__ import main
 
 
 @pytest.fixture
@@ -64,7 +64,7 @@ def test_cli(url, runner, external, threads, domains, pathes, results):
     show_key = choice(['-s', '--show'])
     args = [url] + make_params(external, threads, domains, pathes) + [show_key, 'none']
 
-    result = runner.invoke(cli, args)
+    result = runner.invoke(main, args)
     output = result.output.rstrip("\n").split("\n")
 
     assert result.exit_code == 0
@@ -93,7 +93,7 @@ def test_cli_details(url, runner, external, threads, domains, pathes, results, s
     show_key = choice(['-s', '--show'])
     args = [url] + make_params(external, threads, domains, pathes) + [show_key, show]
 
-    result = runner.invoke(cli, args)
+    result = runner.invoke(main, args)
     output = result.output.rstrip("\n").split("\n")
 
     # -- SHORT REPORT ----------------------------------------------------------
@@ -119,7 +119,7 @@ def test_cli_details(url, runner, external, threads, domains, pathes, results, s
 
 def test_help(runner):
 
-    result = runner.invoke(cli, ['--help'])
+    result = runner.invoke(main, ['--help'])
 
     assert result.exit_code == 0
 
@@ -129,7 +129,7 @@ def test_help(runner):
 
 def test_version(runner):
 
-    result = runner.invoke(cli, ['--version'])
+    result = runner.invoke(main, ['--version'])
 
     assert result.exit_code == 0
 
