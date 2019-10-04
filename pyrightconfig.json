@@ -1,12 +1,22 @@
 {
     "pythonPlatform": "Darwin",
     "pythonVersion": "3.7",
-    "venvPath": ".",
+    "venvPath": "/Volumes/develop/opensource/deadlinks/",
     "venv": ".venv-3.7",
 
-    "typingsPath": ".typestubs",
+    "typeshedPath": ".venv-3.7/lib/python3.7/site-packages/mypy/typeshed",
+
+    "_strictDictionaryInference": false,
+    "_reportMissingImports": false,
+    "_reportTypeshedErrors": false,
+    "_reportMissingTypeStubs": false,
 
     "ignore":  [".vscode", ".сache", ".tox"],
     "include": [ "deadlinks" ],
-    "exclude": [ "tests"]
+    "exclude": [ "tests"],
+    "executionEnvironments": [
+        {
+          "root": "."
+        }
+    ]
 }
