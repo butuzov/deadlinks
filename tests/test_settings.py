@@ -47,7 +47,7 @@ def test_base_ok(base):
 def test_base_defaults():
     """ Default settings with no URL provided. """
     with pytest.raises(TypeError):
-        Settings()
+        Settings() # pylint: disable=no-value-for-parameter
 
 
 def test_base_delete(settings):

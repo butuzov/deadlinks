@@ -14,8 +14,6 @@ from textwrap import dedent
 
 import pytest
 
-from deadlinks import (Crawler, Settings)
-
 
 class RequestHandler(BaseHTTPRequestHandler):
     r"""

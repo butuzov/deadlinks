@@ -22,7 +22,7 @@ main (cli interface)
 :license:   Apache2, see LICENSE for more details.
 """
 
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 import click
 
@@ -166,5 +166,7 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
     except DeadlinksExeption as e:
         ctx.fail(str(e))
 
+
 if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
     main()

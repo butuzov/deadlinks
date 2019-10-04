@@ -169,7 +169,7 @@ def test_eq():
     assert "http://google.com" == Link("http://google.com")
 
     with pytest.raises(TypeError):
-        Link('http://google.com') == 1
+        Link('http://google.com') == 1 # pylint: disable=expression-not-assigned
 
 
 def test_refferer():
