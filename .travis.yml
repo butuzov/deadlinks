@@ -3,9 +3,9 @@ language: python
 
 python:
 - "3.7"
-- "3.6"
-- "3.5"
-- "3.8-dev"
+# - "3.6"
+# - "3.5"
+# - "3.8-dev"
 
 
 install:
@@ -28,8 +28,8 @@ stages:
   - name: "Code Coverage"
   - name: "Deploy to TestPyPi"
     if: branch = develop
-  - name: "Deploy to PyPi"
-    if: branch = master
+  # - name: "Deploy to PyPi"
+  #   if: branch = master
 
 
 jobs:
@@ -47,33 +47,32 @@ jobs:
       python: 3.7
       script: make lints
 
-    - stage: deploy
-      name: "Deploy to PyPi"
-      python: 3.7
-      script: skip
-      deploy:
-        provider: pypi
-        server: https://pypi.org/legacy/
-        skip_cleanup: true
-        skip_existing: true
-        user: "__token__"
-        password:
-          secure: "qgbyO41VgDWKNGRTSbNlUub+4uT7MZ87LlWJPCOPc3EiaG\
-          FtxmQQFL+PRbK+0pks1tJGU80ZJCSICaTjqnZgn61MgEUa9vFzRnrey\
-          kiYlXb7E2Q6xf8kZiNu8XLQI2TJAPamq8sNzTCrxEhM5bFTS8z+ActQ\
-          7w5WJRWWAs8yNEvA8nZkV6G9eVrs8j5n/MlI17Hwrbe0nFoLzFg4F/9\
-          Yk0G5RuBn+aPxHpHr+Tqszr3hCDlM76u/pzOLWMPWyU3yU45iFA0f82\
-          L41Hp0LLKbi3FFhb0BGbTf0YxuQVTp0EsKu5pNxyhH9DP0bErxqpoOA\
-          J6A815qXl7CKp9HakL8IQ5X8b0FQIJVrvUZeIUx5k9jRTrpX8oJ3xoO\
-          P7pTGa+TYXgWLQSM2blG5+Uw+XlTlpB5HyFohtEv96zZSooQI0haGU6\
-          fiFrvwfwXZhge+4DFYTkA+dAXYcVLVoVVC3y5GTjAWA5K9JEAMk3HGp\
-          wvkvfPKx4b/WtY/IiZelUItrsAi+Xl6LpJXi9OaaUdboeGnd3cETGo6\
-          sh7HJHSSGnAzUK1xbQyk9l83QPYqdP4Nbrtaso6pDGKNfS/ehyGuDc4\
-          o5YU1imuj3kk5DKHKhFNC0mSeLYN7c+vY9AQQOAQ6ITQ7yXtDgHL4iu\
-          ee8roQ3udMKrXo/ULXrfmIJawDJGs1W8="
-        on:
-          branch: master
-          tags: true
+    # - stage: deploy
+    #   name: "Deploy to PyPi"
+    #   python: 3.7
+    #   script: skip
+    #   deploy:
+    #     provider: pypi
+    #     skip_cleanup: true
+    #     skip_existing: true
+    #     user: "__token__"
+    #     password:
+    #       secure: "qgbyO41VgDWKNGRTSbNlUub+4uT7MZ87LlWJPCOPc3EiaG\
+    #       FtxmQQFL+PRbK+0pks1tJGU80ZJCSICaTjqnZgn61MgEUa9vFzRnrey\
+    #       kiYlXb7E2Q6xf8kZiNu8XLQI2TJAPamq8sNzTCrxEhM5bFTS8z+ActQ\
+    #       7w5WJRWWAs8yNEvA8nZkV6G9eVrs8j5n/MlI17Hwrbe0nFoLzFg4F/9\
+    #       Yk0G5RuBn+aPxHpHr+Tqszr3hCDlM76u/pzOLWMPWyU3yU45iFA0f82\
+    #       L41Hp0LLKbi3FFhb0BGbTf0YxuQVTp0EsKu5pNxyhH9DP0bErxqpoOA\
+    #       J6A815qXl7CKp9HakL8IQ5X8b0FQIJVrvUZeIUx5k9jRTrpX8oJ3xoO\
+    #       P7pTGa+TYXgWLQSM2blG5+Uw+XlTlpB5HyFohtEv96zZSooQI0haGU6\
+    #       fiFrvwfwXZhge+4DFYTkA+dAXYcVLVoVVC3y5GTjAWA5K9JEAMk3HGp\
+    #       wvkvfPKx4b/WtY/IiZelUItrsAi+Xl6LpJXi9OaaUdboeGnd3cETGo6\
+    #       sh7HJHSSGnAzUK1xbQyk9l83QPYqdP4Nbrtaso6pDGKNfS/ehyGuDc4\
+    #       o5YU1imuj3kk5DKHKhFNC0mSeLYN7c+vY9AQQOAQ6ITQ7yXtDgHL4iu\
+    #       ee8roQ3udMKrXo/ULXrfmIJawDJGs1W8="
+    #     on:
+    #       branch: master
+    #       tags: true
 
     - stage: deploy
       name: "Deploy to TestPyPi"
@@ -84,21 +83,9 @@ jobs:
         server: https://test.pypi.org/legacy/
         skip_cleanup: true
         skip_existing: true
-        user: "__token__"
+        user: butuzov
         password:
-          secure: "OfVDq4Ki+1+LX/G7ojagJzT0HSClM2ojOAEPx2aPNC5Ssx\
-          wGgcEPSjcVmyb+WTPAy2MVnR2+T93wQ5fAdhz8VXs47QtTBRnkIwp9Z\
-          aufo5cuxTNsNrjTWcUv5FZ7XxUJxgpYrP+dPhDZpUMxJtnTvP2WgeBS\
-          z1qverRRaTVBfWHwGT5G6xUUeTVmQgOczfPkAIBNwC37Mfrm22CK933\
-          ZAZ3dV9BYr3wMlWhfi/w/bHPLiCDJ3QWyeM28o5wmSgq4r3V6c5LFYD\
-          qqzLoQTbmFCOARq3lZihqCcm6IUxnhtiN6uVnYRPaS4n7WAsxWyKG2R\
-          3Dz7uvAnul6k/d1hMPP0JFxtd0WRb0IkhwBS1LfbxmYRlfH3Xu9OqRg\
-          G2P428sLivuyRuifg2Q249wsGPEc9WnVM7nZGTJtGMuz3ifISKMyyQM\
-          +6ic5Eqg6bsRCfKuCTcq3133v+3l7dVvQR7bK0n1wYDJA6NdiVS9bQI\
-          fJdVVqlwDRiZPApS9ZOrvJUpu9MOmbZJw9xauz1UM8tePWsGAvvOsJQ\
-          WsItoNkhAZVVbCrBk21PUSi7oUMn3hmJBHmukoWCdrvww+7d7d6leIy\
-          aRrai72KxgBBn6z0ELncfcfGs6yooPjcnycRqY0iYijAsZXXj5LsVU1\
-          TidLINUX/fxheY+b0SKifQdg7oRX6Ipg="
+          secure: "w/P5BBELN/fEC364WEE5NRmrID2Kv5+3+8IiQmWw8n38c/3GV5R8IGlGSYZW8+qmnqul1rzuTFIjQd3XKHnZawPEheg2k7kW+42uEYjn8WHzOpy0+6lkA0OlOFyUh31/9u0BQtH1KcJn6H6Dy08w58TXewMW6HEBmh3T70AWaKNPm8h+1rk4HIRY+JhMacU6X7hsOBUMOzcIBcZEKvjLTF6rwk7FVQPFIWP1yhsquc5pXWa8wGGW/mtPC0nbrpLonYzQNnMfpu7OB0RWy1QsinaAgcT6GzTs5XgdC0qVhEgBhKP8pw48KfqI8r0DFyM7ulGUGxhJTlEiKSciSe6cjt/gnsNFvvTiyV/nde+OeaSgTSCr6IPZTbUOUbdGJhrf5YEIYu+k6n7YUX5Yq9ZWZErTsEoDQujZYP7c6CtwMZ7OilwNumlN5G8VVHMUebgB9VpmIAD3v4/C7llH0OXxq5FlkMQ+eWazVlVgHvVWOnCGIvR/zMQGw8WZXjE8TV3VVGVXnCUSgDpU/mSQtr4d6WrvVTy58eSCiFvK6xtHs7j/bK9Ks0ZinnbQruPSYJJdSwp/qGrdMVCAQTwKI5/yzyqCNTIIdVK/jsxc4rLhZFMVgXtq9XTHuIDxFOUsIxQ6HFW7xeF34mwm47k3c26qK5aNx+dBRFnn6gjeQgwaQVM="
         on:
           branch: develop
           tags: true
