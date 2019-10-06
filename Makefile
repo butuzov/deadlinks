@@ -1,31 +1,30 @@
 PYTHON ?= python3
 PACKAGE?= deadlinks
 PYLINT ?= pylint
-PYTEST ?= pytest
 MYPY   ?= mypy
 
 
 .PHONY:*
 
-all: tests lints
+all:
+	pytest . -s
 
-# running pytest with --cov enabled
 tests:
-	$(PYTEST) --cov
+	pytest . --cov=$(PACKAGE) -n 10
 
-# running pytest with --cov in 10 threads
+coverage:
+	pytest . --cov=$(PACKAGE)
+
 tests-fast:
-	$(PYTEST) --cov -n 10
+	pytest --cov -n 10
 
 pylint:
-	$(PYLINT) $(PACKAGE)
+	pylint $(PACKAGE)
 
-# pylint with reporting on
 pylint-details:
-	$(PYLINT) $(PACKAGE) -r y
+	pylint $(PACKAGE) -r y
 
 mypy:
-	$(MYPY) $(PACKAGE)
+	mypy $(PACKAGE)
 
-# all linters
 lints: pylint mypy

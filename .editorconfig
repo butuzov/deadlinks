@@ -2,20 +2,24 @@
 root = true
 
 [*]
-end_of_line = lf                   # Unix-style newlines
+end_of_line = lf
 insert_final_newline = true
 charset = utf-8
-
-indent_style = space               # default identation - spaces
-indent_size = 4                    # default identation - size
-
-insert_final_newline = true        # new line at the end of file
-trim_trailing_whitespace = true    # no extra sapces at the end of lines
-
-max_line_length = 100              #
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 100
 
 [*.py]
 max_line_length = 100
 
 [*.md]
 indent_size = 2
+
+[Makefile]
+indent_style = tab
+
+[*.{yml,yaml}]
+indent_size = 2
+insert_final_newline = false
