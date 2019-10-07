@@ -9,6 +9,9 @@ MYPY   ?= mypy
 all:
 	pytest . -s
 
+travis-tests:
+	pytest . --cov=$(PACKAGE)
+
 tests:
 	pytest . --cov=$(PACKAGE) -n 10
 
