@@ -16,6 +16,8 @@
 
 ## Usage
 
+See more examples at [docs](docs/examples.md)
+
 ```bash
 # run 10 instances of crawler against https://gobyexample.com.ua
 # with the additional check for the external links (except ones that
