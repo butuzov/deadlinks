@@ -117,7 +117,7 @@ class URL:
 
     def url(self) -> str:
         """ Return url based on abstraction, minus ending slash. """
-        return self._url.geturl().rstrip("/")
+        return self._url.geturl()
 
     def __str__(self) -> str:
         """ Converts URL object to string (actual URL). """
