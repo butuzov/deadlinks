@@ -24,9 +24,10 @@ Provides a collection interface
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Set, List, Iterator)
+from typing import (Set, List, Iterator, Callable)
 
 from deadlinks.link import Link
+from deadlinks.status import Status
 
 
 class Index:
@@ -47,22 +48,41 @@ class Index:
         """ Checks links existance in the index. """
         return link in self._index
 
+    def __getitem__(self, link: Link) -> Link:
+        """ """
+
+        # I really hope this is fast.
+        for item in self:
+            if item == link:
+                return item
+
+        error = "URL <{}> not found in index"
+        raise LookupError(error.format(link.url()))
+
     def put(self, link: Link) -> None:
         """ Puts a link to the index. """
         self._index.add(link)
 
-    def add(self, link: Link) -> None:
-        """ Alias of the puts method. """
-        return self.put(link)
-
     def all(self) -> List[Link]:
-        """ Return links in the index. """
-        return list(self._index)
+        """ Return links in the index (but not UNDEFINED). """
+        return self._filter(lambda x: x.status != Status.UNDEFINED)
 
     def succeed(self) -> List[Link]:
         """ Filters succeed urls from index. """
-        return list(filter(lambda x: x.exists(), self))
+        return self._filter(lambda x: x.status == Status.FOUND)
 
     def failed(self) -> List[Link]:
         """ Filters failed urls from index. """
-        return list(filter(lambda x: not x.exists(), self))
+        return self._filter(lambda x: x.status == Status.NOT_FOUND)
+
+    def ignored(self) -> List[Link]:
+        """ Filters failed urls from index. """
+        return self._filter(lambda x: x.status == Status.IGNORED)
+
+    def undefined(self) -> List[Link]:
+        """ Filters undefined urls from index. """
+        return self._filter(lambda x: x.status == Status.UNDEFINED)
+
+    def _filter(self, lambda_func: Callable[[Link], bool]) -> List[Link]:
+        """ Filters  values according lambda. """
+        return list(filter(lambda_func, self._index))

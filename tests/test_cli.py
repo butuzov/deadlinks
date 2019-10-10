@@ -24,18 +24,24 @@ def runner():
     return CliRunner()
 
 
-@pytest.fixture
-def url(server):
-    return "http://{}:{}".format(*server)
+# Once you change value here copy/paste it to the test_crawler
+# ------------------------------------------------------------------
+# parameters used in pair with site_with_links fixture
+# Tuple
+#   1st arg: External Indexation (bool)
+#   2nd arg: Threads (int)
+#   3rd arg: Ignored Domains (List[str])
+#   4th arg: Ignored Path (List[str])
+#   5th arg: Result (total_links_in_index, failed, succeed, ignored)
 
-
-CLI_PARAMS = [
-    (True, 1, [], [], (6, 21, 0)),
-    (True, 2, ["google.com"], [], (6, 19, 2)),
-    (True, 3, [], ["limk"], (4, 21, 2)),
-    (True, 4, ["google.com"], ["limk"], (4, 19, 4)),
-    (True, 1, ["facebook.com"], ["404.html"], (6, 21, 0)),
-    (False, 5, [], [], (2, 17, 0)),
+site_with_links_defaults = [
+    (True, 10, [], [], (27, 6, 21, 0)),
+    (False, 10, [], [], (27, 2, 17, 8)),
+    (True, 10, [], ["limk"], (27, 4, 21, 2)),
+    (False, 10, [], ["limk"], (27, 0, 17, 10)),
+    (True, 10, ["google.com"], [], (27, 6, 19, 2)),
+    (False, 10, ["google.com"], [], (27, 2, 17, 8)),
+    (True, 10, ["google.com"], ["limk"], (27, 4, 19, 4)),
 ]
 
 
@@ -57,12 +63,13 @@ def make_params(external, threads, domains, pathes):
 
 
 @pytest.mark.timeout(15)
-@pytest.mark.parametrize("external, threads, domains, pathes, results", CLI_PARAMS)
-def test_cli(url, runner, external, threads, domains, pathes, results):
+@pytest.mark.parametrize("external, threads, domains, pathes, results", site_with_links_defaults)
+def test_cli(site_with_links, runner, external, threads, domains, pathes, results):
 
     # parameters
     show_key = choice(['-s', '--show'])
-    args = [url] + make_params(external, threads, domains, pathes) + [show_key, 'none']
+    args = [site_with_links] + make_params(external, threads, domains, pathes) + [show_key, 'none']
+    args += ["--no-colors"]
 
     result = runner.invoke(main, args)
     output = result.output.rstrip("\n").split("\n")
@@ -71,41 +78,49 @@ def test_cli(url, runner, external, threads, domains, pathes, results):
 
     # -- SETTINGS ----------------------------------------------------------
     FIRST_LINE = 'URL=<{}>; External Cheks={}; Threads={}; Retry=0'.format(
-        url,
+        site_with_links,
         "On" if external else "Off",
         threads,
     )
     assert output[0] == FIRST_LINE
 
     # -- SHORT REPORT ----------------------------------------------------------
-    failed, succeed, ignored = results
-    message = "Found {}; Not Found {}".format(succeed, failed)
-    message += "; Ignored {}".format(ignored) if (domains or pathes) else ""
+    _, failed, succeed, ignored = results
+    message = "Stats: Found {}; Not Found {}; Ignored {}".format(succeed, failed, ignored)
+
     assert message == output[2]
 
 
 @pytest.mark.timeout(15)
-@pytest.mark.parametrize("external, threads, domains, pathes, results", CLI_PARAMS)
+@pytest.mark.parametrize("external, threads, domains, pathes, results", site_with_links_defaults)
 @pytest.mark.parametrize("show", ['failed', 'ok', 'ignored', 'all', 'none'])
-def test_cli_details(url, runner, external, threads, domains, pathes, results, show):
+def test_cli_details(site_with_links, runner, external, threads, domains, pathes, results, show):
     """ tests detailed report of default export """
+
     # parameters
     show_key = choice(['-s', '--show'])
-    args = [url] + make_params(external, threads, domains, pathes) + [show_key, show]
+    args = [site_with_links] + make_params(external, threads, domains, pathes) + [show_key, show]
+    args += ["--no-colors"]
 
     result = runner.invoke(main, args)
     output = result.output.rstrip("\n").split("\n")
 
+    # print()
+    # print(result.output)
+    # print(output)
+
     # -- SHORT REPORT ----------------------------------------------------------
-    failed, succeed, ignored = results
+    _, failed, succeed, ignored = results
 
     stats = Counter()
 
-    for line in output[3:]:
-        stats[line.split(" ")[1]] += 1
+    for line in output[4:]:
+        params = line.split(" ")
+        assert len(params) >= 3
+        stats[params[1]] += 1
 
     if show == 'none':
-        assert len(output) == 3
+        assert len(output) == 4
 
     if show in {'failed', 'all'}:
         assert stats['failed'] == failed

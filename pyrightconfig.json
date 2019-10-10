@@ -11,7 +11,7 @@
     "_reportTypeshedErrors": false,
     "_reportMissingTypeStubs": false,
 
-    "ignore":  [".vscode", ".сache", ".tox"],
+    "ignore":  [".vscode", ".сache", ".tox", "tests" ],
     "include": [ "deadlinks" ],
     "exclude": [ "tests"],
     "executionEnvironments": [

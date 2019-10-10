@@ -24,7 +24,7 @@ URL representation with benefits
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import List
+from typing import (List, Optional)
 
 from urllib.parse import (urlparse, urljoin)
 from re import compile as _compile
@@ -32,6 +32,8 @@ from re import compile as _compile
 from requests import RequestException
 
 from deadlinks.request import request
+from deadlinks.status import Status
+from deadlinks.exceptions import DeadlinksIgnoredURL
 
 # -- Constants -----------------------------------------------------------------
 
@@ -47,21 +49,60 @@ class URL:
 
     def __init__(self, location: str) -> None:
         self._url = urlparse(location)
-        self._exists = False
+        self._status = Status.UNDEFINED # type: Status
 
         # some predefined states
-        self._exists = None # Is URL exists (assume 200 response)?
-        self._text = None # taxt place holder.
         self._referrers = [] # type: List[str]
-        self._attempts = 0 # type: int
+        self._text = None # type: Optional[str]
         self._links = [] # type: List[str]
-        self._error = "" # type: str
+
+        # internal error or mesage field, used to store ignore message
+        # or error or status code.
+        # TODO - rethink logick behined this value.
+        self._message = "" # type: str
+
+    # Basic properies of the URL Link
+    @property
+    def domain(self) -> str:
+        """ Short netlocation prop. """
+        return self._url.netloc
+
+    @property
+    def scheme(self) -> str:
+        """ Short scheme prop. """
+        return self._url.scheme
+
+    @property
+    def path(self) -> str:
+        """ Short path prop. """
+        return self._url.path
+
+    @property
+    def status(self) -> Status:
+        """ Return one of 4 statuses of the URL ."""
+        return self._status
+
+    @status.setter
+    def status(self, value: Status) -> None:
+        """ Setter for status property. """
+        if not isinstance(value, Status):
+            raise TypeError("URL Status value can have only Status type ")
+        self._status = value
+
+    @property
+    def message(self) -> str:
+        return self._message
+
+    @message.setter
+    def message(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("message can be only string")
+        self._message = value
 
     def is_valid(self) -> bool:
-        """ Checks if scheme and domain exists in url. """
-        has_scheme = self._url.scheme == ""
-        has_domain = self._url.netloc == ""
-        return not has_domain and not has_scheme
+        """ Check if url looks "valid" """
+
+        return (self.domain != "" and self.scheme in {"http", "https"})
 
     def add_referrer(self, url: str) -> None:
         """ Add a page that links (refferer) to self object. """
@@ -90,30 +131,27 @@ class URL:
     def exists(self, is_external: bool = False, retries: int = 0) -> bool:
         """ Return "found" (or "not found") status of the page as bool. """
 
-        if self._exists is not None:
-            return self._exists
+        if self.status in (Status.FOUND, Status.NOT_FOUND):
+            return True if Status.FOUND else False
+
+        if self.status == Status.IGNORED:
+            error = "This URL <{}> ignored"
+            raise DeadlinksIgnoredURL(error.format(self.url()))
 
         try:
             response = request(self.url(), is_external, retries)
         except RequestException as exception:
-            self._exists = False
-            self._error = str(exception)
+            self.message = str(exception)
             return False
 
         # Group of 2XX responses. In general we think its OK to mark URL as
         # reachable and exists
         if response.status_code // 100 == 2:
-            self._exists = True
-            self._links = URL.consume_links(response.text)
+            self._text = response.text
             return True
 
-        self._exists = False
-        self._error = str(response.status_code)
+        self.message = str(response.status_code)
         return False
-
-    def error(self) -> str:
-        """ Return an error. """
-        return self._error
 
     def url(self) -> str:
         """ Return url based on abstraction, minus ending slash. """
@@ -126,14 +164,16 @@ class URL:
     def __repr__(self) -> str:
         """ Object stringer representation. """
 
-        return "{}#{}<{}>".format(self.__class__.__name__, id(self), self.url())
+        return "{}<{}>".format(self.__class__.__name__, self.url())
 
-    @staticmethod
-    def consume_links(text: str) -> List[str]:
+    def consume_links(self) -> None:
         """ Parse response text into list of links. """
 
+        if not self._text:
+            return
+
         links = []
-        for attr in __RE_LINKS__.findall(text):
+        for attr in __RE_LINKS__.findall(self._text):
             pos = attr.find("href=")
             if pos == -1:
                 "href not found"
@@ -163,12 +203,17 @@ class URL:
 
             links.append(link)
 
-        return list(map(ANCHORS, map(CLEANER, links)))
+        self._links = list(map(ANCHORS, map(CLEANER, links)))
 
-    def get_links(self) -> List[str]:
+    @property
+    def links(self) -> List[str]:
         """ Return links found at the page. """
-        if not self._exists:
-            return []
+
+        if not self._text or self._links:
+            return self._links
+
+        self.consume_links()
+
         return self._links
 
     def link(self, href: str) -> str:

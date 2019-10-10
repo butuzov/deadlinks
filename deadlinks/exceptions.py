@@ -27,6 +27,10 @@ class DeadlinksExeption(BaseException):
     """ General Exception """
 
 
+class DeadlinksIgnoredURL(DeadlinksExeption):
+    """ Error when we trying to index ignored URL """
+
+
 class DeadlinksSettings(DeadlinksExeption):
     """ Error on Settings object """
 
@@ -53,3 +57,7 @@ class DeadlinksSettingsDomains(DeadlinksSettings):
 
 class DeadlinksSettingsPathes(DeadlinksSettings):
     """ Error on Settings object related to `IgnoredPathes` property """
+
+
+class DeadlinksSettingsPath(DeadlinksSettings):
+    """ Error on Settings object related to `StayWithinPath` property """

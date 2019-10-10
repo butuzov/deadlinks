@@ -25,9 +25,9 @@ TODO
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
-from typing import Dict, Sequence, Any
+from typing import Dict, Sequence
 
-from click import style, unstyle, echo, wrap_text
+import click
 
 from deadlinks.crawler import Crawler
 
@@ -44,6 +44,9 @@ class Console:
         self._crawler = crawler
         self._opts = opts
 
+    def is_colored(self) -> bool:
+        return not self._opts.get('no_colors', False)
+
     def info(self) -> str:
         message = "URL=<{}>; External Cheks={}; Threads={}; Retry={}".format(
             self._crawler.settings.base,
@@ -56,17 +59,12 @@ class Console:
 
     def stats(self) -> str:
 
-        stats = []
-        stats.append(('Found {}', style(str(len(self._crawler.succeed)), fg='green')))
-        stats.append(('Not Found {}', style(str(len(self._crawler.failed)), fg='red')))
+        message = "Stats: Found {0}; Not Found {1}; Ignored {2}"
+        found = click.style(str(len(self._crawler.succeed)), fg='green')
+        not_found = click.style(str(len(self._crawler.failed)), fg='red')
+        ignored = click.style(str(len(self._crawler.ignored)), fg='yellow')
 
-        if self._crawler.ignores():
-            stats.append(('Ignored {}', style(str(len(self._crawler.ignored)), fg='yellow')))
-
-        places = [v[0] for v in stats]
-        values = [v[1] for v in stats]
-
-        return ("Stats: {}".format("; ".join(places))).format(*values)
+        return message.format(found, not_found, ignored)
 
     def _generate(self, key: str) -> str:
         """ generate a report about urls """
@@ -78,18 +76,20 @@ class Console:
         if not links:
             return ""
 
-        param_color = style(param, fg=self.params_colors[param])
+        param_color = click.style(param, fg=self.params_colors[param])
 
         return '\n'.join(map(lambda x: "[ {} ] {}".format(param_color, x), links))
 
     def report(self) -> None:
         """ generate report and pass it to the echo callback """
 
-        # stats and info
-        OUTPUT = "{}\n{}".format(self.info(), self.stats()) # type: str
-        if self._opts.get('no_colors', False):
-            OUTPUT = unstyle(OUTPUT)
-        echo(wrap_text(OUTPUT))
+        info = self.info() # type: str
+        stat = self.stats() # type: str
+
+        click.echo(info, color=self.is_colored())
+        click.echo("=" * len(click.unstyle(info)))
+        click.echo(stat, color=self.is_colored())
+        click.echo("-" * len(click.unstyle(stat)))
 
         # show some url report(s)
         show = list(self._opts.get('show', [])) # type: Sequence[str]
@@ -107,7 +107,5 @@ class Console:
         for report in show:
             OUTPUT_REPORT = self._generate(report)
 
-            if self._opts.get('no_colors', False):
-                OUTPUT_REPORT = unstyle(OUTPUT_REPORT)
-
-            echo(OUTPUT_REPORT)
+            if len(OUTPUT_REPORT):
+                click.echo(OUTPUT_REPORT, color=self.is_colored())

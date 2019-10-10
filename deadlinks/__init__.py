@@ -32,6 +32,18 @@ from deadlinks.crawler import Crawler
 from deadlinks.request import request
 from deadlinks.settings import Settings
 
+from deadlinks.exceptions import (
+    DeadlinksIgnoredURL,
+    DeadlinksSettingsThreads,
+    DeadlinksSettingsBase,
+    DeadlinksSettingsRetry,
+    DeadlinksSettingsChange,
+    DeadlinksSettingsDomains,
+    DeadlinksSettingsPathes,
+    DeadlinksSettingsPath,
+)
+
+# package meta data
 __app_version__ = "0.0.1"
 __app_package__ = "deadlinks"
 __app_license__ = "Apache License 2.0"
@@ -39,6 +51,9 @@ __app_website__ = "https://github.com/butuzov/deadlinks"
 __description__ = "CLI/API for links liveness checking."
 __author_name__ = "Oleg Butuzov"
 __author_mail__ = "butuzov@made.ua"
+
+# backwards compatibility
+__version__ = __app_version__
 
 __all__ = [
     "URL",
@@ -48,4 +63,14 @@ __all__ = [
     "Crawler",
     "request",
     "Settings",
+
+    # Exceptions
+    'DeadlinksIgnoredURL',
+    'DeadlinksSettingsThreads',
+    'DeadlinksSettingsBase',
+    'DeadlinksSettingsRetry',
+    'DeadlinksSettingsChange',
+    'DeadlinksSettingsDomains',
+    'DeadlinksSettingsPathes',
+    'DeadlinksSettingsPath',
 ]

@@ -10,10 +10,10 @@ all:
 	pytest . -s
 
 travis-tests:
-	pytest . --cov=$(PACKAGE)
+	pytest . --cov=$(PACKAGE) --verbose
 
 tests:
-	pytest . --cov=$(PACKAGE) -n 10
+	pytest . --cov=$(PACKAGE) --verbose -n 10
 
 coverage:
 	pytest . --cov=$(PACKAGE)
