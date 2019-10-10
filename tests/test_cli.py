@@ -151,3 +151,38 @@ def test_version(runner):
     from deadlinks.__init__ import __app_version__, __app_package__
 
     assert result.output.rstrip("\n") == "{}: v{}".format(__app_package__, __app_version__)
+
+
+@pytest.mark.parametrize(
+    'stay_within_path, check_external, results', [
+        (True, False, (1, 1, 5)),
+        (True, True, (4, 1, 2)),
+        (False, False, (3, 1, 5)),
+        (False, True, (8, 1, 0)),
+    ])
+def test_full_site(simple_site, runner, stay_within_path, check_external, results):
+
+    # parameters
+    url = "{}/{}".format(simple_site.rstrip("/"), "projects/")
+
+    args = [url, '-s', 'all', '--no-colors']
+    args += make_params(check_external, 10, [], [])
+    if not stay_within_path:
+        args += ['--full-site-check']
+
+    result = runner.invoke(main, args)
+    output = result.output.rstrip("\n").split("\n")
+
+    # -- SHORT REPORT ----------------------------------------------------------
+    exists, failed, ignored = results
+
+    stats = Counter()
+
+    for line in output[4:]:
+        params = line.split(" ")
+        assert len(params) >= 3
+        stats[params[1]] += 1
+
+    assert stats['failed'] == failed
+    assert stats['succeed'] == exists
+    assert stats['ignored'] == ignored

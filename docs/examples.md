@@ -10,6 +10,7 @@
 | `-p <path>`      | `--path     <path>`      | Filter out links that contain path.
 | `-s <show>`      | `--show     <show>`      | Select what results to show.
 | `-r <0...10>`    | `--retry    <path>`      | Number of retries performed if response has 502, 503 or 504 response code.
+|                  | `--full-site-check`      | Enables domain wide links check.
 |                  | `--version`              | Outputs command version.
 |                  | `--no-colors`            | Do not colorize output.
 

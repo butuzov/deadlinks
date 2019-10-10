@@ -115,6 +115,15 @@ options['export'] = {
     },
 }
 
+options['within_path'] = {
+    'keys': ['--full-site-check'],
+    'params': {
+        'default': False,
+        'is_flag': True,
+        'help': 'Check links on domain not limiting',
+    },
+}
+
 options['color'] = {
     'keys': ['--no-colors'],
     'params': {
@@ -136,6 +145,7 @@ options['color'] = {
 @click.option(*options['pathes']['keys'], **options['pathes']['params'])
 @click.option(*options['show']['keys'], **options['show']['params'])
 @click.option(*options['export']['keys'], **options['export']['params'])
+@click.option(*options['within_path']['keys'], **options['within_path']['params'])
 @click.option(*options['color']['keys'], **options['color']['params'])
 @click.version_option(
     message='%(prog)s: v%(version)s',
@@ -151,6 +161,7 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
             url,
             **{
                 'check_external_urls': opts['external'],
+                'stay_within_path': not opts['full_site_check'],
                 'threads': opts['threads'],
                 'retry': opts['retry'],
                 'ignore_domains': opts['domains'],
