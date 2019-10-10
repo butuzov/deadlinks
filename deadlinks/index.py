@@ -24,7 +24,7 @@ Provides a collection interface
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, List, Iterator, Callable)
+from typing import (Dict, List, Iterator, Callable) #pylint: disable-msg=W0611
 
 from deadlinks.link import Link
 from deadlinks.status import Status

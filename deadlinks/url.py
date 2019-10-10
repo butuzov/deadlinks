@@ -24,7 +24,7 @@ URL representation with benefits
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (List, Optional)
+from typing import (List, Optional) #pylint: disable-msg=W0611
 
 from urllib.parse import (urlparse, urljoin)
 from re import compile as _compile

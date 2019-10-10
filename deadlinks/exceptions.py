@@ -22,6 +22,8 @@ Exceptions used for deadlinks package.
 :license:   Apache2, see LICENSE for more details.
 """
 
+# -- Imports -------------------------------------------------------------------
+
 
 class DeadlinksExeption(BaseException):
     """ General Exception """

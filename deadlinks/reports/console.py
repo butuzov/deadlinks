@@ -25,7 +25,10 @@ TODO
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
-from typing import Dict, Sequence
+
+# -- Imports -------------------------------------------------------------------
+
+from typing import (Dict, Sequence) #pylint: disable-msg=W0611
 
 import click
 

@@ -4,7 +4,7 @@ deadlinks
 deadlinks checker for your static website. It's better keep house clean, right?
 """
 
-from typing import (Dict, List)
+from typing import (Dict, List) #pylint: disable-msg=W0611
 
 from pathlib import Path
 from re import compile as _compile
