@@ -28,6 +28,7 @@ import click
 
 from deadlinks.help import CLI
 from deadlinks.settings import Settings
+from deadlinks.link import Link
 from deadlinks.crawler import Crawler
 from deadlinks.exceptions import DeadlinksExeption
 from deadlinks.reports import Console
@@ -158,7 +159,7 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
 
     try:
         settings = Settings(
-            url,
+            normilize_domain(url),
             **{
                 'check_external_urls': opts['external'],
                 'stay_within_path': not opts['full_site_check'],
@@ -176,6 +177,16 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
 
     except DeadlinksExeption as e:
         ctx.fail(str(e))
+
+
+def normilize_domain(url: str) -> str:
+    """ 'guessing' scheme for urls without it. """
+
+    u = Link(url)
+    if not u.is_valid() and not u.scheme:
+        return "http://{}".format(url)
+
+    return url
 
 
 if __name__ == "__main__":
