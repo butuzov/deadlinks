@@ -4,7 +4,7 @@ deadlinks
 deadlinks checker for your static website. It's better keep house clean, right?
 """
 
-from typing import (Tuple, Dict, List)
+from typing import (Dict, List)
 
 from pathlib import Path
 from re import compile as _compile

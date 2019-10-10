@@ -5,3 +5,5 @@ exclude_paths:
 engines:
   pylint:
     enabled: true
+  remark-lint:
+    enabled: false
