@@ -15,10 +15,10 @@ from setuptools import find_packages, setup
 
 
 def read_data() -> Dict[str, str]:
-    init = Path(__file__).parent / "deadlinks" / "__init__.py"
+    init = Path(__file__).parent / "deadlinks" / "__version__.py"
 
     if not Path(init).is_file():
-        raise RuntimeError("Can not find source for deadlinks/__init__.py")
+        raise RuntimeError("Can not find source for deadlinks/__version__.py")
 
     DUNDER_REGEXP = _compile(r'(__(.*?)__ = "(.*?)")\n')
 

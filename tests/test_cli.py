@@ -144,9 +144,10 @@ def test_version(runner):
 
     assert result.exit_code == 0
 
-    from deadlinks.__init__ import __app_version__, __app_package__
+    from deadlinks.__version__ import __app_version__ as version
+    from deadlinks.__version__ import __app_package__ as package
 
-    assert result.output.rstrip("\n") == "{}: v{}".format(__app_package__, __app_version__)
+    assert result.output.rstrip("\n") == "{}: v{}".format(package, version)
 
 
 @pytest.mark.parametrize(

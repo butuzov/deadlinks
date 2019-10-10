@@ -34,7 +34,7 @@ from deadlinks.link import Link
 from deadlinks.crawler import Crawler
 from deadlinks.exceptions import DeadlinksExeption
 from deadlinks.reports import Console
-from deadlinks.__init__ import __app_version__, __app_package__
+from deadlinks.__version__ import __app_version__, __app_package__
 
 # ~ Options ~~~~~
 
