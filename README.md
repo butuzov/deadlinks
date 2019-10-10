@@ -1,5 +1,5 @@
 [![Travis (.org)](https://img.shields.io/travis/butuzov/deadlinks/features-beter_indexation)](https://travis-ci.org/butuzov/deadlinks)
-[![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/features-beter_indexation/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
+[![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/develop/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cff8901ed5974425a61dff833f8f81b8)](https://codacy.com/manual/butuzov/deadlinks)
 
 ## Description
