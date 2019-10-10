@@ -24,7 +24,7 @@ Provides a collection interface
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Set, List, Iterator, Callable)
+from typing import (Dict, List, Iterator, Callable)
 
 from deadlinks.link import Link
 from deadlinks.status import Status
@@ -34,7 +34,7 @@ class Index:
     r""" Links collection """
 
     def __init__(self) -> None:
-        self._index = set() # type: Set[Link]
+        self._index = dict() # type: Dict[str, Link]
 
     def __len__(self) -> int:
         """ Find out how many links in this index."""
@@ -42,26 +42,21 @@ class Index:
 
     def __iter__(self) -> Iterator[Link]:
         """ Iterating over a index. """
-        return iter(self._index)
+        return self._index.values().__iter__()
 
     def __contains__(self, link: Link) -> bool:
         """ Checks links existance in the index. """
-        return link in self._index
+        return link.url() in self._index
 
     def __getitem__(self, link: Link) -> Link:
         """ """
-
-        # I really hope this is fast.
-        for item in self:
-            if item == link:
-                return item
-
-        error = "URL <{}> not found in index"
-        raise LookupError(error.format(link.url()))
+        return self._index[link.url()]
 
     def put(self, link: Link) -> None:
         """ Puts a link to the index. """
-        self._index.add(link)
+        if link.url() in self._index:
+            return
+        self._index[link.url()] = link
 
     def all(self) -> List[Link]:
         """ Return links in the index (but not UNDEFINED). """
@@ -85,4 +80,4 @@ class Index:
 
     def _filter(self, lambda_func: Callable[[Link], bool]) -> List[Link]:
         """ Filters  values according lambda. """
-        return list(filter(lambda_func, self._index))
+        return list(filter(lambda_func, self._index.values()))
