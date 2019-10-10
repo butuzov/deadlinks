@@ -105,10 +105,6 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
     result = runner.invoke(main, args)
     output = result.output.rstrip("\n").split("\n")
 
-    # print()
-    # print(result.output)
-    # print(output)
-
     # -- SHORT REPORT ----------------------------------------------------------
     _, failed, succeed, ignored = results
 

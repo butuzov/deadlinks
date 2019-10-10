@@ -162,10 +162,6 @@ def test_defaults(server, threads):
     c = Crawler(Settings(address, threads=threads))
     c.start()
 
-    print()
-    for i in c.index:
-        print(i, i.message)
-
     assert len(c.index) == (1 + 2*links_number)
     assert len(c.failed) == links_number
     assert len(c.succeed) == (1 + links_number)

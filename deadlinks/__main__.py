@@ -68,7 +68,7 @@ options['threads'] = {
         'is_flag': False,
         'multiple': False,
         'show_default': True,
-        'help': 'cralwer instances to run',
+        'help': 'Specify number of parallel processes to use',
     }
 }
 options['domains'] = {
