@@ -28,6 +28,10 @@ from requests import Session, Response
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from deadlinks.__version__ import __app_version__ as version
+from deadlinks.__version__ import __app_website__ as website
+from deadlinks.__version__ import __app_package__ as package
+
 
 def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> Response:
     r"""Request a web resource and return Response
@@ -36,6 +40,13 @@ def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> R
             HEAD - for the remote resource
     Return Response of the request.
     """
+
+    _headers = {
+        'User-agent': "{}/v{} ( {} )".format(package, version, website),
+    }
+    _settings = {
+        'allow_redirects': True,
+    }
 
     _retry = Retry(
         total=retries_attempts,
@@ -47,4 +58,4 @@ def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> R
     session.mount(url, HTTPAdapter(max_retries=_retry))
 
     method_to_call = (session.head if is_external else session.get)
-    return method_to_call(url, allow_redirects=True)
+    return method_to_call(url, headers=_headers, **_settings)
