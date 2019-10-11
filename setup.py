@@ -9,8 +9,7 @@ from typing import (Dict, List) #pylint: disable-msg=W0611
 from pathlib import Path
 from re import compile as _compile
 from collections import defaultdict
-import sys
-
+import sys, os
 from setuptools import find_packages, setup
 
 
@@ -60,10 +59,35 @@ def require(section: str = "install") -> List[str]:
     return requires[section]
 
 
+def readme() -> str:
+    """ different version of readme changed for pypi """
+    readme = Path(__file__).parent / "README.md"
+
+    contents = ""
+
+    if not Path(readme).is_file():
+        return contents
+
+    with open("README.md", encoding="utf8") as f:
+        contents = f.read()
+
+    # cutout first header
+
+    contents = contents.replace("# deadlinks", "", 1).lstrip()
+
+    return contents
+
+
 # ------------------------------------------------------------------------------
 data = read_data()
 
-# --
+# - Overriding version for test deployment
+
+if os.environ.get('TRAVIS_BRANCH', None) == "develop":
+    data['app_version'] += "."
+    data['app_version'] += str(os.environ.get('TRAVIS_BUILD_NUMBER'))
+
+# - Local testing
 TESTS = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 TESTS_RUNNER = ['pytest-runner'] if TESTS else []
 
@@ -72,6 +96,8 @@ setup(
     name=data['app_package'],
     version=data['app_version'],
     description=data['description'],
+    long_description=readme(),
+    long_description_content_type="text/markdown",
     keywords=["documentation", "website", "spider", "crawler", "link-checker"],
     author=data['author_name'],
     author_email=data['author_mail'],

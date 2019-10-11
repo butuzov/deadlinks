@@ -1,10 +1,5 @@
 language: python
 python: 3.7
-cache: pip
-
-install:
-- pip install -e .
-- pip install -r requirements.txt
 
 
 matrix:
@@ -15,9 +10,9 @@ matrix:
 
 script: skip
 
+
 jobs:
   include:
-
     # OK: Tests --------------------------------------------------
     - &Tests
       stage: tests
@@ -38,6 +33,7 @@ jobs:
       name: "Tests (Python 3.8-dev)"
       python: "3.8-dev"
 
+
     # OK: Linters ------------------------------------------------
     - stage: lints
       name: "Running Linters"
@@ -54,105 +50,12 @@ jobs:
       - make coverage
       - bash <(curl -s https://codecov.io/bash)
 
-    # OK: Deployment ---------------------------------------------
-    - stage: Github Release
-      python: 3.7
-      script:
-        - python3 -m pip install wheel
-        - python3 setup.py sdist bdist_wheel
-        - VERSION=$(python -c 'import deadlinks;print(deadlinks.version)')
-      if: ((branch = master) AND (tag IS present))
-      deploy:
-        provider: releases
-        api_key:
-          secure: "WtYI2rQJ1kVIuhVIvjVH9+36NtqxzP3pOHrhBbbV/9z9Ss\
-                   ZgXzi5xglMcHigIqQkXCz4lqcJFYLkA2DMv7BN2N/u5D3P\
-                   Tx/Hs3iJHfP7w3OusZ+53rM3KXalwl5F/s0p8jjmV5VqkW\
-                   h3/zDQH7dX/K/12UAw0b5tNVHf1SJwSG8bDFX1MhLMAGv5\
-                   WnCTLh47jb3qcezp3beOtcOFJf0OOCCZlrAYZWaCEb9BgC\
-                   GMzy2Q/WkK84zjN3lJfqt7UlI+xOp91/zvV5y220IBnXpt\
-                   PC/wiM2p5SMoEHinseTX9sQ+OIGiOg6dRTwPBRM5LF7UIS\
-                   sEyiXLdfcWPcO/2MFsH1Ar59PEpO5AV2fKklEBIHe0AQ9h\
-                   u2XvWzf7syMwEejDOltgzK+Ye/1O/3NN7tCTEe0PEiq1HN\
-                   29QupnPK2L3IfU1SdJuUPY64DnnKBLfi5gLbEMsNREAglB\
-                   6VvRYYy05V8bNj6Bl588VkXTbAsCvMNHqOXwiHGFhSg3pZ\
-                   fyfHGl49oXckKC8XnsYiRHQq8/ql36YKILaDfsRjnkIy4E\
-                   tg/Hf5653x9+SROOOzllFMjwdpYvZVW553vXS+muGIKWmN\
-                   9+/HyHGSfNO8mN1f8sVd5iY/+ICFsi74CCX3HjKPvGdxIZ\
-                   rit5b6i5s5Mcx0kFD45UTkBJ9buFIMfc/wC+JJ0="
-        skip_cleanup: true
-        draft: true
-        prerelease: true
-        file_glob: true
-        file: dist/*
-        name: "deadlinks ${VERSION}"
-        body: ""
-        on:
-          all_branches: true
-
-
-    - stage: Deploy to PyPi.org
-      python: 3.7
-      script: skip
-      if: ((branch = master) AND (tag IS present))
-      deploy:
-        provider: pypi
-        skip_cleanup: true
-        skip_existing: true
-        user: "butuzov"
-        password:
-          secure: "vPpWbMDzXTWUbrDl5bgCODTVmZOlLAy7wJoDyCVBi3V+Fg\
-                   uH2Gesjq0X4XS5q/T4IST3+vO7pUDlyuTRpEcDZMPWYbJ1\
-                   Y/m8CAdoqCFc/bhG7NDfbF7aZ/UOZ/4/y5n90t8rKqsTVM\
-                   cQgVgeSxPH67ZDIu8QB68dp72UHz+VWWg8qp9Z9dbSvYoA\
-                   Q7mLgImgoCEr1SR99BpkskQdExlQJAR5mJDtdGPC+WbbVT\
-                   I5aws0eGkhV7yhlNGdYudWoAj3QJRWA3Ccj8e7Te7bj14s\
-                   HpIlKrzB6GgbdwrCCUdhwRvi5KsGD8sOA4o4TnxCaduB2c\
-                   kautXPO1h2P0Aua7UZ2ZQk/sENL2f6dxNiCYxTWgLUBc6E\
-                   EYp9vi+PqX+kQWUxTe22vnLf5dqxlqh4dlinjwGd4WDdNX\
-                   Ktr+daqZAjBkrnT4AE2vMpcKepWHAueUZpiaw6TrYwm31P\
-                   XSfi1TITb+xUPeSPav9XAgkwa/UGiwhatsH9Rnb0Z5e1EW\
-                   xZjEZcyNB55ZdKFaITMv7zPjYATs9PS8szXwBMlHyAUrZl\
-                   eCd6ikXPkJTkXhriSrykkObM7S4lXjrUGh7OQRuaFAZG9E\
-                   wmJWxyN2tGBSca7+SR1H1bAu6ie92XoWYlLuyfgZJz0zeU\
-                   DeGuC9cob2v8h+Hlq/tbQzazXFP1XW1e+cFu/wc="
-        on:
-          all_branches: true
-
-    - stage: Deploy to Test.PyPi.org
-      python: 3.7
-      script: skip
-      if: ((branch = develop) AND (tag IS present))
-      deploy:
-        provider: pypi
-        server: https://test.pypi.org/legacy/
-        skip_cleanup: true
-        skip_existing: true
-        user: "butuzov"
-        password:
-          secure: "cCNbQvCAEdvhKX5GlrhqQxV3coGk3NG/a3hX3Jxt+y/V4h\
-                   Nu6GbZitpBDcuTLNmJAFZ8w93XQe0ZdLF3FKmEf6aKrBsW\
-                   Ko6JsYsLLGa1xapRLx+ej/p7JaLcBWmOWIlfNmMNHBu+8q\
-                   k+jNDcuqLaHbbVF6tGoBUymzJlrfqT88m/Rhozahh0RizF\
-                   1Nj51Pvi6apt/g80uE7an9feSo1YDFdHUlTX0t368qL/55\
-                   K2doh2BhN0Bq1bTJzcyEE06xuFnK1SvRSYI2x77rOwBCSc\
-                   UQ3NWry+dLIkBrhucwf27tkrW4EHL6gOW0ZBsmmfECHIKz\
-                   KGbBXcXg9tOJi1+116KhfeKmjCJb919OmphgafatqNIBah\
-                   a1rCdKGGYg7N6xMzHDW2sGBG4HR83eSc97Q+COTSoIacui\
-                   qlM3gcdJoa/rWqUEkE+vZYJz6ZTLVW5DYHXXLGXU/mkU8D\
-                   tFI8y1TJqxXgaUFkc33eNV9BzbVweEoz0HOLgL7FOKW39M\
-                   Ze54IpjNDKeHFTGuQchkPT7d/YSyzblC8RwYh9ZpVr1Bxm\
-                   Q4VLiUL2BSNnKRtmYoF736s1zQV2kj68EzLjJeeBNkGWDH\
-                   4Ba4D3q8y3+liGeXnFaggIytmg2yZIUh0xhBzb7i8e9Tza\
-                   utDItAgapiOczhVeOE0jL6AiNdRO4+ZgZ/KRnCw="
-        on:
-          all_branches: true
 
 
 notifications:
   email:
-    on_success: change
-    on_failure: always
+    on_success: never
+    on_failure: never
     on_start: never
 
   webhooks:
