@@ -104,11 +104,16 @@ def test_is_interal_links(base, url):
 def test_links(server):
     """ General testing for link. """
 
-    url = "http://{}:{}".format(*server)
+    from tests.helpers import Page
+
+    url = server.router({
+        '^/$': Page('<a href="https://google.com/">google</a>').exists(),
+    })
 
     l = Link(url)
+
     assert l.exists()
-    assert len(l.get_links()) == 24
+    assert len(l.links) == 1
     assert str(l) == url
     assert l.url() == url
 
@@ -169,7 +174,7 @@ def test_eq():
     assert "http://google.com" == Link("http://google.com")
 
     with pytest.raises(TypeError):
-        Link('http://google.com') == 1
+        Link('http://google.com') == 1 # pylint: disable=expression-not-assigned
 
 
 def test_refferer():
@@ -196,5 +201,5 @@ def test_link_existance():
 
     l = Link("http://asdasdasa/")
     assert not l.exists()
-    assert "Failed to establish a new connection" in l.error()
-    assert len(l.get_links()) == 0
+    assert "Failed to establish a new connection" in l.message
+    assert len(l.links) == 0

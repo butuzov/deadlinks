@@ -47,12 +47,9 @@ def test_base_ok(base):
 def test_base_defaults():
     """ Default settings with no URL provided. """
     with pytest.raises(TypeError):
-        Settings()
+        Settings() # pylint: disable=no-value-for-parameter
 
-
-def test_base_delete(settings):
-    """ Attempts to delete baseurl """
-    with pytest.raises(DeadlinksSettingsChange):
+    with pytest.raises(AttributeError):
         del settings.base
 
 
@@ -68,6 +65,10 @@ def test_domains_default(settings):
     assert isinstance(settings.domains, list)
     assert not settings.domains
 
+    # delete domain
+    with pytest.raises(AttributeError):
+        del settings.domains
+
 
 def test_domains_ok():
     """ General tests for ignored domains """
@@ -77,10 +78,6 @@ def test_domains_ok():
     # domains update
     with pytest.raises(DeadlinksSettingsDomains):
         s.domains = []
-
-    # delete domain
-    with pytest.raises(DeadlinksSettingsChange):
-        del s.domains
 
     for domain in domains:
         assert domain in s.domains
@@ -105,17 +102,15 @@ def test_pathes_default(settings):
     assert isinstance(settings.pathes, list)
     assert not settings.pathes
 
+    # deleting property
+    with pytest.raises(AttributeError):
+        del settings.pathes
+
 
 def test_pathes_change(settings):
     """ Attempts to update ignored pathes information """
     with pytest.raises(DeadlinksSettingsPathes):
         settings.pathes = ["/new"]
-
-
-def test_pathes_delete(settings):
-    """ Attempts to delete ignored pathes """
-    with pytest.raises(DeadlinksSettingsChange):
-        del settings.pathes
 
 
 @pytest.mark.parametrize(
@@ -140,6 +135,11 @@ def test_pathes_ok(pathes):
     assert s.pathes == pathes
 
 
+# --- Stay within path --------------------------------------------------------
+def test_stay_within_path(settings):
+    assert settings.stay_within_path
+
+
 # --- Thread -------------------------------------------------------------------
 @pytest.mark.parametrize('threads', [11, 5.0, 0, "ten", "10"])
 def test_threads_exception(threads):
@@ -160,17 +160,14 @@ def test_threads_defaults(settings):
     assert isinstance(settings.threads, int)
     assert settings.threads == 1
 
+    with pytest.raises(AttributeError):
+        del settings.threads
+
 
 def test_threads_update(settings):
     """ Attempts to update threads information """
     with pytest.raises(DeadlinksSettingsChange):
         settings.threads = 12
-
-
-def test_threads_delete(settings):
-    """ Attempts to delete threads information """
-    with pytest.raises(DeadlinksSettingsChange):
-        del settings.threads
 
 
 # --- External Urls Checking ---------------------------------------------------
@@ -187,15 +184,12 @@ def test_external_update(settings):
         settings.external = not settings.external
 
 
-def test_external_delete(settings):
-    """ Attempts to delete external info """
-    with pytest.raises(DeadlinksSettingsChange):
-        del settings.external
-
-
 def test_external_defaults(settings):
     """ Checking external urls by default is: False """
     assert not settings.external
+
+    with pytest.raises(AttributeError):
+        del settings.external
 
 
 # --- Retry -------------------------------------------------------------------
@@ -211,10 +205,7 @@ def test_retry_change(settings):
     with pytest.raises(DeadlinksSettingsChange):
         settings.retry = 8
 
-
-def test_retry_delete(settings):
-    """ Attempts to delete retry property """
-    with pytest.raises(DeadlinksSettingsChange):
+    with pytest.raises(AttributeError):
         del settings.retry
 
 

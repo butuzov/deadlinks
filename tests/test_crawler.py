@@ -1,144 +1,168 @@
 """
-crawler_test.py
+test_server.py
 --------------
 
-This file doesn't cover any usefull tests, but serve other propose:
-its for a standartised layout of tests.
+    New webServer logic tests implementation, done in order to introduce new
+    concepts to crawler (noindex, nofollow, sitemaps.xml, robots.txt, etc) as
+    long as testing currently implemented things.
 
-TODO
-- [ ] write test: ignored urls
 """
-
-from http.server import (BaseHTTPRequestHandler, HTTPServer)
-from socket import (socket, SOCK_STREAM, AF_INET)
-from threading import Thread
-from functools import partial
 
 import pytest
 
+from tests.helpers import Page
+
 from deadlinks import (Settings, Crawler)
-
-
-@pytest.mark.timeout(5)
-def test_single_thread_timeout(server):
-    """ testing for whilte True condition of the indexer """
-    c = Crawler(Settings(
-        "http://{}:{}/".format(*server),
-        check_external_urls=False,
-        threads=1,
-    ))
-    c.start()
-
-
-@pytest.mark.timeout(12)
-@pytest.mark.parametrize(
-    "succeed_retries, do_retries, expect_exists, expect_failed",
-    [
-        (0, 0, 1, 0), # 0 retry attempts to unlock page. 1 (1 req + 0 retry) req. done - res. 200
-        (4, 3, 1, 0), # 4 retry attempts to unlock page. 4 (1 req + 3 retry) req. done - res. 200
-        (4, 2, 0, 1), # 4 retry attempts to unlock page. 3 (1 req + 2 retry) req. done - res. 503
-        (2, 1, 1, 0), # 2 retry attempts to unlock page. 2 (1 req + 1 retry) req. done - res. 200
-        (2, 0, 0, 1), # 2 retry attempts to unlock page. 1 (1 req + 0 retry) req. done - res. 503
-    ])
-def test_retry(succeed_retries, do_retries, expect_exists, expect_failed):
-    # allocate port
-    _socket = socket(AF_INET, type=SOCK_STREAM)
-    _socket.bind(('localhost', 0))
-    sa = _socket.getsockname()
-    _socket.close()
-
-    # passing state to handler
-    retry_attempts = 0
-
-    def counter():
-        nonlocal retry_attempts
-        retry_attempts += 1
-        return retry_attempts
-
-    class RetryRequestHandler(BaseHTTPRequestHandler):
-        """ Request handler class that unlocks pages once counter allows. """
-
-        def __init__(self, retry, succeed_retries, *args, **kwargs) -> None:
-            self.requests_counter = retry
-            self.succeed_retries = succeed_retries
-            super().__init__(*args, **kwargs)
-
-        def log_message(self, *args):
-            """ Ignoring logging """
-
-        def do_GET(self):
-            """ GET handler """
-
-            deny = self.requests_counter() < self.succeed_retries
-            answer = (503, "don't") if deny else (200, "ok")
-
-            self.send_response(answer[0])
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(bytes(answer[1], "utf8"))
-
-    handler = partial(RetryRequestHandler, counter, succeed_retries)
-    _server = HTTPServer((sa[0], sa[1]), handler)
-    _server_thread = Thread(target=_server.serve_forever)
-    _server_thread.setDaemon(True)
-    _server_thread.start()
-
-    c = Crawler(Settings(
-        "http://{}:{}/".format(*sa),
-        threads=1,
-        retry=do_retries,
-    ))
-    c.start()
-
-    assert expect_failed == len(c.failed)
-    assert expect_exists == len(c.succeed)
-
-    _server.shutdown()
-
-
-@pytest.mark.timeout(5)
-def test_crawler_crawring(server):
-    c = Crawler(Settings(
-        "http://{}:{}/".format(*server),
-        check_external_urls=True,
-        threads=5,
-    ))
-    c.start()
-    c.start()
-
-
-@pytest.mark.timeout(5)
-@pytest.mark.parametrize(
-    "external, domains, pathes, indexed, failed, succeed, ignored",
-    [
-        (True, [], [], 27, 6, 21, 0),
-        (True, ["google.com"], [], 25, 6, 19, 2),
-        (True, [], ["limk"], 25, 4, 21, 2),
-        (True, ["google.com"], ["limk"], 23, 4, 19, 4),
-        (False, [], [], 19, 2, 17, 0),
-    ],
+from deadlinks import (
+    DeadlinksIgnoredURL,
+    DeadlinksSettingsBase,
 )
-def test_crawler(server, external, domains, pathes, indexed, failed, succeed, ignored):
-    """ Testing for while True condition of the indexer. """
-    c = Crawler(
-        Settings(
-            "http://{}:{}/".format(*server),
-            check_external_urls=external,
-            threads=10,
-            ignore_domains=domains,
-            ignore_pathes=pathes,
-        ))
 
+
+@pytest.mark.parametrize(
+    'stay_within_path, check_external, results', [
+        (True, False, (1, 1, 5)),
+        (True, True, (4, 1, 2)),
+        (False, False, (3, 1, 5)),
+        (False, True, (8, 1, 0)),
+    ])
+def test_index_within_path(simple_site, stay_within_path, check_external, results):
+
+    baseurl = "{}/{}".format(simple_site.rstrip("/"), "projects/")
+    options = {
+        'stay_within_path': stay_within_path,
+        'check_external_urls': check_external,
+        'threads': 10,
+    }
+    c = Crawler(Settings(baseurl, **options))
     c.start()
 
-    # indexed
-    assert len(c.index) == indexed
+    exists, failed, ignored = results
 
-    # failed urls
+    assert len(c.succeed) == exists
     assert len(c.failed) == failed
-
-    # succeed urls
-    assert len(c.succeed) == succeed
-
-    # ignored
     assert len(c.ignored) == ignored
+
+
+# Once you change value here copy/paste it to the test_cli
+# ------------------------------------------------------------------
+# parameters used in pair with site_with_links fixture
+# Tuple
+#   1st arg: External Indexation (bool)
+#   2nd arg: Threads (int)
+#   3rd arg: Ignored Domains (List[str])
+#   4th arg: Ignored Path (List[str])
+#   5th arg: Result (total_links_in_index, failed, succeed, ignored)
+
+site_with_links_defaults = [
+    (True, 10, [], [], (27, 6, 21, 0)),
+    (False, 10, [], [], (27, 2, 17, 8)),
+    (True, 10, [], ["limk"], (27, 4, 21, 2)),
+    (False, 10, [], ["limk"], (27, 0, 17, 10)),
+    (True, 10, ["google.com"], [], (27, 6, 19, 2)),
+    (False, 10, ["google.com"], [], (27, 2, 17, 8)),
+    (True, 10, ["google.com"], ["limk"], (27, 4, 19, 4)),
+]
+
+
+@pytest.mark.parametrize(
+    'check_external, threads, ignore_domains, ignore_pathes, results', site_with_links_defaults)
+def test_crawling_advanced(
+        site_with_links,
+        check_external,
+        threads,
+        ignore_domains,
+        ignore_pathes,
+        results,
+):
+    options = {
+        'check_external_urls': check_external,
+        'stay_within_path': False,
+        'threads': threads,
+        'ignore_domains': ignore_domains,
+        'ignore_pathes': ignore_pathes,
+    }
+    c = Crawler(Settings(site_with_links, **options))
+    c.start()
+
+    indexed, failed, succeed, ignored = results
+
+    assert len(c.index) == indexed
+    assert len(c.failed) == failed
+    assert len(c.succeed) == succeed
+    assert len(c.ignored) == ignored
+
+
+@pytest.mark.parametrize(
+    'unlocked_after, do_retries, fails',
+    [
+        (0, 0, 0), # no fails
+        (1, 0, 1), # not available page
+        (2, 1, 1), # not available page
+        (2, 0, 1), # not available page
+        (1, 1, 0), # no fails
+        (3, 3, 0), # no fails
+    ])
+def test_crawling_retry(server, unlocked_after, do_retries, fails):
+    address = server.router({
+        '^/$': Page("ok").exists().unlock_after(unlocked_after),
+    })
+
+    c = Crawler(Settings(address, retry=do_retries))
+    c.start()
+
+    assert len(c.failed) == fails
+
+
+@pytest.mark.parametrize(
+    'url',
+    [
+        'localhost', # no scheme
+        'ws://example.org', # web socket not indexated.
+        'httpd://example.org', # typo in https
+        'mailto:me@example.org', # mialto link?
+    ])
+def test_base_url_badurl(url):
+    """ Testing bad urls to start API crawling """
+
+    with pytest.raises(DeadlinksSettingsBase):
+        Crawler(Settings(url))
+
+
+def test_base_url_ignored(server):
+    """ Starting URL is Ignored Domain (ip:port pair) """
+
+    address = server.router({'^/$': Page('ok').exists()})
+    with pytest.raises(DeadlinksIgnoredURL):
+        Crawler(Settings(address, ignore_domains=[address.split("//")[1]]))
+
+
+@pytest.mark.timeout(1)
+@pytest.mark.parametrize('threads', [1, 7])
+def test_defaults(server, threads):
+    """ Solo/Multi - Threading with default settings """
+
+    # there are 2*3 links on the page, and half of them are working
+    links_number = 3
+
+    HTML_FORMATTER = lambda x: "<a href='{}-{{0}}'>{{0}}</a>".format(x)
+    LINK_FORMATTER = lambda x: HTML_FORMATTER("link").format(x)
+    LIMK_FORMATTER = lambda x: HTML_FORMATTER("limk").format(x)
+
+    index_html = "<!-- index page -->"
+    index_html += " - ".join(map(LINK_FORMATTER, range(links_number))) # 10 good links
+    index_html += " - ".join(map(LIMK_FORMATTER, range(links_number))) # 10 bad links
+
+    address = server.router({
+        '^/$': Page(index_html).exists(),
+        'link-\d{1,}': Page("ok").exists(),
+        'limk-\d{1,}': Page("error").not_exists(),
+    })
+
+    c = Crawler(Settings(address, threads=threads))
+    c.start()
+
+    assert len(c.index) == (1 + 2*links_number)
+    assert len(c.failed) == links_number
+    assert len(c.succeed) == (1 + links_number)
+    assert not c.ignored

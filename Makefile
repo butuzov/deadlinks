@@ -1,31 +1,30 @@
 PYTHON ?= python3
 PACKAGE?= deadlinks
 PYLINT ?= pylint
-PYTEST ?= pytest
 MYPY   ?= mypy
 
 
 .PHONY:*
 
-all: tests lints
+all: tests
 
-# running pytest with --cov enabled
 tests:
-	$(PYTEST) --cov
+	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
+	 	pytest . --verbose -ra -x;\
+	else\
+	 	pytest . --cov=$(PACKAGE) -n 4 --verbose -ra --ff -x;\
+	fi
 
-# running pytest with --cov in 10 threads
-tests-fast:
-	$(PYTEST) --cov -n 10
+coverage:
+	pytest . --cov=$(PACKAGE)
 
 pylint:
-	$(PYLINT) $(PACKAGE)
+	pylint $(PACKAGE)
 
-# pylint with reporting on
 pylint-details:
-	$(PYLINT) $(PACKAGE) -r y
+	pylint $(PACKAGE) -r y
 
 mypy:
-	$(MYPY) $(PACKAGE)
+	mypy $(PACKAGE)
 
-# all linters
 lints: pylint mypy

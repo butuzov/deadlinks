@@ -1,37 +1,67 @@
-dist: xenial
 language: python
-
-python:
-- "3.5"
-- "3.6"
-- "3.7"
+python: 3.7
 
 
-install:
-- pip install -e .
-- pip install -r requirements.txt
+matrix:
+  fast_finish: true
+  allow_failures:
+  - python: 3.8-dev
+  - env: FAILURES=ALLOWED
 
-# Add latter
-# https://docs.travis-ci.com/user/conditional-builds-stages-jobs/
+script: skip
+
 
 jobs:
   include:
-  - stage: lint
-    cache: false
-    script: make linters
+    # OK: Tests --------------------------------------------------
+    - &Tests
+      stage: tests
+      name: "Tests (Python 3.7)"
+      python: 3.7
+      script:
+      - make tests
 
-script:
-- make tests
+    - <<: *Tests
+      name: "Tests (Python 3.6)"
+      python: 3.6
 
-after_success:
-- bash <(curl -s https://codecov.io/bash)
+    - <<: *Tests
+      name: "Tests (Python 3.5)"
+      python: 3.5
+
+    - <<: *Tests
+      name: "Tests (Python 3.8-dev)"
+      python: "3.8-dev"
+
+
+    # OK: Linters ------------------------------------------------
+    - stage: lints
+      name: "Running Linters"
+      python: 3.7
+      script: make lints
+
+
+    # OK: CodeCoverage -------------------------------------------
+    - stage: codecov
+      name: "Code Coverage"
+      python: 3.7
+      if: branch IN (master, develop, develop-deployment)
+      script:
+      - make coverage
+      - bash <(curl -s https://codecov.io/bash)
+
+
 
 notifications:
-  email: false
+  email:
+    on_success: never
+    on_failure: never
+    on_start: never
 
   webhooks:
     urls:
       - https://fathomless-fjord-24024.herokuapp.com/notify
+
   slack:
     rooms:
       - made-ua:XGUkOpb0PsEuqmm0CvHaNfPk#builds

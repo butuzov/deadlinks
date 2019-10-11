@@ -22,9 +22,15 @@ Exceptions used for deadlinks package.
 :license:   Apache2, see LICENSE for more details.
 """
 
+# -- Imports -------------------------------------------------------------------
+
 
 class DeadlinksExeption(BaseException):
     """ General Exception """
+
+
+class DeadlinksIgnoredURL(DeadlinksExeption):
+    """ Error when we trying to index ignored URL """
 
 
 class DeadlinksSettings(DeadlinksExeption):
@@ -53,3 +59,7 @@ class DeadlinksSettingsDomains(DeadlinksSettings):
 
 class DeadlinksSettingsPathes(DeadlinksSettings):
     """ Error on Settings object related to `IgnoredPathes` property """
+
+
+class DeadlinksSettingsPath(DeadlinksSettings):
+    """ Error on Settings object related to `StayWithinPath` property """

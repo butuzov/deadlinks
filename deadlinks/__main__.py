@@ -22,15 +22,19 @@ main (cli interface)
 :license:   Apache2, see LICENSE for more details.
 """
 
-from typing import List, Dict, Any
+# -- Imports -------------------------------------------------------------------
+
+from typing import Dict, Any
 
 import click
 
 from deadlinks.help import CLI
 from deadlinks.settings import Settings
+from deadlinks.link import Link
 from deadlinks.crawler import Crawler
 from deadlinks.exceptions import DeadlinksExeption
 from deadlinks.reports import Console
+from deadlinks.__version__ import __app_version__, __app_package__
 
 # ~ Options ~~~~~
 
@@ -66,7 +70,7 @@ options['threads'] = {
         'is_flag': False,
         'multiple': False,
         'show_default': True,
-        'help': 'cralwer instances to run',
+        'help': 'Specify number of parallel processes to use',
     }
 }
 options['domains'] = {
@@ -114,6 +118,15 @@ options['export'] = {
     },
 }
 
+options['within_path'] = {
+    'keys': ['--full-site-check'],
+    'params': {
+        'default': False,
+        'is_flag': True,
+        'help': 'Check links on domain not limiting',
+    },
+}
+
 options['color'] = {
     'keys': ['--no-colors'],
     'params': {
@@ -126,7 +139,7 @@ options['color'] = {
 # ~ Actual command decoration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-@click.command(cls=CLI, context_settings={"ignore_unknown_options": True})
+@click.command(__app_package__, cls=CLI, context_settings={"ignore_unknown_options": True})
 @click.argument('url', nargs=1, required=True, metavar='<URL>')
 @click.option(*options['external']['keys'], **options['external']['params'])
 @click.option(*options['threads']['keys'], **options['threads']['params'])
@@ -135,17 +148,23 @@ options['color'] = {
 @click.option(*options['pathes']['keys'], **options['pathes']['params'])
 @click.option(*options['show']['keys'], **options['show']['params'])
 @click.option(*options['export']['keys'], **options['export']['params'])
+@click.option(*options['within_path']['keys'], **options['within_path']['params'])
 @click.option(*options['color']['keys'], **options['color']['params'])
-@click.version_option(message='%(prog)s: v. %(version)s')
+@click.version_option(
+    message='%(prog)s: v%(version)s',
+    prog_name=__app_package__,
+    version=__app_version__,
+)
 @click.pass_context
-def cli(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
+def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
     """ checking links from web resource for dead/alive status. """
 
     try:
         settings = Settings(
-            url,
+            normilize_domain(url),
             **{
                 'check_external_urls': opts['external'],
+                'stay_within_path': not opts['full_site_check'],
                 'threads': opts['threads'],
                 'retry': opts['retry'],
                 'ignore_domains': opts['domains'],
@@ -160,3 +179,18 @@ def cli(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
 
     except DeadlinksExeption as e:
         ctx.fail(str(e))
+
+
+def normilize_domain(url: str) -> str:
+    """ 'guessing' scheme for urls without it. """
+
+    u = Link(url)
+    if not u.is_valid() and not u.scheme:
+        return "http://{}".format(url)
+
+    return url
+
+
+if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
+    main()

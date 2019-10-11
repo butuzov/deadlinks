@@ -4,75 +4,31 @@ deadlinks
 deadlinks checker for your static website. It's better keep house clean, right?
 """
 
-from typing import (Tuple, Dict, List)
+from typing import (Dict, List) #pylint: disable-msg=W0611
 
 from pathlib import Path
 from re import compile as _compile
 from collections import defaultdict
-import sys
-
+import sys, os
 from setuptools import find_packages, setup
 
 
-def read_version() -> str:
-    """Reads version of the package"""
-
-    init = Path(__file__).parent / "deadlinks" / "__init__.py"
+def read_data() -> Dict[str, str]:
+    init = Path(__file__).parent / "deadlinks" / "__version__.py"
 
     if not Path(init).is_file():
-        raise RuntimeError("Cannot source for Version - deadlinks/__init__.py")
+        raise RuntimeError("Can not find source for deadlinks/__version__.py")
 
-    version = _compile(r'^__version__\W*=\W*"([\d.abrc]+)"')
+    DUNDER_REGEXP = _compile(r'(__(.*?)__ = "(.*?)")\n')
+
+    values = dict() # type: Dict[str, str]
+
     with open(str(init)) as fh:
-        for line in fh:
-            match = version.match(line)
-            if match is not None:
-                return match.group(1)
+        content = "".join(fh.readlines())
+        for match in DUNDER_REGEXP.findall(content):
+            values[match[1]] = match[2]
 
-    raise RuntimeError("Cannot find version in deadlinks/__init__.py")
-
-
-def read_descriptions() -> Tuple[str, str]:
-    """Reads the descriptions from README.rst"""
-
-    readme_rst = Path(__file__).parent / "README.rst"
-    if not Path(readme_rst).is_file():
-        raise RuntimeError("Cannot source for Descriptions - README.rst")
-
-    # raw prefiltered chapters
-    raw = dict() # type: Dict[str, List[str]]
-
-    with open(str(readme_rst), "rb") as fh:
-        prev_title, title, lines = "", "", fh.read().decode("utf-8").split("\n")
-
-        for i, line in enumerate(lines):
-            if not line:
-                continue
-
-            if line[0] in ("-", "=") and len(line) == len(lines[i - 1]):
-                title = lines[i - 1]
-                continue
-
-            if not line[0] or not title or prev_title == title:
-                continue
-
-            c = raw.get(title, [])
-            if not c:
-                prev = raw.get(prev_title, [])
-                raw.update({prev_title: prev[:len(prev)]})
-
-            c.append(line)
-            raw.update({title: c})
-            prev_title = title
-
-    del raw[""]
-
-    chapters = {k: "\n".join(v) for k, v in raw.items()} # type: Dict[str, str]
-
-    try:
-        return chapters["deadlinks"], chapters["Description"]
-    except KeyError:
-        raise RuntimeError("Cannot find Descriptions in README.rst")
+    return values
 
 
 def require(section: str = "install") -> List[str]:
@@ -103,61 +59,48 @@ def require(section: str = "install") -> List[str]:
     return requires[section]
 
 
+def readme() -> str:
+    """ different version of readme changed for pypi """
+    readme = Path(__file__).parent / "README.md"
+
+    contents = ""
+
+    if not Path(readme).is_file():
+        return contents
+
+    with open("README.md", encoding="utf8") as f:
+        contents = f.read()
+
+    # cutout first header
+
+    contents = contents.replace("# deadlinks", "", 1).lstrip()
+
+    return contents
+
+
 # ------------------------------------------------------------------------------
+data = read_data()
 
-# Author
-AUTHOR = "Butuzov Oleg"
-AUTHOR_EMAIL = "butuzov@made.ua"
-URL = "https://github.com/butuzov/deadlinks"
+# - Overriding version for test deployment
 
-# General Information
-NAME = "deadlinks"
-DESCRIPTION, LONG_DESCRIPTION = read_descriptions()
-VERSION = read_version()
+if os.environ.get('TRAVIS_BRANCH', None) == "develop":
+    data['app_version'] += "."
+    data['app_version'] += str(os.environ.get('TRAVIS_BUILD_NUMBER'))
 
-# Classifiers
-CLASSIFIERS = ["Natural Language :: English"]
-CLASSIFIERS.append("Development Status :: 2 - Pre-Alpha")
-
-# Classifiers - Audience and Topic
-CLASSIFIERS.append("Intended Audience :: Developers")
-CLASSIFIERS.append("Intended Audience :: System Administrators")
-
-# Topic
-CLASSIFIERS.append("Topic :: Utilities")
-
-# Environment
-CLASSIFIERS.append("Environment :: Console")
-
-# Classifiers - Python
-CLASSIFIERS.append("Programming Language :: Python :: 3 :: Only")
-CLASSIFIERS.append("Programming Language :: Python :: 3.5")
-CLASSIFIERS.append("Programming Language :: Python :: 3.6")
-CLASSIFIERS.append("Programming Language :: Python :: 3.7")
-# Required Packages
-
-# Licence
-LICENSE = "Apache License 2.0"
-CLASSIFIERS.append("License :: OSI Approved :: {} License".format(LICENSE))
-
-# PPlatforms
-PLATFORMS = ["MacOS", "Unix"]
-for OS in PLATFORMS:
-    CLASSIFIERS.append("Operating System :: {}".format(OS))
-
-# --
+# - Local testing
 TESTS = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 TESTS_RUNNER = ['pytest-runner'] if TESTS else []
 
 # Setup
 setup(
-    name=NAME,
-    version=VERSION,
-    description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
+    name=data['app_package'],
+    version=data['app_version'],
+    description=data['description'],
+    long_description=readme(),
+    long_description_content_type="text/markdown",
     keywords=["documentation", "website", "spider", "crawler", "link-checker"],
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
+    author=data['author_name'],
+    author_email=data['author_mail'],
     packages=find_packages(exclude=["tests*"]),
     install_requires=require("install"),
     tests_require=require("tests"),
@@ -170,12 +113,47 @@ setup(
     },
     entry_points='''
         [console_scripts]
-        deadlinks=deadlinks.main:cli
+        deadlinks=deadlinks.__main__:main
     ''',
     zip_safe=False,
     python_requires='>=3.5',
-    url=URL,
-    license=LICENSE,
-    platforms=PLATFORMS,
-    classifiers=CLASSIFIERS,
+    url=data['app_website'],
+    license=data['app_license'],
+    platforms=['MacOS', 'Posix', 'Unix'],
+    classifiers=[
+        # Env
+        "Environment :: Console",
+
+        # Status
+        "Development Status :: 2 - Pre-Alpha",
+
+        # Audience
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+
+        # Topic
+        "Topic :: Utilities",
+        "Topic :: Documentation",
+
+        # Audience and Topic
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+
+        # Python version
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+
+        # License
+        "License :: OSI Approved :: Apache Software License",
+
+        # Operation System
+        "Operating System :: MacOS",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+
+        # Language
+        "Natural Language :: English",
+    ],
 )

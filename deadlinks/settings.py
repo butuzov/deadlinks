@@ -28,12 +28,13 @@ from typing import (Optional, List, Dict, Any, Union)
 
 from deadlinks.link import Link
 from deadlinks.exceptions import (
-    DeadlinksSettingsPathes,
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
     DeadlinksSettingsRetry,
     DeadlinksSettingsChange,
     DeadlinksSettingsDomains,
+    DeadlinksSettingsPathes,
+    DeadlinksSettingsPath,
 )
 
 
@@ -41,7 +42,8 @@ class Settings:
     """ handles general settings for """
 
     # pylint: disable=R0902
-    _external = None # type: bool
+    _stay_within_path = None # type: Optional[bool]
+    _external = None # type: Optional[bool]
     _threads = None # type: Optional[int]
     _domains = None # type: Optional[List[str]]
     _pathes = None # type: Optional[List[str]]
@@ -58,8 +60,11 @@ class Settings:
         self.external = defaults['check_external_urls']
         self.retry = defaults['retry']
 
+        # ignoring pathes.
         self.domains = defaults['ignore_domains']
         self.pathes = defaults['ignore_pathes']
+
+        self._stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
         self.base = Link(url)
@@ -72,6 +77,7 @@ class Settings:
             'check_external_urls': False,
             'ignore_domains': [],
             'ignore_pathes': [],
+            'stay_within_path': True,
             'retry': None,
             'threads': None,
         }
@@ -94,10 +100,6 @@ class Settings:
             raise DeadlinksSettingsBase("URL {} is not valid".format(value))
 
         self._base = value
-
-    @base.deleter
-    def base(self) -> None: #pylint: disable-msg=R0201
-        raise DeadlinksSettingsChange("Change not allowed")
 
     # -- Ignored Domains -------------------------------------------------------
     @property
@@ -127,10 +129,6 @@ class Settings:
 
         self._domains = values
 
-    @domains.deleter
-    def domains(self) -> None: #pylint: disable-msg=R0201
-        raise DeadlinksSettingsChange("Change not allowed.")
-
     # -- Ignored Pathes --------------------------------------------------------
     @property
     def pathes(self) -> List[str]:
@@ -154,9 +152,24 @@ class Settings:
 
         self._pathes = list(set(values)) # only uniq values
 
-    @pathes.deleter
-    def pathes(self) -> None: #pylint: disable-msg=R0201
-        raise DeadlinksSettingsChange("Change not allowed.")
+    # -- Stay with in path setting ---------------------------------------------
+    @property
+    def stay_within_path(self) -> bool:
+        """ Default value of stay within path setting """
+        return self._stay_within_path
+
+    @stay_within_path.setter
+    def stay_within_path(self, value: bool) -> None:
+        """ Getter for stay_within_path setting """
+        if not (self._stay_within_path is None): #pylint: disable-msg=C0325
+            error = "Stay within path is already defined."
+            raise DeadlinksSettingsPath(error)
+
+        if not isinstance(value, bool):
+            error = 'stay_within_path can\'t be anything but bool.'
+            raise DeadlinksSettingsPath(error)
+
+        self._stay_within_path = value
 
     # -- Retries ---------------------------------------------------------------
 
@@ -204,10 +217,6 @@ class Settings:
 
         raise DeadlinksSettingsRetry('Setting "retry" is not a number')
 
-    @retry.deleter
-    def retry(self) -> None: #pylint: disable-msg=R0201
-        raise DeadlinksSettingsChange("Change not allowed")
-
     # -- External -------------------------------------------------------------
 
     """
@@ -227,10 +236,6 @@ class Settings:
             raise DeadlinksSettingsChange("Change not allowed")
 
         self._external = bool(value)
-
-    @external.deleter
-    def external(self) -> None: #pylint: disable-msg=R0201
-        raise DeadlinksSettingsChange("Change not allowed")
 
     # -- Threads -------------------------------------------------------------
 
@@ -261,10 +266,6 @@ class Settings:
             raise DeadlinksSettingsThreads(error)
 
         raise DeadlinksSettingsThreads('Setting "threads" is not a number')
-
-    @threads.deleter
-    def threads(self) -> None: #pylint: disable-msg=R0201
-        raise DeadlinksSettingsChange("Change not allowed")
 
 
 if __name__ == "__main__":

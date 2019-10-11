@@ -21,6 +21,9 @@ better help for --help
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
+
+# -- Imports -------------------------------------------------------------------
+
 from textwrap import dedent
 
 from click import Command
@@ -34,10 +37,16 @@ class CLI(Command):
     EXAMPLES = dedent(
         """\
 
-            // crawl http://localhost:8080/ in 10 threads, check external links,
-            // but not lay.golang.org or github.com
-            deadlinks http://localhost:8080/ -n 10 -e -d play.golang.org -d github.com
+            // Check links (including external) at http://localhost:8080/ in 10 threads,
+            // but not ones from domians play.golang.org or github.com
+            deadlinks localhost:8080 -n 10 -e -d play.golang.org -d github.com
 
+            // Limit check only to links in /docs/ and run crawler in 10 threads.
+            deadlinks localhost:1313/docs/ -n 10
+
+            // Run Crawler for all local links that belong to 127.0.0.1:1313
+            // using http://localhost:1313/docs/ as start URL.
+            deadlinks localhost:1313/docs/ -n 10 --full-site-check
         """)
 
     def format_help(self, ctx: Ctx, formatter: Formatter) -> None:
@@ -60,7 +69,9 @@ class CLI(Command):
 
         formatter.write_paragraph()
         with formatter.section('Examples'):
-            formatter.write_text(self.EXAMPLES)
+            for line in self.EXAMPLES.split("\n"):
+                formatter.write("  {}\n".format(line))
+            formatter.write('\n')
 
     def format_usage(self, ctx: Ctx, formatter: Formatter) -> None:
         """ Writes the usage line into the formatter. """

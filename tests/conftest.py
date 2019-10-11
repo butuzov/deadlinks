@@ -1,45 +1,70 @@
 """
 conftest.py
---------------
-
-Provides general fixtures
-
+~~~~~~~~~~~
+Provides Default fixtures for deadlinks tests
 """
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from socket import (socket, SOCK_STREAM, AF_INET)
-from threading import Thread
-from re import compile as _compile
 from textwrap import dedent
 
 import pytest
 
-from deadlinks import (Crawler, Settings)
+from tests.helpers import Server, Page
 
 
-class RequestHandler(BaseHTTPRequestHandler):
-    r"""
-    Process simple website link structure we use to crawling
-    please see to link expectations matrix to check the number of
-    failed and succeed links in the appropriate tests.
-
-    requuests
-        /           -> 200
-        /link       -> 200
-        /more/links -> 200
-        /limk-10    -> 404
+@pytest.fixture
+def server():
+    s = Server()
+    yield s
+    s.destroy()
 
 
-    Links expectations
-                Dead    Live    ALL
-    Internal    2       17      19
-    External    4       4       8
-    ALL         6       21      27
+@pytest.fixture
+def simple_site(server):
+    """ simple configuration for routing and indexation testing
+        easy to calculate what addresses will work and whats not.
+
+        path       status        external       internal
+        /           200          0              2
+        /about      200          2              0
+        /projects   200          3              1 (not existing)
+
     """
+    INDEX_PAGE = dedent(
+        """\
+            <h1>~ <a href="/">/index</a> - <a href="/about/">/about</a> - <a href="/projects/">/projects</a></h1>
+            <h1>hello all</h1>
+        """)
 
-    EXISTING_LINK = _compile(r'link-(\d{1,})')
+    ABOUT_PAGE = dedent(
+        """\
+        <h1>~ <a href="/">/index</a> - <strong>/about</strong> - <a href="/projects/">/projects</a></h1>
+        <hr>
+        <a href="https://github.com/butuzov">github.com</a> -
+        <a href="http://made.ua">made.ua</a>
+        </ul>
+        """)
 
-    INDEX_PAGE_CONTENTS = dedent(
+    PROJECTS_PAGE = dedent(
+        """\
+        <h1>~ <a href="/">/index</a> - <a href="/about/">/about</a> - <strong>/projects</strong></h1>
+        <hr>
+        <a href="https://github.com/butuzov/deadlinks">deadlinks</a> -
+        <a href="http://gobyexample.com.ua">gobyexample</a> -
+        <a href="https://wordpress.org/plugins/debug-bar-rewrite-rules">(wordpress) debug bar rewrite rules</a> -
+        <a href="nope-no-such-page">secret project</a>
+        </ul>
+        """)
+
+    return server.router({
+        '^/$': Page(INDEX_PAGE).exists(),
+        "^/about/?$": Page(ABOUT_PAGE).exists(),
+        "^/projects/?$": Page(PROJECTS_PAGE).exists(),
+    })
+
+
+@pytest.fixture
+def site_with_links(server):
+    INDEX_PAGE = dedent(
         """\
             <b>arguments</b><br/>
             <a href="link-1">(0) existing link</a>
@@ -53,18 +78,15 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a href=link-7>(6) existing link</a>
             <a style=background:#f00; href=link-8>(7) existing link</a>
             <a href=link-9 style=background:#f00;>(8) existing link</a>
-
             <hr>coverage run --source jedi -m py.test
             <b>relative links</b><br/>
             <a href=/link-10>(9)existing link</a>
             <a href="/link-11">(10)existing link</a>
             <a href='/link-12'>(11)existing link</a>
-
             <hr>
             <b>two in one out</b><br/>
             <a href='/link-13'href='/link-13.1'>(12)existing link #10</a>
             <a href='/link-14' href='/link-14.1'>(13)existing link #10</a>
-
             <hr>
             <b>not existing links</b><br/>
             <ahref=link-6 style=background:#f00;>this isn't a link at all</a>
@@ -76,14 +98,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a href=">just href</a>
             <a href=' >just href</a>
             <a href= >just href</a>
-
             <hr>
             <b>external links</b><br/>
             <a href="http://google.com">(14) http google</a>
             <a href=https://google.de>(15) google germany</a>
             <a href="http://google.com.ua:80/">(16) google ukraine (port 80)</a>
             <a href="http://example.com/">(17) example.com</a>
-
             <hr>
             <b>external dead links</b><br/>
             <a href="http://loclahost:21">(18) localhost: 21</a>
@@ -91,13 +111,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a href="https://this site isnt exitng.de">(20) spaces in domain</a>
             <a href="http://lol/">(21) hostname (lol)</a>
             <a href='/limk-19'>mistyped  link</a>
-
             <hr>
             <b>more links</b><br/>
             <a href="more/links">(22) more link</a>
         """)
 
-    OTHER_PAGE_CONTENTS = dedent(
+    OTHER_PAGE = dedent(
         """\
             more links for crawler
             <a href="/link-1">(0) seen link</a>
@@ -105,50 +124,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             <a href='/limk-20'>mistyped  link 2</a>
         """)
 
-    def log_message(self, *args):
-        """ Ignoring logging """
-
-    def do_GET(self):
-        """handling request"""
-
-        message = ""
-
-        if self.path == "/":
-            message = self.INDEX_PAGE_CONTENTS
-        elif self.path == "/more/links":
-            message = self.OTHER_PAGE_CONTENTS
-        elif self.EXISTING_LINK.search(self.path):
-            message = "Page Found"
-        else:
-            self.send_response(404)
-            self.end_headers()
-            return
-
-        # Add response status code.
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(bytes(message, "utf8"))
-
-
-@pytest.fixture
-def server():
-    """ starts a server for testing web crawling """
-
-    # getting free port
-    _socket = socket(AF_INET, type=SOCK_STREAM)
-    _socket.bind(('localhost', 0))
-    sa = _socket.getsockname()
-    _socket.close()
-
-    # starting web service and yealding port
-
-    _server = HTTPServer((sa[0], sa[1]), RequestHandler)
-    _server_thread = Thread(target=_server.serve_forever)
-    _server_thread.setDaemon(True)
-    _server_thread.start()
-
-    yield sa
-
-    # teardown webservice
-    _server.shutdown()
+    site_with_links = server.router({
+        '^/$': Page(INDEX_PAGE).exists(),
+        'link-\d{1,}': Page("ok").exists(),
+        'limk-\d{1,}': Page("typo in path").not_exists(),
+        '^/more/links/?$': Page(OTHER_PAGE).exists(),
+    })
+    return site_with_links

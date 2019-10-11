@@ -1,37 +1,18 @@
-# configure updates globally
-# default: all
-# allowed: all, insecure, False
 update: all
 
-# update schedule
-# default: empty
-# allowed: "every day", "every week", ..
-schedule: "every day"
+schedule: "every month"
 
-# search for requirement files
-# default: True
-# allowed: True, False
 search: True
 
-# add a label to pull requests, default is not set
-# requires private repo permissions, even on public repos
-# default: empty
-label_prs: deps-update
-
-# assign users to pull requests, default is not set
-# requires private repo permissions, even on public repos
-# default: empty
 assignees:
 - butuzov
 
-# set the default branch
 branch: develop
 
-# configure the branch prefix the bot is using
-# default: pyup-
 branch_prefix: pyup/
 
-# Specify requirement files by hand, default is empty
+close_prs: True
+
 requirements:
 - requirements.txt:
     update: all
