@@ -6,20 +6,17 @@ MYPY   ?= mypy
 
 .PHONY:*
 
-all:
-	pytest . -s
-
-travis-tests:
-	pytest . --cov=$(PACKAGE) --verbose
+all: tests
 
 tests:
-	pytest . --cov=$(PACKAGE) --verbose -n 10
+	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
+	 	pytest . --verbose -ra -x;\
+	else\
+	 	pytest . --cov=$(PACKAGE) -n 4 --verbose -ra --ff -x;\
+	fi
 
 coverage:
 	pytest . --cov=$(PACKAGE)
-
-tests-fast:
-	pytest --cov -n 10
 
 pylint:
 	pylint $(PACKAGE)

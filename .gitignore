@@ -1,9 +1,17 @@
+# venv
 .venv*
+env*
+
+# development
 .cache
 .vscode
 .tox/*
+
+# articats
 __pycache__
 *egg*
+
+# artifacts
 .coverage
 build
 dist

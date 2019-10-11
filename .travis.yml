@@ -24,7 +24,7 @@ jobs:
       name: "Tests (Python 3.7)"
       python: 3.7
       script:
-      - make travis-tests
+      - make tests
 
     - <<: *Tests
       name: "Tests (Python 3.6)"

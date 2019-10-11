@@ -229,7 +229,6 @@ indent-string='    '
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,XXX,TODO,DONE
 
-
 # checks for similarities and duplicated code. This computation may be
 # memory / CPU intensive, so you should disable it if you experiments some
 # problems.
