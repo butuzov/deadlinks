@@ -1,10 +1,13 @@
 # deadlinks
 
 
+[![PyPI](https://img.shields.io/pypi/v/deadlinks)](https://pypi.org/project/deadlinks/)
 [![Travis (.org)](https://img.shields.io/travis/butuzov/deadlinks/master)](https://travis-ci.org/butuzov/deadlinks)
 [![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/master/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cff8901ed5974425a61dff833f8f81b8)](https://codacy.com/manual/butuzov/deadlinks)
-
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/deadlinks)
+![PyPI - License](https://img.shields.io/pypi/l/deadlinks?color=%23ecac1b)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/deadlinks)](https://pypi.org/project/deadlinks/)
 ---
 
 **deadlinks** is a simple cli tool to check your documentation/website for deadlinks.
@@ -16,37 +19,11 @@
 -   Checking links within base url path
 -   Retries in the case of `502`, `503` and `504` http errors
 
-## Installing (development)
-
-### From Source (Python 3.5)
-
-While developing on mac with Python 3.5 I have found that simple install from source doesn't work, as expected.
+## Installing
 
 ```bash
-# installation into virtual environment
-python3.5 -m venv .venv
-source .venv/bin/activate
-
-# update pip
-curl https://bootstrap.pypa.io/get-pip.py | python3.5
-# we expect to get pip version above 19.2.3
-pip --version
-
-# clone repo
-git clone https://github.com/butuzov/deadlinks.git
-cd deadlinks
-git checkout develop
-pip install -r requirments.txt
-python setup.py install
-```
-
-### From Source (Python 3.6, 3.7)
-
-```bash
-# installation into virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-pip install git+https://github.com/butuzov/deadlinks.git@develop
+# using pip - package installer for Python
+pip install deadlinks
 ```
 
 ## Usage
