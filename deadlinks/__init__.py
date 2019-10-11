@@ -32,6 +32,8 @@ from deadlinks.crawler import Crawler
 from deadlinks.request import request
 from deadlinks.settings import Settings
 
+from deadlinks.__version__ import __version__ as version
+
 from deadlinks.exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksSettingsThreads,
@@ -44,13 +46,16 @@ from deadlinks.exceptions import (
 )
 
 __all__ = [
-    "URL",
-    "CLI",
-    "Link",
-    "Index",
-    "Crawler",
-    "request",
-    "Settings",
+    'version',
+
+    # App
+    'URL',
+    'CLI',
+    'Link',
+    'Index',
+    'Crawler',
+    'request',
+    'Settings',
 
     # Exceptions
     'DeadlinksIgnoredURL',

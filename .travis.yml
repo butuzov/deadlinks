@@ -60,7 +60,7 @@ jobs:
       script:
         - python3 -m pip install wheel
         - python3 setup.py sdist bdist_wheel
-        - VERSION=$(python -c 'import deadlinks;print(deadlinks.__app_version__)')
+        - VERSION=$(python -c 'import deadlinks;print(deadlinks.version)')
       if: ((branch = master) AND (tag IS present))
       deploy:
         provider: releases
