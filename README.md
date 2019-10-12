@@ -64,12 +64,14 @@ deadlinks --help
 
 ## Contributing
 
-Your contributions are welcome!
+Here is a quick start guide to contributing to `deadlinks`
 
--   Fork `deadlinks` repository
--   Switch to develop and create new branch using tip of
--   Do your changes in new branach
--   Create `pull request` back to `development` branch
+-   Fork `deadlinks` repository.
+-   Create `feature` branch based on `develop`.
+-   Implement your feature and test it with `make tests` and `make lints`.
+-   Create `pull request` back to `development` branch.
+
+All your contributions are welcome!
 
 ## Alternatives
 
