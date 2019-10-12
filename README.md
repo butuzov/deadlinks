@@ -15,42 +15,36 @@
 -   Checking links within base url path
 -   Retries in the case of `502`, `503` and `504` http errors
 
-## Installing (development)
+## Installing
 
-### From Source (Python 3.5)
-
-While developing on mac with Python 3.5 I have found that simple install from source doesn't work, as expected.
+### Using package installer for Python
 
 ```bash
-# installation into virtual environment
-python3.5 -m venv .venv
-source .venv/bin/activate
-
-# update pip
-curl https://bootstrap.pypa.io/get-pip.py | python3.5
-# we expect to get pip version above 19.2.3
-pip --version
-
-# clone repo
-git clone https://github.com/butuzov/deadlinks.git
-cd deadlinks
-git checkout develop
-pip install -r requirments.txt
-python setup.py install
+# using pip - package installer for Python
+pip install deadlinks
 ```
 
-### From Source (Python 3.6, 3.7)
+### Using forked repo for development propose.
 
 ```bash
-# installation into virtual environment
+# activate virtual environment to keep your local site-packages clean.
 python3 -m venv .venv
 source .venv/bin/activate
-pip install git+https://github.com/butuzov/deadlinks.git@develop
+
+# if you using Python 3.5 on the mac, install new version of pip
+curl https://bootstrap.pypa.io/get-pip.py | python3.5
+# if you using other version, just upgrade pip
+pip install --upgrade pip
+
+# in case if you developing within forked repository
+cd /home/user/deadlinks-fork
+pip install -r requirments.txt
+pip install -e .
 ```
 
 ## Usage
 
-See more examples at [docs](docs/examples.md)
+See more examples at [docs](https://github.com/butuzov/deadlinks/blob/develop/docs/examples.md)
 
 ```bash
 # run 10 instances of crawler against https://gobyexample.com.ua
@@ -68,6 +62,7 @@ Here is a quick start guide to contributing to `deadlinks`
 
 -   Fork `deadlinks` repository.
 -   Create `feature` branch based on `develop`.
+-   Install package using [development](#using-forked-repo-for-development-propose) instructions.
 -   Implement your feature and test it with `make tests` and `make lints`.
 -   Create `pull request` back to `development` branch.
 
