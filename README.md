@@ -21,14 +21,34 @@
 
 ## Installing
 
+### Using package installer for Python
+
 ```bash
 # using pip - package installer for Python
 pip install deadlinks
 ```
 
+### Using forked repo for development propose.
+
+```bash
+# activate virtual environment to keep your local site-packages clean.
+python3 -m venv .venv
+source .venv/bin/activate
+
+# if you using Python 3.5 on the mac, install new version of pip
+curl https://bootstrap.pypa.io/get-pip.py | python3.5
+# if you using other version, just upgrade pip
+pip install --upgrade pip
+
+# in case if you developing within forked repository
+cd /home/user/deadlinks-fork
+pip install -r requirments.txt
+pip install -e .
+```
+
 ## Usage
 
-See more examples at [docs](docs/examples.md)
+See more examples at [docs](https://github.com/butuzov/deadlinks/blob/develop/docs/examples.md)
 
 ```bash
 # run 10 instances of crawler against https://gobyexample.com.ua
@@ -42,12 +62,15 @@ deadlinks --help
 
 ## Contributing
 
-Your contributions are welcome!
+Here is a quick start guide to contributing to `deadlinks`
 
--   Fork `deadlinks` repository
--   Switch to develop and create new branch using tip of
--   Do your changes in new branach
--   Create `pull request` back to `development` branch
+-   Fork `deadlinks` repository.
+-   Create `feature` branch based on `develop`.
+-   Install package using [development](#using-forked-repo-for-development-propose) instructions.
+-   Implement your feature and test it with `make tests` and `make lints`.
+-   Create `pull request` back to `development` branch.
+
+All your contributions are welcome!
 
 ## Alternatives
 

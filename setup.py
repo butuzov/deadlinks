@@ -83,9 +83,9 @@ data = read_data()
 
 # - Overriding version for test deployment
 
-if os.environ.get('TRAVIS_BRANCH', None) == "develop":
+if os.environ.get('DEADLINKS_VERSION', None):
     data['app_version'] += "."
-    data['app_version'] += str(os.environ.get('TRAVIS_BUILD_NUMBER'))
+    data['app_version'] += str(os.environ.get('DEADLINKS_VERSION'))
 
 # - Local testing
 TESTS = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
