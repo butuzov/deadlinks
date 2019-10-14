@@ -26,7 +26,8 @@ Handles settings passed to crawler.
 
 from typing import (Optional, List, Dict, Any, Union)
 
-from deadlinks.link import Link
+from deadlinks.baseurl import BaseURL
+
 from deadlinks.exceptions import (
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
@@ -48,7 +49,7 @@ class Settings:
     _domains = None # type: Optional[List[str]]
     _pathes = None # type: Optional[List[str]]
     _retry = None # type: Optional[int]
-    _base = None # type: Optional[Link]
+    _base = None # type: Optional[BaseURL]
 
     def __init__(self, url: str, **kwargs: Any) -> None:
         """ Instantiate settings class """
@@ -67,7 +68,7 @@ class Settings:
         self._stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
-        self.base = Link(url)
+        self.base = BaseURL(url)
 
     @staticmethod
     def defaults(kwargs: Dict) -> Dict[str, Union[bool, List[str], Optional[int]]]:
@@ -86,12 +87,12 @@ class Settings:
 
     # -- Base URL --------------------------------------------------------------
     @property
-    def base(self) -> Link:
-        """ Getter for BaseURl """
+    def base(self) -> BaseURL:
+        """ Getter for BaseURL """
         return self._base
 
     @base.setter
-    def base(self, value: Link) -> None:
+    def base(self, value: BaseURL) -> None:
         if not (self._base is None): #pylint: disable-msg=C0325
             error = "BaseUrl is already set to {}"
             raise DeadlinksSettingsBase(error.format(self._base))

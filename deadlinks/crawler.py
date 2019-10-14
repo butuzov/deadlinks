@@ -112,7 +112,7 @@ class Crawler:
 
         # FORBIDDEN: This is a local URL that located outside indexed path.
         if not url.is_external(self.settings.base) and  \
-            self.settings.stay_within_path and not url.path.startswith(self._base.path):
+            self.settings.stay_within_path and not self._base.within(url):
             return (True, "URL outside of the allowed path")
 
         return (False, None)
