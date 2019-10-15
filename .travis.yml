@@ -1,11 +1,10 @@
 language: python
-python: 3.7
+python: "3.8-dev"
 
 
 matrix:
   fast_finish: true
   allow_failures:
-  - python: 3.8-dev
   - env: FAILURES=ALLOWED
 
 script: skip
@@ -16,10 +15,14 @@ jobs:
     # OK: Tests --------------------------------------------------
     - &Tests
       stage: tests
-      name: "Tests (Python 3.7)"
-      python: 3.7
+      name: "Tests (Python 3.8)"
+      python: "3.8-dev"
       script:
       - make tests
+
+    - <<: *Tests
+      name: "Tests (Python 3.7)"
+      python: 3.7
 
     - <<: *Tests
       name: "Tests (Python 3.6)"
@@ -29,22 +32,18 @@ jobs:
       name: "Tests (Python 3.5)"
       python: 3.5
 
-    - <<: *Tests
-      name: "Tests (Python 3.8-dev)"
-      python: "3.8-dev"
-
 
     # OK: Linters ------------------------------------------------
     - stage: lints
       name: "Running Linters"
-      python: 3.7
+      python: "3.8-dev"
       script: make lints
 
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
       name: "Code Coverage"
-      python: 3.7
+      python: "3.8-dev"
       if: branch IN (master, develop, develop-deployment)
       script:
       - make coverage
