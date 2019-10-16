@@ -28,8 +28,14 @@ pylint-details:
 mypy:
 	mypy $(PACKAGE)
 
+# @ codacy remark linter
+remark:
+	@docker run -it -v "${PWD}:/src" codacy/codacy-remark-lint:latest;
+	@docker rm `docker ps -q --filter status=exited --filter ancestor=codacy/codacy-remark-lint:latest` 1> /dev/null
+
 lints: pylint mypy
 
+# @ build procedures
 clean:
 	rm -rf ${DIST}
 	rm -rf ${BUILD}
