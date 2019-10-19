@@ -48,7 +48,7 @@ pip install -e .
 
 ## Usage
 
-See more examples at [docs](https://github.com/butuzov/deadlinks/blob/develop/docs/examples.md)
+See more examples at [docs](https://deadlinks.readthedocs.io/en/stable/)
 
 ```bash
 # run 10 instances of crawler against https://gobyexample.com.ua
