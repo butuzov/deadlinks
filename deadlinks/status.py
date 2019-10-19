@@ -32,3 +32,4 @@ class Status(Enum):
     FOUND = 1
     NOT_FOUND = 2
     IGNORED = 3
+    REDIRECTION = 4

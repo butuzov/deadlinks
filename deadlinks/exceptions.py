@@ -29,6 +29,10 @@ class DeadlinksExeption(BaseException):
     """ General Exception """
 
 
+class DeadlinksRedicrectionURL(DeadlinksExeption):
+    """ Redicrection URL """
+
+
 class DeadlinksIgnoredURL(DeadlinksExeption):
     """ Error when we trying to index ignored URL """
 

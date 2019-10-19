@@ -45,7 +45,7 @@ def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> R
         'User-agent': "{}/v{} ( {} )".format(package, version, website),
     }
     _settings = {
-        'allow_redirects': True,
+        'allow_redirects': False,
     }
 
     _retry = Retry(

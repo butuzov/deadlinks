@@ -60,24 +60,41 @@ class Index:
 
     def all(self) -> List[Link]:
         """ Return links in the index (but not UNDEFINED). """
-        return self._filter(lambda x: x.status != Status.UNDEFINED)
+
+        lmbd = lambda x: x.status != Status.UNDEFINED
+        return self._filter(lmbd)
 
     def succeed(self) -> List[Link]:
         """ Filters succeed urls from index. """
-        return self._filter(lambda x: x.status == Status.FOUND)
+
+        lmbd = lambda x: x.status == Status.FOUND
+        return self._filter(lmbd)
+
+    def redirected(self) -> List[Link]:
+        """ Filters succeed urls from index. """
+
+        lmbd = lambda x: x.status == Status.REDIRECTION
+        return self._filter(lmbd)
 
     def failed(self) -> List[Link]:
         """ Filters failed urls from index. """
-        return self._filter(lambda x: x.status == Status.NOT_FOUND)
+
+        lmbd = lambda x: x.status == Status.NOT_FOUND
+        return self._filter(lmbd)
 
     def ignored(self) -> List[Link]:
         """ Filters failed urls from index. """
-        return self._filter(lambda x: x.status == Status.IGNORED)
+
+        lmbd = lambda x: x.status == Status.IGNORED
+        return self._filter(lmbd)
 
     def undefined(self) -> List[Link]:
         """ Filters undefined urls from index. """
-        return self._filter(lambda x: x.status == Status.UNDEFINED)
+
+        lmbd = lambda x: x.status == Status.UNDEFINED
+        return self._filter(lmbd)
 
     def _filter(self, lambda_func: Callable[[Link], bool]) -> List[Link]:
         """ Filters  values according lambda. """
+
         return list(filter(lambda_func, self._index.values()))

@@ -19,6 +19,15 @@ def server():
 
 
 @pytest.fixture
+def servers():
+    s1 = Server()
+    s2 = Server()
+    yield (s1, s2)
+    s1.destroy()
+    s2.destroy()
+
+
+@pytest.fixture
 def simple_site(server):
     """ simple configuration for routing and indexation testing
         easy to calculate what addresses will work and whats not.

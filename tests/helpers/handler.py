@@ -10,6 +10,10 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         """ Ignoring logging """
 
+    def do_HEAD(self):
+        """ Additionaly we need to cover head for tests. """
+        return self.do_GET()
+
     def do_GET(self):
         """handling request"""
 

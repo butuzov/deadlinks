@@ -55,13 +55,13 @@ def test_index_within_path(simple_site, stay_within_path, check_external, result
 #   5th arg: Result (total_links_in_index, failed, succeed, ignored)
 
 site_with_links_defaults = [
-    (True, 10, [], [], (27, 6, 21, 0)),
-    (False, 10, [], [], (27, 2, 17, 8)),
-    (True, 10, [], ["limk"], (27, 4, 21, 2)),
-    (False, 10, [], ["limk"], (27, 0, 17, 10)),
-    (True, 10, ["google.com"], [], (27, 6, 19, 2)),
-    (False, 10, ["google.com"], [], (27, 2, 17, 8)),
-    (True, 10, ["google.com"], ["limk"], (27, 4, 19, 4)),
+    (True, 10, [], [], (30, 6, 21, 0, 3)),
+    (False, 10, [], [], (27, 2, 17, 8, 0)),
+    (True, 10, [], ["limk"], (30, 4, 21, 2, 3)),
+    (False, 10, [], ["limk"], (27, 0, 17, 10, 0)),
+    (True, 10, ["google.com"], [], (28, 6, 19, 2, 1)),
+    (False, 10, ["google.com"], [], (27, 2, 17, 8, 0)),
+    (True, 10, ["google.com"], ["limk"], (28, 4, 19, 4, 1)),
 ]
 
 
@@ -85,9 +85,10 @@ def test_crawling_advanced(
     c = Crawler(Settings(site_with_links, **options))
     c.start()
 
-    indexed, failed, succeed, ignored = results
+    indexed, failed, succeed, ignored, redirected = results
 
     assert len(c.index) == indexed
+    assert len(c.redirected) == redirected
     assert len(c.failed) == failed
     assert len(c.succeed) == succeed
     assert len(c.ignored) == ignored
@@ -166,3 +167,38 @@ def test_defaults(server, threads):
     assert len(c.failed) == links_number
     assert len(c.succeed) == (1 + links_number)
     assert not c.ignored
+
+
+def test_redirection(servers):
+
+    CONTENT = """ Example of the index page
+        <a href="{}">external link 1</a> | <a href="{}">external link 2</a>
+    """
+
+    # this urls not suppose to be found in index
+    external_urls = (
+        "http://example.com",
+        "http://example.org",
+    )
+
+    # external domain with catfished urls
+    linked_domain = servers[0].router({
+        '^/$': Page(CONTENT.format(*external_urls)).exists(),
+    })
+
+    site_to_index = servers[1].router({
+        '^/$': Page("<a href='{0}'>{0}</a>".format(linked_domain)).exists(),
+    })
+
+    c = Crawler(Settings(site_to_index, check_external_urls=True))
+    c.start()
+
+    for u in c.index:
+        print(u.status, u.message, u)
+
+    # convert index to list
+    links = [link.url() for link in c.index]
+
+    assert linked_domain in links
+    assert external_urls[0] not in links
+    assert external_urls[1] not in links

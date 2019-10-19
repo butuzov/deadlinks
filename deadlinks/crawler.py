@@ -34,7 +34,10 @@ from deadlinks.link import Link
 from deadlinks.status import Status
 from deadlinks.index import Index
 from deadlinks.settings import Settings
-from deadlinks.exceptions import DeadlinksIgnoredURL
+from deadlinks.exceptions import (
+    DeadlinksIgnoredURL,
+    DeadlinksRedicrectionURL,
+)
 
 
 class Crawler:
@@ -142,6 +145,12 @@ class Crawler:
             if not url.exists(is_external, retries=self.retry):
                 url.status = Status.NOT_FOUND
                 return
+        except DeadlinksRedicrectionURL as _href:
+            # ok, so next time we looking for this
+            # we will need to make lookup to redirected URL.
+            url.status = Status.REDIRECTION
+            self.add_and_go(url, str(_href))
+            return
         except DeadlinksIgnoredURL:
             # we catching this exception jic, but "it should never happen"
             return
@@ -150,12 +159,20 @@ class Crawler:
         url.status = Status.FOUND
 
         for href in url.links:
-            # Creating relative url
-            link = Link(url.link(href)) # type: Link
-            self.add(link)
+            self.add_and_go(url, href)
 
-            # Update link source
-            link.add_referrer(url.url())
+    def add_and_go(self, url: Link, href: str) -> None:
+        """ reducing code duplication"""
+
+        # Create link variable of type Link that represent a new
+        #    relative to URL link that has href
+        link = Link(url.link(href)) # type: Link
+
+        # adding it to queue
+        self.add(link)
+
+        # Update link by adding url as link referrer
+        link.add_referrer(url.url())
 
     def ignores(self) -> bool:
         """ return "ignore" state of the crawler """
@@ -177,6 +194,11 @@ class Crawler:
     def failed(self) -> List[Link]:
         """ Return URLs failed to exist. """
         return self.index.failed()
+
+    @property
+    def redirected(self) -> List[Link]:
+        """ Return URLs failed to exist. """
+        return self.index.redirected()
 
     def indexer(self, thread_number: int = 0) -> None:
         """ Runs indexation operation using piped source. """

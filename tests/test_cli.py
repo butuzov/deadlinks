@@ -15,6 +15,7 @@ from random import choice
 import pytest
 
 from click.testing import CliRunner
+from tests.helpers import Page
 
 from deadlinks.__main__ import main
 
@@ -35,13 +36,13 @@ def runner():
 #   5th arg: Result (total_links_in_index, failed, succeed, ignored)
 
 site_with_links_defaults = [
-    (True, 10, [], [], (27, 6, 21, 0)),
-    (False, 10, [], [], (27, 2, 17, 8)),
-    (True, 10, [], ["limk"], (27, 4, 21, 2)),
-    (False, 10, [], ["limk"], (27, 0, 17, 10)),
-    (True, 10, ["google.com"], [], (27, 6, 19, 2)),
-    (False, 10, ["google.com"], [], (27, 2, 17, 8)),
-    (True, 10, ["google.com"], ["limk"], (27, 4, 19, 4)),
+    (True, 10, [], [], (30, 6, 21, 0, 3)),
+    (False, 10, [], [], (27, 2, 17, 8, 0)),
+    (True, 10, [], ["limk"], (30, 4, 21, 2, 3)),
+    (False, 10, [], ["limk"], (27, 0, 17, 10, 0)),
+    (True, 10, ["google.com"], [], (28, 6, 19, 2, 1)),
+    (False, 10, ["google.com"], [], (27, 2, 17, 8, 0)),
+    (True, 10, ["google.com"], ["limk"], (28, 4, 19, 4, 1)),
 ]
 
 
@@ -85,7 +86,7 @@ def test_cli(site_with_links, runner, external, threads, domains, pathes, result
     assert output[0] == FIRST_LINE
 
     # -- SHORT REPORT ----------------------------------------------------------
-    _, failed, succeed, ignored = results
+    _, failed, succeed, ignored, _ = results
     message = "Stats: Found {}; Not Found {}; Ignored {}".format(succeed, failed, ignored)
 
     assert message == output[2]
@@ -106,7 +107,7 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
     output = result.output.rstrip("\n").split("\n")
 
     # -- SHORT REPORT ----------------------------------------------------------
-    _, failed, succeed, ignored = results
+    _, failed, succeed, ignored, _ = results
 
     stats = Counter()
 
@@ -183,3 +184,33 @@ def test_full_site(simple_site, runner, stay_within_path, check_external, result
     assert stats['failed'] == failed
     assert stats['succeed'] == exists
     assert stats['ignored'] == ignored
+
+
+def test_redirection(servers, runner):
+
+    CONTENT = """ Example of the index page
+        <a href="{}">external link 1</a> | <a href="{}">external link 2</a>
+    """
+
+    # this urls not suppose to be found in index
+    external_urls = (
+        "http://example.com",
+        "http://example.org",
+    )
+
+    # external domain with catfished urls
+    linked_domain = servers[0].router({
+        '^/$': Page(CONTENT.format(*external_urls)).exists(),
+    })
+
+    site_to_index = servers[1].router({
+        '^/$': Page("<a href='{0}'>{0}</a>".format(linked_domain)).exists(),
+    })
+
+    args = [site_to_index, '-e', '-s', 'all', '--no-colors']
+
+    result = runner.invoke(main, args)
+
+    assert linked_domain in result.output
+    assert external_urls[0] not in result.output
+    assert external_urls[1] not in result.output
