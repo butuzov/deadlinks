@@ -193,9 +193,6 @@ def test_redirection(servers):
     c = Crawler(Settings(site_to_index, check_external_urls=True))
     c.start()
 
-    for u in c.index:
-        print(u.status, u.message, u)
-
     # convert index to list
     links = [link.url() for link in c.index]
 
