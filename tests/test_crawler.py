@@ -259,3 +259,29 @@ def test_redirected_links(server):
     assert 1 < len(c.index) <= (2 * len(pages) + 1)
     assert 1 < len(c.redirected) <= len(pages)
     assert len(c.failed) == 0
+
+
+@pytest.mark.timeout(3)
+def test_no_index_page(server):
+
+    from random import sample
+
+    pages = list(range(1, 51))
+    format_link = lambda x: "<a href='/link-%s'>link</a>" % x
+
+    routes = {
+        '^/$': Page("").exists(),
+    }
+
+    for step in pages:
+        route_key = '^/link-%s/$' % step
+        route_contents = Page(" / ".join(map(format_link, sample(pages, 4)))).exists()
+        routes.update({route_key: route_contents})
+
+    address = server.router(routes)
+
+    settings = Settings(address, threads=10)
+    c = Crawler(settings)
+    c.start()
+
+    assert len(c.index) == 1

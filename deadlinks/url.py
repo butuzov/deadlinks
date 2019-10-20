@@ -134,8 +134,11 @@ class URL:
     def exists(self, is_external: bool = False, retries: int = 0) -> bool:
         """ Return "found" (or "not found") status of the page as bool. """
 
-        if self.status in (Status.FOUND, Status.NOT_FOUND):
-            return True if Status.FOUND else False
+        if self.status == Status.FOUND:
+            return True
+
+        if self.status == Status.NOT_FOUND:
+            return False
 
         if self.status == Status.IGNORED:
             error = "This URL <{}> ignored"
@@ -173,11 +176,8 @@ class URL:
 
         return "{}<{}>".format(self.__class__.__name__, self.url())
 
-    def consume_links(self) -> None:
+    def _consume_links(self) -> None:
         """ Parse response text into list of links. """
-
-        if not self._text:
-            return
 
         links = []
         for attr in __RE_LINKS__.findall(self._text):
@@ -219,7 +219,7 @@ class URL:
         if not self._text or self._links:
             return self._links
 
-        self.consume_links()
+        self._consume_links()
 
         return list(set(self._links))
 
@@ -228,11 +228,11 @@ class URL:
         Construct a full (“absolute”) URL by combining a
         “URL” object as base with another URL (url).
 
-        note: we not going to use self.url() as it removes ending slash.
+        avoiding using urljoin if self._url and href are same.
         """
 
         if self._url.geturl() == href:
-            return self._url.geturl()
+            return href
 
         return urljoin(self._url.geturl(), href)
 

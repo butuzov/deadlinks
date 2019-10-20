@@ -1,5 +1,6 @@
 from collections import defaultdict
 from re import compile as _compile
+from time import sleep
 
 PAGE_TEMPLATE = "<!DOCTYPE HTML><html><head>{0}</head><body>{1}</body></html>"
 
@@ -25,6 +26,9 @@ class Router:
 
             if self._pathes[url] <= param['unlocks']:
                 return 503, 'text/html', '<h1>Service Unavailable</h1>'
+
+            if param['slow']:
+                sleep(1)
 
             if param['redirects']:
                 return 301, None, param['redirects']

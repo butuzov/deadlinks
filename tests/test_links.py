@@ -9,7 +9,14 @@ Links object test coverage
 
 import pytest
 
+from tests.helpers import Page
+
 from deadlinks import (Link, URL)
+from deadlinks.status import Status
+from deadlinks.exceptions import (
+    DeadlinksIgnoredURL,
+    DeadlinksRedicrectionURL,
+)
 
 
 @pytest.fixture(scope="module")
@@ -196,10 +203,94 @@ def test_match_domain():
     assert not l.match_domains(["google.com"])
 
 
-def test_link_existance():
-    """ Link existance. """
+@pytest.mark.timeout(2)
+def test_existing_page(server):
+    """ emulating slow server (responds after 1s) """
 
-    l = Link("http://asdasdasa/")
+    address = server.router({
+        '^/$': Page("").slow().exists(),
+    })
+
+    l = Link(address)
+    assert l.status == Status.UNDEFINED
+    assert l.exists()
+    l.status = Status.FOUND
+    assert l.exists()
+
+    with pytest.raises(TypeError):
+        l.status = 1
+
+
+@pytest.mark.timeout(3)
+def test_not_existing_page(server):
+    """ emulating slow broken server """
+
+    address = server.router({
+        '^/$': Page("").unlock_after(3).slow().exists(),
+    })
+
+    l = Link(address)
+    assert l.status == Status.UNDEFINED
+
+    # timeedout
+    assert not l.exists(retries=2)
+    # setting new status
+    l.status = Status.NOT_FOUND
+
+    # page is unlocked, but response is cached!
+    assert not l.exists()
+
+    with pytest.raises(TypeError):
+        l.status = 2
+
+
+def test_redirected_page(server):
+    """ Should raise IgnoredURL if Ignored """
+    address = server.router({
+        '^/$': Page("").redirects(pattern="https://google.com/?%s"),
+    })
+
+    l = Link(address)
+    assert l.status == Status.UNDEFINED
+    with pytest.raises(DeadlinksRedicrectionURL):
+        l.exists()
+
+    with pytest.raises(TypeError):
+        l.status = 0
+
+
+def test_ignored_page(server):
+    """ Should raise IgnoredURL if Ignored """
+    address = server.router({
+        '^/$': Page("").exists(),
+    })
+
+    l = Link(address)
+    assert l.status == Status.UNDEFINED
+    l.status = Status.IGNORED
+    assert l.status == Status.IGNORED
+    with pytest.raises(DeadlinksIgnoredURL):
+        l.exists()
+
+    with pytest.raises(TypeError):
+        l.status = 3
+
+
+def test_same_url(server):
+    page = "<a href='http://{}:{}'>same link</a>, <a href='/'>a</a>"
+    address = server.router({
+        '^/$': Page(page.format(*server.sa)).exists(),
+        '^/link$': Page("ok").exists(),
+    })
+    l = Link(address)
+    assert l.exists()
+    assert address in l.links
+
+
+def test_not_available_page():
+    """ ok server, but ip with error """
+
+    l = Link("http://127.0.0.1:79")
+    assert l.status == Status.UNDEFINED
     assert not l.exists()
     assert "Failed to establish a new connection" in l.message
-    assert len(l.links) == 0
