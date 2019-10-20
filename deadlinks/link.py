@@ -76,10 +76,6 @@ class Link(URL):
 
         return base != this
 
-    def __hash__(self) -> int:
-        """return hash of url object - url converted to string"""
-        return hash(self.url())
-
     def __eq__(self, other: object) -> bool:
         """ Compare two links """
 
