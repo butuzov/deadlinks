@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/develop/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cff8901ed5974425a61dff833f8f81b8)](https://codacy.com/manual/butuzov/deadlinks)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/deadlinks)
-![PyPI - License](https://img.shields.io/pypi/l/deadlinks?color=%23ecac1b)
+[![PyPI - License](https://img.shields.io/badge/license-Apache%202-red)](https://pypi.org/project/deadlinks/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/deadlinks)](https://pypi.org/project/deadlinks/)
 ---
 
