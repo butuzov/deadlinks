@@ -181,12 +181,6 @@ class Crawler:
         # Update link by adding url as link referrer
         link.add_referrer(url.url())
 
-    def ignores(self) -> bool:
-        """ return "ignore" state of the crawler """
-        ignore_domains = len(self.settings.domains) > 0
-        ignore_pathes = len(self.settings.pathes) > 0
-        return ignore_domains or ignore_pathes
-
     @property
     def ignored(self) -> List[Link]:
         """ Return URLs we have ignore to check. """
