@@ -169,7 +169,8 @@ def test_defaults(server, threads):
     assert not c.ignored
 
 
-def test_redirection(servers):
+def test_external_external(servers):
+    """ redirections tested via added 2nd domain and extra external domains. """
 
     CONTENT = """ Example of the index page
         <a href="{}">external link 1</a> | <a href="{}">external link 2</a>
@@ -203,6 +204,7 @@ def test_redirection(servers):
 
 def test_mailto(server):
     """ extra mailto test """
+
     MAILTO = "mailto:name@example.org"
     CONTENT = """  <a href="{}">mail link</a>""".format(MAILTO)
 
@@ -218,3 +220,42 @@ def test_mailto(server):
 
     assert len(c.failed) == 0
     assert len(c.index) == 2
+
+
+@pytest.mark.timeout(1)
+def test_double_start(simple_site):
+
+    c = Crawler(Settings(simple_site, threads=10))
+    c.start()
+
+    # should not take same time again.
+    c.start()
+
+
+@pytest.mark.timeout(3)
+def test_redirected_links(server):
+
+    from random import sample
+
+    pages = list(range(1, 51))
+    format_link = lambda x: "<a href='/link-%s'>link</a>" % x
+
+    routes = {
+        '^/$': Page(" / ".join(map(format_link, sample(pages, 4)))).exists(),
+        '^/link-\d{1,2}$': Page("").exists().redirects(pattern='%s/'),
+    }
+
+    for step in pages:
+        route_key = '^/link-%s/$' % step
+        route_contents = Page(" / ".join(map(format_link, sample(pages, 4)))).exists()
+        routes.update({route_key: route_contents})
+
+    address = server.router(routes)
+
+    settings = Settings(address, threads=10)
+    c = Crawler(settings)
+    c.start()
+
+    assert 1 < len(c.index) <= (2 * len(pages) + 1)
+    assert 1 < len(c.redirected) <= len(pages)
+    assert len(c.failed) == 0
