@@ -95,6 +95,10 @@ class Crawler:
 
         # We can have few different cases when URL is ignored.
 
+        # ok, checking for valid link first
+        if not url.is_valid():
+            return (True, "URL isn't valid")
+
         # TODO - Site Owner Ask (via meta tag) to ignore this URL
         # https://support.google.com/webmasters/answer/93710?hl=en
 

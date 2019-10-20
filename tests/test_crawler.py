@@ -202,3 +202,22 @@ def test_redirection(servers):
     assert linked_domain in links
     assert external_urls[0] not in links
     assert external_urls[1] not in links
+
+
+def test_mailto(server):
+    """ extra mailto test """
+    MAILTO = "mailto:name@example.org"
+    CONTENT = """  <a href="{}">mail link</a>""".format(MAILTO)
+
+    address = server.router({
+        '^/$': Page(CONTENT).exists(),
+    })
+
+    c = Crawler(Settings(address, check_external_urls=True))
+    c.start()
+
+    assert len(c.ignored) == 1
+    assert MAILTO in c.ignored
+
+    assert len(c.failed) == 0
+    assert len(c.index) == 2
