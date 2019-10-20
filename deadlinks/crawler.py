@@ -87,6 +87,9 @@ class Crawler:
 
     def add(self, link: Link) -> None:
         """ Queue URL. """
+        if link in self.index:
+            return
+
         self.index.put(link)
         self.queue.put(link)
 

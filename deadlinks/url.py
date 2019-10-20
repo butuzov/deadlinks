@@ -221,7 +221,7 @@ class URL:
 
         self.consume_links()
 
-        return self._links
+        return list(set(self._links))
 
     def link(self, href: str) -> str:
         """
@@ -230,6 +230,9 @@ class URL:
 
         note: we not going to use self.url() as it removes ending slash.
         """
+
+        if self._url.geturl() == href:
+            return self._url.geturl()
 
         return urljoin(self._url.geturl(), href)
 
