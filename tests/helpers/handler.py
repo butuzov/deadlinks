@@ -19,6 +19,12 @@ class Handler(BaseHTTPRequestHandler):
 
         response_code, mime_type, content = self.logic.handler(self.path)
 
+        if response_code == 301:
+            self.send_response(301)
+            self.send_header('Location', content % self.path)
+            self.end_headers()
+            return
+
         self.send_response(response_code)
         self.send_header('Content-type', mime_type)
         self.end_headers()

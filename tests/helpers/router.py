@@ -26,6 +26,9 @@ class Router:
             if self._pathes[url] <= param['unlocks']:
                 return 503, 'text/html', '<h1>Service Unavailable</h1>'
 
+            if param['redirects']:
+                return 301, None, param['redirects']
+
             if param['exists']:
                 return 200, param['mime_type'], param['content']
 
