@@ -285,3 +285,28 @@ def test_no_index_page(server):
     c.start()
 
     assert len(c.index) == 1
+
+
+def test_within_site_root(server):
+    """
+        test checks a case when url without trailing slash is ignored because
+        it's not stays with in path.
+    """
+    CONTENT = """
+        <a href="http://{0}:{1}">link</a>
+        <a href="http://{0}:{1}/">link</a>
+    """.format(*server.sa)
+
+    CONTENT_DOCS = CONTENT.replace('">', '/docs/">').replace('//docs/', '/docs')
+
+    address = server.router({
+        '^/$': Page(CONTENT).exists(),
+        '^/docs/?$': Page(CONTENT_DOCS).exists(),
+    })
+
+    for base in {address.rstrip("/") + "/", address.rstrip("/") + "/docs/"}:
+        settings = Settings(base, stay_within_path=True)
+        c = Crawler(settings)
+        c.start()
+
+        assert len(c.ignored) == 0
