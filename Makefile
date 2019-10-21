@@ -13,7 +13,7 @@ tests:
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
 	 	pytest . --verbose -ra -x;\
 	else\
-	 	pytest . --cov=$(PACKAGE) -n 4 --verbose -ra --ff -x;\
+	 	pytest . --cov=$(PACKAGE) -n12 --randomly-dont-reorganize --verbose -ra --ff -x;\
 	fi
 
 coverage:
