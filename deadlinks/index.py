@@ -35,6 +35,12 @@ class Index:
 
     def __init__(self) -> None:
         self._index = dict() # type: Dict[str, Link]
+        self._stats = dict({
+            Status.FOUND: 0,
+            Status.NOT_FOUND: 0,
+            Status.IGNORED: 0,
+            Status.REDIRECTION: 0,
+        })
 
     def __len__(self) -> int:
         """ Find out how many links in this index."""
@@ -94,7 +100,20 @@ class Index:
         lmbd = lambda x: x.status == Status.UNDEFINED
         return self._filter(lmbd)
 
+    def update(self, url: Link, status: Status, message: str) -> None:
+        """ wraps access to updating url status and gathering stats """
+
+        if url not in self:
+            return
+
+        url.status = status
+        url.message = message
+
+        self._stats[status] += 1
+
+    def get_stats(self) -> Dict[Status, int]:
+        return self._stats
+
     def _filter(self, lambda_func: Callable[[Link], bool]) -> List[Link]:
         """ Filters  values according lambda. """
-
         return list(filter(lambda_func, self._index.values()))

@@ -33,8 +33,13 @@ from deadlinks.settings import Settings
 from deadlinks.link import Link
 from deadlinks.crawler import Crawler
 from deadlinks.exceptions import DeadlinksExeption
-from deadlinks.reports import Console
+
+from .exporters import Export #pylint: disable-msg=W0611
+from .exporters import exporters
+
 from deadlinks.__version__ import __app_version__, __app_package__
+
+# ~ Exporters ~~~~~
 
 # ~ Options ~~~~~
 
@@ -111,9 +116,7 @@ options['export'] = {
         'default': 'default',
         'hidden': True,
         'multiple': False,
-        'type': click.Choice([
-            'default',
-        ], case_sensitive=False),
+        'type': click.Choice(list(exporters.keys()), case_sensitive=False),
         'help': 'Export type',
     },
 }
@@ -172,10 +175,20 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
             },
         )
         crawler = Crawler(settings)
+
+        driver = exporters[str(opts['export'])]
+
+        # Instantion of the exported before starting crawling will alow us to
+        # have prgress report, while we crawling website.
+        exporter = driver(crawler, **opts)
+
+        # Starting crawler
         crawler.start()
 
-        if str(opts['export']) == "default":
-            Console(crawler, **opts).report()
+        # And showing report of crawling, in 90% we not shoing anything
+        # untill crawling is done, so we can just output (pipe) data
+        # to where user desire have results.
+        exporter.report()
 
     except DeadlinksExeption as e:
         ctx.fail(str(e))

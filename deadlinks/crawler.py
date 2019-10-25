@@ -28,7 +28,7 @@ from threading import Thread
 from queue import Queue
 import time
 
-from typing import (List, Tuple, Optional)
+from typing import (List, Tuple, Optional, Dict)
 
 from deadlinks.link import Link
 from deadlinks.status import Status
@@ -53,7 +53,8 @@ class Crawler:
         self.retry = settings.retry
         self.index = Index()
 
-        self.crawling = False
+        self.crawling = False # type: bool
+        self.crawled = False # type: bool
         self.queue = Queue() # type: Queue
 
         # Initialization of the Queue and Index
@@ -72,7 +73,7 @@ class Crawler:
     def start(self) -> None:
         r""" Starts the crawling process """
 
-        if self.crawling:
+        if self.crawling or self.crawled:
             return
 
         self.crawling = True
@@ -84,6 +85,9 @@ class Crawler:
             self.queue.join()
         else:
             self.indexer()
+
+        self.crawling = False
+        self.crawled = True
 
     def add(self, link: Link) -> None:
         """ Queue URL. """
@@ -142,20 +146,19 @@ class Crawler:
         is_ignored, message = self.is_ignored(url)
 
         if is_ignored:
-            url.status = Status.IGNORED
-            url.message = str(message)
+            self.index.update(url, Status.IGNORED, str(message))
             return
 
         try:
             # TODO - rething short calls implementation.
             is_external = url.is_external(self.settings.base)
             if not url.exists(is_external, retries=self.retry):
-                url.status = Status.NOT_FOUND
+                self.index.update(url, Status.NOT_FOUND, url.message)
                 return
         except DeadlinksRedicrectionURL as _href:
             # ok, so next time we looking for this
             # we will need to make lookup to redirected URL.
-            url.status = Status.REDIRECTION
+            self.index.update(url, Status.REDIRECTION, "")
             self.add_and_go(url, str(_href))
             return
         except DeadlinksIgnoredURL:
@@ -163,7 +166,7 @@ class Crawler:
             return
 
         # we defining status of this url as FOUND
-        url.status = Status.FOUND
+        self.index.update(url, Status.FOUND, "")
 
         for href in url.links:
             self.add_and_go(url, href)
@@ -200,6 +203,11 @@ class Crawler:
     def redirected(self) -> List[Link]:
         """ Return URLs failed to exist. """
         return self.index.redirected()
+
+    @property
+    def stats(self) -> Dict[Status, int]:
+        """ return crawler stats """
+        return self.index.get_stats()
 
     def indexer(self, thread_number: int = 0) -> None:
         """ Runs indexation operation using piped source. """

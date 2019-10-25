@@ -83,13 +83,15 @@ def test_cli(site_with_links, runner, external, threads, domains, pathes, result
         "On" if external else "Off",
         threads,
     )
-    assert output[0] == FIRST_LINE
+    assert output[1] == FIRST_LINE
 
     # -- SHORT REPORT ----------------------------------------------------------
-    _, failed, succeed, ignored, _ = results
-    message = "Stats: Found {}; Not Found {}; Ignored {}".format(succeed, failed, ignored)
+    Message = "Links Total: {}; Found: {}; Not Found: {}; Ignored: {}; Redirects: {}"
+    _, failed, succeed, ignored, redirects = results
+    total = succeed + failed + ignored + redirects
+    message = Message.format(total, succeed, failed, ignored, redirects)
 
-    assert message == output[2]
+    assert message == output[3]
 
 
 @pytest.mark.timeout(15)
