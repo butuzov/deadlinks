@@ -61,9 +61,16 @@ class Default(Export):
         while not self._crawler.crawled:
             while self._crawler.crawling:
                 print(BEFORE_BAR, file=stdout, end="", flush=True)
+
+                # why: because len of the colored progress msg is way larger
+                #      decolored one, so its print way more spaces to strout.
+                if self.is_colored():
+                    self._progress_msg = click.unstyle(self._progress_msg)
+
                 print(' ' * len(self._progress_msg), file=stdout, end="", flush=True)
                 print(BEFORE_BAR, file=stdout, end="", flush=True)
 
+                # why: hey, its just regular coloring output (isntead click.echo)
                 self._progress_msg = self._get_progress()
                 if not self.is_colored():
                     self._progress_msg = click.unstyle(self._progress_msg)
