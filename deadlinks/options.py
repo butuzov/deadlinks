@@ -124,4 +124,12 @@ default_options = [
             'help': 'Color output of `default` export',
         },
     ),
+    (
+        ('--fiff', ),
+        {
+            'default': False,
+            'is_flag': True,
+            'help': 'Fail if failed URLs are found',
+        },
+    ),
 ]

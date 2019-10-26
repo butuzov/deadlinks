@@ -78,6 +78,9 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
         # to where user desire have results.
         exporter.report()
 
+        if opts['fiff'] and len(crawler.failed) > 0:
+            ctx.exit(1)
+
     except DeadlinksExeption as e:
         ctx.fail(e.__str__())
 
