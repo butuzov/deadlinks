@@ -70,18 +70,16 @@ def register_options(group: str, options: List[Tuple[Any, Dict[str, Any]]]) -> C
 class Clicker(Command):
     """ Custom CLI class, for henerating better `help`"""
 
-    # TODO: Spelling "domians"
     EXAMPLES = dedent(
         """\
             // Check links (including external) at http://gobyexample.com/ in 10 threads,
-            // but not ones from domians play.golang.org or github.com
+            // but not ones that leading to domains play.golang.org or github.com
             deadlinks gobyexample.com -n 10 -e -d play.golang.org -d github.com
 
-            // Limit check only to links in /docs/ and run crawler in 10 threads.
-            deadlinks http://localhost:1313/docs/ -n 10
+            // Limiting check only to links found within /docs path.
+            deadlinks http://localhost:1313/docs
 
-            // Run Crawler for all local links that belong to 127.0.0.1:1313
-            // using http://localhost:1313/docs/ as start URL.
+            // Running checks for all local links that belong to a domain.
             deadlinks http://localhost:1313/docs/ -n 10 --full-site-check
         """)
 
