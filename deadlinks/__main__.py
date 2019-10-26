@@ -28,152 +28,40 @@ from typing import Dict, Any
 
 import click
 
-from deadlinks.help import CLI
 from deadlinks.settings import Settings
-from deadlinks.link import Link
 from deadlinks.crawler import Crawler
 from deadlinks.exceptions import DeadlinksExeption
 
 from .exporters import Export #pylint: disable-msg=W0611
 from .exporters import exporters
 
-from deadlinks.__version__ import __app_version__, __app_package__
+from .__version__ import __app_version__ as version
+from .__version__ import __app_package__ as name
 
-# ~ Exporters ~~~~~
-
-# ~ Options ~~~~~
-
-options = dict() # type: Dict[str, Dict[str, Any]]
-
-options['external'] = {
-    'keys': ['-e', '--external'],
-    'params': {
-        'default': False,
-        'is_flag': True,
-        'multiple': False,
-        'show_default': True,
-        'help': 'Enables external resources check',
-    }
-}
-
-options['retry'] = {
-    'keys': ['-r', '--retry'],
-    'params': {
-        'default': 0,
-        'type': click.IntRange(0, 10),
-        'is_flag': False,
-        'multiple': False,
-        'show_default': True,
-        'help': 'try for error',
-    }
-}
-options['threads'] = {
-    'keys': ['-n', '--threads'],
-    'params': {
-        'default': 1,
-        'type': click.IntRange(1, 10),
-        'is_flag': False,
-        'multiple': False,
-        'show_default': True,
-        'help': 'Specify number of parallel processes to use',
-    }
-}
-options['domains'] = {
-    'keys': ['-d', '--domains'],
-    'params': {
-        'multiple': True,
-        'help': 'Domains to ignore',
-    },
-}
-options['pathes'] = {
-    'keys': ['-p', '--pathes'],
-    'params': {
-        'multiple': True,
-        'help': 'Pathes to ignore',
-    },
-}
-
-options['show'] = {
-    'keys': ['-s', '--show'],
-    'params': {
-        'default': ['failed'],
-        'multiple': True,
-        'type': click.Choice([
-            'failed',
-            'ok',
-            'ignored',
-            'all',
-            'none',
-        ], case_sensitive=False),
-        'show_default': True,
-        'help': 'Category of URLs to show.',
-    },
-}
-
-options['export'] = {
-    'keys': ['--export'],
-    'params': {
-        'default': 'default',
-        'hidden': True,
-        'multiple': False,
-        'type': click.Choice(list(exporters.keys()), case_sensitive=False),
-        'help': 'Export type',
-    },
-}
-
-options['within_path'] = {
-    'keys': ['--full-site-check'],
-    'params': {
-        'default': False,
-        'is_flag': True,
-        'help': 'Check links on domain not limiting',
-    },
-}
-
-options['color'] = {
-    'keys': ['--no-colors'],
-    'params': {
-        'default': False,
-        'is_flag': True,
-        'help': 'Color output of `default` export',
-    },
-}
-
-# ~ Actual command decoration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+from .options import default_options
+from .clicker import register_options
+from .clicker import command
+from .clicker import argument
 
 
-@click.command(__app_package__, cls=CLI, context_settings={"ignore_unknown_options": True})
-@click.argument('url', nargs=1, required=True, metavar='<URL>')
-@click.option(*options['external']['keys'], **options['external']['params'])
-@click.option(*options['threads']['keys'], **options['threads']['params'])
-@click.option(*options['retry']['keys'], **options['retry']['params'])
-@click.option(*options['domains']['keys'], **options['domains']['params'])
-@click.option(*options['pathes']['keys'], **options['pathes']['params'])
-@click.option(*options['show']['keys'], **options['show']['params'])
-@click.option(*options['export']['keys'], **options['export']['params'])
-@click.option(*options['within_path']['keys'], **options['within_path']['params'])
-@click.option(*options['color']['keys'], **options['color']['params'])
-@click.version_option(
-    message='%(prog)s: v%(version)s',
-    prog_name=__app_package__,
-    version=__app_version__,
-)
+@click.command(name, **command)
+@click.argument('url', **argument)
+@click.version_option(message='%(prog)s: v%(version)s', prog_name=name, version=version)
+@register_options("Default Options", default_options)
 @click.pass_context
 def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
-    """ checking links from web resource for dead/alive status. """
+    """ Check links in your (web) documentation for accessibility.  """
 
     try:
         settings = Settings(
-            normilize_domain(url),
-            **{
+            url, **{
                 'check_external_urls': opts['external'],
                 'stay_within_path': not opts['full_site_check'],
                 'threads': opts['threads'],
                 'retry': opts['retry'],
                 'ignore_domains': opts['domains'],
                 'ignore_pathes': opts['pathes'],
-            },
-        )
+            })
         crawler = Crawler(settings)
 
         driver = exporters[str(opts['export'])]
@@ -191,17 +79,7 @@ def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
         exporter.report()
 
     except DeadlinksExeption as e:
-        ctx.fail(str(e))
-
-
-def normilize_domain(url: str) -> str:
-    """ 'guessing' scheme for urls without it. """
-
-    u = Link(url)
-    if not u.is_valid() and not u.scheme:
-        return "http://{}".format(url)
-
-    return url
+        ctx.fail(e.__str__())
 
 
 if __name__ == "__main__":
