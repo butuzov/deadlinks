@@ -39,8 +39,9 @@ class Default(Export):
 
         self._progress_msg = ""
 
-        self._progress_trd = Thread(target=self._progress_handler, daemon=True)
-        self._progress_trd.start()
+        if not opts['no_progress']:
+            self._progress_trd = Thread(target=self._progress_handler, daemon=True)
+            self._progress_trd.start()
 
     def is_colored(self) -> bool:
         """ provides check about colored output """
@@ -79,6 +80,16 @@ class Default(Export):
                     'default': False,
                     'is_flag': True,
                     'help': 'Color output of `default` export',
+                },
+            ),
+
+            # do not show colored output
+            (
+                ('--no-progress', ),
+                {
+                    'default': False,
+                    'is_flag': True,
+                    'help': 'Disable indexation Proogresion output',
                 },
             ),
         ]
