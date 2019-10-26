@@ -102,28 +102,6 @@ default_options = [
             'help': 'Category of URLs to show.',
         },
     ),
-
-    # Default export
-    (
-        ('--export', ),
-        {
-            'default': 'default',
-            'hidden': True,
-            'multiple': False,
-            'type': Choice(['default'], case_sensitive=False),
-            'help': 'Export type',
-        },
-    ),
-
-    # do not show colored output
-    (
-        ('--no-colors', ),
-        {
-            'default': False,
-            'is_flag': True,
-            'help': 'Color output of `default` export',
-        },
-    ),
     (
         ('--fiff', ),
         {

@@ -35,27 +35,59 @@ from click import HelpFormatter as Formatter
 from .link import Link
 
 
+def register_exports(exporters: Dict[str, Any]) -> Callable:
+
+    def decorator(f: Any) -> Any:
+
+        if not hasattr(f, '__click_params_groups__'):
+            f.__click_params_groups__ = OrderedDict()
+
+        if not hasattr(f, '__click_params__'):
+            f.__click_params__ = []
+
+        for exporter in exporters.values():
+            group, options = exporter.options()
+
+            for option in reversed(options):
+                param, attr = option
+                option_attr = attr.copy()
+                OptionClass = option_attr.pop('cls', Option)
+
+                _option = OptionClass(param, **attr)
+                f.__click_params__.append(_option)
+
+                if group not in f.__click_params_groups__:
+                    f.__click_params_groups__[group] = []
+
+                f.__click_params_groups__[group].append(_option.name)
+
+        return f
+
+    return decorator
+
+
 def register_options(group: str, options: List[Tuple[Any, Dict[str, Any]]]) -> Callable:
     """ Register Multiple Options in one set  """
 
     def decorator(f: Any) -> Any:
         """ Final decoration for main """
+
+        if not hasattr(f, '__click_params_groups__'):
+            f.__click_params_groups__ = OrderedDict()
+
+        if not hasattr(f, '__click_params__'):
+            f.__click_params__ = []
+
         # Issue 926, just in case we also need to worry about custom cls.
-        for option in options:
+        for option in reversed(options):
             param, attr = option
             option_attr = attr.copy()
             OptionClass = option_attr.pop('cls', Option)
-
-            # options
-            if not hasattr(f, '__click_params__'):
-                f.__click_params__ = []
 
             _option = OptionClass(param, **attr)
             f.__click_params__.append(_option)
 
             # groups
-            if not hasattr(f, '__click_params_groups__'):
-                f.__click_params_groups__ = OrderedDict()
 
             if group not in f.__click_params_groups__:
                 f.__click_params_groups__[group] = []

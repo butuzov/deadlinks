@@ -25,7 +25,7 @@ Abstract Interface we will ask to implemnt child classes.
 # -- Imports -------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from typing import (Dict, Sequence) #pylint: disable-msg=W0611
+from typing import (Dict, List, Tuple, Any) #pylint: disable-msg=W0611
 
 from ..crawler import Crawler
 """
@@ -46,6 +46,12 @@ class Export(ABC):
     @abstractmethod
     def __init__(self, crawler: Crawler, **opts: Dict) -> None:
         """ you need to implement init method """
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def options() -> Tuple[str, List[Tuple[Tuple[str], Dict[str, Any]]]]:
+        """ you need to implement report method """
         raise NotImplementedError
 
     @abstractmethod

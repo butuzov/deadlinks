@@ -1,11 +1,12 @@
 # -- Imports -------------------------------------------------------------------
 from threading import Thread
 
-from typing import (Dict, Sequence) #pylint: disable-msg=W0611
+from typing import (Dict, Tuple, List, Sequence, Any) #pylint: disable-msg=W0611
 from sys import stdout
 from time import sleep
 
 import click
+from click import IntRange, Choice
 
 from .export import Export
 from ..crawler import Crawler
@@ -54,6 +55,35 @@ class Default(Export):
         )
 
         return message
+
+    @staticmethod
+    def options() -> Tuple[str, List[Tuple[Tuple[str], Dict[str, Any]]]]:
+
+        name = "Exporter (default)"
+        options = [
+            # Default export
+            (
+                ('--export', ),
+                {
+                    'default': 'default',
+                    'hidden': True,
+                    'multiple': False,
+                    'type': Choice(['default'], case_sensitive=False),
+                    'help': 'Export type',
+                },
+            ),
+            # do not show colored output
+            (
+                ('--no-colors', ),
+                {
+                    'default': False,
+                    'is_flag': True,
+                    'help': 'Color output of `default` export',
+                },
+            ),
+        ]
+
+        return (name, options)
 
     def _progress_handler(self) -> None:
         """ progress handler desides states regarding crawler """

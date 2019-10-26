@@ -40,6 +40,7 @@ from .__version__ import __app_package__ as name
 
 from .options import default_options
 from .clicker import register_options
+from .clicker import register_exports
 from .clicker import command
 from .clicker import argument
 
@@ -47,6 +48,7 @@ from .clicker import argument
 @click.command(name, **command)
 @click.argument('url', **argument)
 @click.version_option(message='%(prog)s: v%(version)s', prog_name=name, version=version)
+@register_exports(exporters)
 @register_options("Default Options", default_options)
 @click.pass_context
 def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
