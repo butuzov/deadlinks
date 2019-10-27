@@ -15,6 +15,7 @@ import pytest
 from deadlinks import (Settings, Link)
 from deadlinks.exceptions import (
     DeadlinksSettingsPathes,
+    DeadlinksSettingsPath,
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
     DeadlinksSettingsRetry,
@@ -138,6 +139,17 @@ def test_pathes_ok(pathes):
 # --- Stay within path --------------------------------------------------------
 def test_stay_within_path(settings):
     assert settings.stay_within_path
+
+    # changeing it?
+    with pytest.raises(DeadlinksSettingsPath):
+        settings.stay_within_path = False
+
+
+@pytest.mark.parametrize('stay', ["Yes", 1.1, 1, None])
+def test_stay_within_path_exception(stay):
+    """ Breaking threads property with wrong values """
+    with pytest.raises(DeadlinksSettingsPath):
+        Settings("http://google.com", stay_within_path=stay)
 
 
 # --- Thread -------------------------------------------------------------------

@@ -1,24 +1,17 @@
 # -- Imports -------------------------------------------------------------------
 from threading import Thread
+from os import name as os_name
 
-from typing import (Dict, Tuple, List, Sequence, Any) #pylint: disable-msg=W0611
-from sys import stdout
+from typing import (Dict, Tuple, List, Sequence, Any)
 from time import sleep
 
 import click
-from click import IntRange, Choice
 
 from .export import Export
 from ..crawler import Crawler
 
-from os import name as os_name
-
-if os_name == 'nt':
-    BEFORE_BAR = '\r'
-    AFTER_BAR = '\n'
-else:
-    BEFORE_BAR = '\r\033[?25l'
-    AFTER_BAR = '\033[?25h\n'
+BEFORE_BAR = '\r' if os_name == 'nt' else '\r\033[?25l'
+AFTER_BAR = '\n' if os_name == 'nt' else '\033[?25h\n'
 
 
 class Default(Export):
@@ -38,10 +31,8 @@ class Default(Export):
         self._opts = opts
 
         self._progress_msg = ""
-
-        if not opts['no_progress']:
-            self._progress_trd = Thread(target=self._progress_handler, daemon=True)
-            self._progress_trd.start()
+        self._progress_trd = Thread(target=self._progress_handler, daemon=True)
+        self._progress_trd.start()
 
     def is_colored(self) -> bool:
         """ provides check about colored output """
@@ -69,7 +60,7 @@ class Default(Export):
                     'default': 'default',
                     'hidden': True,
                     'multiple': False,
-                    'type': Choice(['default'], case_sensitive=False),
+                    'type': click.Choice(['default'], case_sensitive=False),
                     'help': 'Export type',
                 },
             ),
@@ -89,7 +80,7 @@ class Default(Export):
                 {
                     'default': False,
                     'is_flag': True,
-                    'help': 'Disable indexation Proogresion output',
+                    'help': 'Disable Proogresion output',
                 },
             ),
         ]
@@ -99,24 +90,20 @@ class Default(Export):
     def _progress_handler(self) -> None:
         """ progress handler desides states regarding crawler """
 
+        # user disables progression reports.
+        if self._opts['no_progress']:
+            return
+
         while not self._crawler.crawled:
             while self._crawler.crawling:
-                print(BEFORE_BAR, file=stdout, end="", flush=True)
+                click.echo(BEFORE_BAR, nl=False)
 
-                # why: because len of the colored progress msg is way larger
-                #      decolored one, so its print way more spaces to strout.
-                if self.is_colored():
-                    self._progress_msg = click.unstyle(self._progress_msg)
+                unstyled_text_len = len(click.unstyle(self._progress_msg))
+                click.echo(' ' * unstyled_text_len, nl=False)
+                click.echo(BEFORE_BAR, nl=False)
 
-                print(' ' * len(self._progress_msg), file=stdout, end="", flush=True)
-                print(BEFORE_BAR, file=stdout, end="", flush=True)
-
-                # why: hey, its just regular coloring output (isntead click.echo)
                 self._progress_msg = self._get_progress()
-                if not self.is_colored():
-                    self._progress_msg = click.unstyle(self._progress_msg)
-
-                print(self._progress_msg, file=stdout, end="", flush=True)
+                click.echo(self._progress_msg, color=self.is_colored(), nl=False)
                 sleep(0.1)
 
     def _get_progress(self) -> str:
@@ -147,10 +134,9 @@ class Default(Export):
 
     def _generate(self, key: str) -> str:
         """ generate a report about urls """
-        if key not in {'failed', 'ok', 'ignored'}:
-            return ""
 
         param = 'succeed' if key == 'ok' else key
+
         links = self._crawler.__getattribute__(param)
         if not links:
             return ""
@@ -161,11 +147,11 @@ class Default(Export):
 
     def report(self) -> None:
 
-        last_line_printed = click.unstyle(self._progress_msg)
-
-        print(BEFORE_BAR, file=stdout, end="", flush=True)
-        print(' ' * len(last_line_printed), file=stdout, end="", flush=True)
-        print(BEFORE_BAR, file=stdout, end='', flush=True)
+        # progress wasn't disabled, so we need to cleanup a bit.
+        if not self._opts['no_progress']:
+            click.echo(BEFORE_BAR, nl=False)
+            click.echo(' ' * len(click.unstyle(self._progress_msg)), nl=False)
+            click.echo(BEFORE_BAR, nl=False)
 
         info = self.info() # type: str
         stat = self._get_progress() # type: str
@@ -177,7 +163,8 @@ class Default(Export):
         click.echo("=" * split_line_len)
 
         click.echo(stat, color=self.is_colored())
-        print("-" * split_line_len, file=stdout, end='\033[?25h\n')
+        click.echo(("-"*split_line_len) + "\033[?25h", nl=True)
+        # print("+" * split_line_len, file=stdout, end='\033[?25h\n')
 
         # show some url report(s)
         show = list(self._opts.get('show', [])) # type: Sequence[str]

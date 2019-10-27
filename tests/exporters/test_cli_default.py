@@ -1,12 +1,9 @@
 """
-cli_test.py
+exporter/test_cli_default.py
 -----------
 
-Testing cli app
+Testing General/Default Exporter of cli.
 
-TODO
-- [ ] Reports tests
-- [ ] Fails tests
 """
 
 from collections import Counter
@@ -15,9 +12,11 @@ from random import choice
 import pytest
 
 from click.testing import CliRunner
+from click import unstyle
 from tests.helpers import Page
 
 from deadlinks.__main__ import main
+from deadlinks.exporters import Default
 
 
 @pytest.fixture
@@ -47,7 +46,7 @@ site_with_links_defaults = [
 
 
 def make_params(external, threads, domains, pathes):
-    args = ['-n', threads]
+    args = ['-n', threads, '--no-progress', '--no-colors']
 
     for domain in domains:
         args.append('-d')
@@ -70,7 +69,6 @@ def test_cli(site_with_links, runner, external, threads, domains, pathes, result
     # parameters
     show_key = choice(['-s', '--show'])
     args = [site_with_links] + make_params(external, threads, domains, pathes) + [show_key, 'none']
-    args += ["--no-colors"]
 
     result = runner.invoke(main, args)
     output = result.output.rstrip("\n").split("\n")
@@ -113,13 +111,13 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
 
     stats = Counter()
 
-    for line in output[4:]:
+    for line in output[5:]:
         params = line.split(" ")
         assert len(params) >= 3
         stats[params[1]] += 1
 
     if show == 'none':
-        assert len(output) == 4
+        assert len(output) == 5
 
     if show in {'failed', 'all'}:
         assert stats['failed'] == failed
@@ -132,25 +130,9 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
 
 
 def test_help(runner):
-
     result = runner.invoke(main, ['--help'])
-
-    assert result.exit_code == 0
-
-    for word in {'Usage', 'Examples', 'Options'}:
-        assert word in result.output
-
-
-def test_version(runner):
-
-    result = runner.invoke(main, ['--version'])
-
-    assert result.exit_code == 0
-
-    from deadlinks.__version__ import __app_version__ as version
-    from deadlinks.__version__ import __app_package__ as package
-
-    assert result.output.rstrip("\n") == "{}: v{}".format(package, version)
+    section, options = Default.options()
+    assert section in result.output
 
 
 @pytest.mark.parametrize(
@@ -165,7 +147,7 @@ def test_full_site(simple_site, runner, stay_within_path, check_external, result
     # parameters
     url = "{}/{}".format(simple_site.rstrip("/"), "projects/")
 
-    args = [url, '-s', 'all', '--no-colors']
+    args = [url, '-s', 'all']
     args += make_params(check_external, 10, [], [])
     if not stay_within_path:
         args += ['--full-site-check']
@@ -178,7 +160,7 @@ def test_full_site(simple_site, runner, stay_within_path, check_external, result
 
     stats = Counter()
 
-    for line in output[4:]:
+    for line in output[5:]:
         params = line.split(" ")
         assert len(params) >= 3
         stats[params[1]] += 1
@@ -209,10 +191,60 @@ def test_redirection(servers, runner):
         '^/$': Page("<a href='{0}'>{0}</a>".format(linked_domain)).exists(),
     })
 
-    args = [site_to_index, '-e', '-s', 'all', '--no-colors']
+    args = [site_to_index, '-e', '-s', 'all']
 
     result = runner.invoke(main, args)
 
     assert linked_domain in result.output
     assert external_urls[0] not in result.output
     assert external_urls[1] not in result.output
+
+
+def test_default__no_colors(server, runner):
+
+    address = server.router({
+        '^/$': Page("").exists(),
+    })
+
+    args = [address, '-s', 'none', '--no-progress']
+
+    result = runner.invoke(main, args)
+    output_color = result.output.rstrip("\n").split("\n")
+
+    args.append('--no-colors')
+    result = runner.invoke(main, args)
+    output_plain = result.output.rstrip("\n").split("\n")
+
+    assert len(output_color) == len(output_plain)
+    assert output_color[0] == output_plain[0]
+    assert output_color[1] == output_plain[1]
+    assert output_color[2] == output_plain[2]
+    assert output_color[4] == output_plain[4]
+
+    # colored lines.
+    assert output_plain[3] != output_color[3]
+    assert output_plain[3] == unstyle(output_color[3])
+
+
+def test_default_progress_on(server):
+    address = server.router({
+        '^/$': Page("").slow().exists().unlock_after(2),
+    })
+    args = [address, '-s', 'none', '--no-colors', '-r', '2']
+    result = CliRunner(echo_stdin=True).invoke(main, args)
+    output = result.output.rstrip("\n").split("\n")
+
+    returns = output[0].split("\r")
+    assert len(returns) > 1
+
+
+def test_default_progress_off(server):
+    address = server.router({
+        '^/$': Page("").slow().exists().unlock_after(2),
+    })
+    args = [address, '-s', 'none', '--no-colors', '--no-progress', '-r', '2']
+    result = CliRunner(echo_stdin=True).invoke(main, args)
+    output = result.output.rstrip("\n").split("\n")
+
+    returns = output[0].split("\r")
+    assert len(returns) == 1

@@ -89,6 +89,13 @@ def test_is_external_of_wrong_type(base, url):
         assert Link(base).is_external(url)
 
 
+def test_non_string_message():
+    """ (Mis)Typed external links """
+
+    with pytest.raises(TypeError):
+        Link("http://google.com/").message = 404
+
+
 @pytest.mark.parametrize(
     'base, url',
     [
@@ -110,8 +117,6 @@ def test_is_interal_links(base, url):
 
 def test_links(server):
     """ General testing for link. """
-
-    from tests.helpers import Page
 
     url = server.router({
         '^/$': Page('<a href="https://google.com/">google</a>').exists(),

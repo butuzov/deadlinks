@@ -52,7 +52,7 @@ from .clicker import argument
 @register_options("Default Options", default_options)
 @click.pass_context
 def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
-    """ Check links in your (web) documentation for accessibility.  """
+    """ Check links in your (web) documentation for accessibility. """
 
     try:
         settings = Settings(

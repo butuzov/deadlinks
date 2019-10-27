@@ -25,7 +25,7 @@ Abstract Interface we will ask to implemnt child classes.
 # -- Imports -------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from typing import (Dict, List, Tuple, Any) #pylint: disable-msg=W0611
+from typing import (Dict, List, Tuple, Any)
 
 from ..crawler import Crawler
 """
