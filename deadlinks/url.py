@@ -27,6 +27,7 @@ URL representation with benefits
 from typing import (List, Optional) #pylint: disable-msg=W0611
 
 from urllib.parse import (urlparse, urljoin)
+from html import unescape
 from re import compile as _compile
 
 from requests import RequestException
@@ -45,6 +46,7 @@ __RE_LINKS__ = _compile(r'<a\s{1}([^>]+)>') # pylint: disable=W1401
 # filters
 CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
 ANCHORS = lambda x: x.split("#")[0] # removed part after anchor
+UNESCPE = lambda x: unescape(x) # pylint: disable=W0108
 
 
 class URL:
@@ -210,7 +212,10 @@ class URL:
 
             links.append(link)
 
-        self._links = list(map(ANCHORS, map(CLEANER, links)))
+        self._links = list(links)
+        self._links = list(map(CLEANER, self._links))
+        self._links = list(map(ANCHORS, self._links))
+        self._links = list(map(UNESCPE, self._links))
 
     @property
     def links(self) -> List[str]:
