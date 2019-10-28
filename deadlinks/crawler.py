@@ -25,10 +25,12 @@ Crawl the links on from the provided start point.
 # -- Imports -------------------------------------------------------------------
 
 from threading import Thread
+from signal import (signal, SIGINT)
 from queue import Queue
 import time
 
 from typing import (List, Tuple, Optional, Dict)
+from types import FrameType
 
 from deadlinks.link import Link
 from deadlinks.status import Status
@@ -53,6 +55,8 @@ class Crawler:
         self.retry = settings.retry
         self.index = Index()
 
+        # Application state
+        self.terminated = False # type: bool
         self.crawling = False # type: bool
         self.crawled = False # type: bool
         self.queue = Queue() # type: Queue
@@ -70,13 +74,20 @@ class Crawler:
 
         self.add(self._base)
 
-    def start(self) -> None:
-        r""" Starts the crawling process """
+    def stop(self, sig: int, frame: FrameType) -> None:
+        """ capturing sigint signal and stops runnig engines """
+        self.terminated = True
 
-        if self.crawling or self.crawled:
+    def start(self) -> None:
+        """ Starts the crawling process """
+
+        if self.crawling or self.crawled or self.terminated:
             return
 
         self.crawling = True
+
+        # catching kill signal.
+        signal(SIGINT, self.stop)
 
         if self.settings.threads > 1:
             for idx in range(1, 1 + self.settings.threads):
@@ -210,14 +221,17 @@ class Crawler:
         return self.index.get_stats()
 
     def indexer(self, thread_number: int = 0) -> None:
-        """ Runs indexation operation using piped source. """
+        """ Indexation process """
 
         while True:
-            while not self.queue.empty():
+            while not self.terminated and not self.queue.empty():
                 url = self.queue.get()
                 self.update(url)
                 self.queue.task_done()
             else:
+
+                if self.terminated:
+                    return
 
                 if thread_number == 0:
                     break
