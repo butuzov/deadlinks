@@ -5,6 +5,8 @@ exporter/test_cli.py
 Testing cli frunctionality.
 """
 
+from collections import OrderedDict
+
 import pytest
 
 from click.testing import CliRunner
@@ -16,6 +18,16 @@ from deadlinks.__main__ import main
 @pytest.fixture
 def runner():
     return CliRunner()
+
+
+def test_options():
+    """ testing 'main' callback properties """
+
+    assert not hasattr(main, '__click_params_groups__')
+    assert hasattr(main, '_groups')
+    assert isinstance(main._groups, OrderedDict)
+    assert "Other" in main._groups
+    assert "Default Options" in main._groups
 
 
 def test_help(runner):
@@ -73,3 +85,19 @@ def test_default_url_issue(runner, dsn):
     assert result.exit_code == 2
     MESSAGE = "Error: URL {} is not valid"
     assert MESSAGE.format(dsn) in result.output
+
+
+def test_default_url_noscheme_issue(server, runner):
+    """ no domain cli execution test """
+    address = server.router({
+        '^/$': Page("").exists(),
+    })
+
+    scheme, address = address.split("//")
+
+    args = [address, '-s', 'failed', '--no-progress', '--fiff']
+
+    result = runner.invoke(main, args)
+
+    assert result.exit_code == 0
+    assert "{}//{}".format(scheme, address) in result.output
