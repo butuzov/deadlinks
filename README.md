@@ -12,7 +12,7 @@
 
 **deadlinks** is a simple cli tool to check your documentation/website for deadlinks.
 
-[![asciicast](https://asciinema.org/a/277128.svg)](https://asciinema.org/a/277128)
+![](demo.gif)
 
 ## Features
 
