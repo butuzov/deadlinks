@@ -148,9 +148,16 @@ class Default(Export):
     def report(self) -> None:
 
         # progress wasn't disabled, so we need to cleanup a bit.
+        clear_line_width = len(click.unstyle(self._progress_msg))
+
+        if self._crawler.terminated:
+            # we adding additional 10 spaces to clear ^C we got on the
+            # terminal if ^C pressed.
+            clear_line_width += 10
+
         if not self._opts['no_progress']:
             click.echo(BEFORE_BAR, nl=False)
-            click.echo(' ' * len(click.unstyle(self._progress_msg)), nl=False)
+            click.echo(' ' * clear_line_width, nl=False)
             click.echo(BEFORE_BAR, nl=False)
 
         info = self.info() # type: str
@@ -158,13 +165,19 @@ class Default(Export):
 
         split_line_len = max(len(click.unstyle(info)), len(click.unstyle(stat)))
 
+        if self._crawler.terminated:
+            term_msg = "Results can be inconsistent, as execution was terminated."
+            pref_len = (split_line_len - len(term_msg)) // 2
+            click.echo((" " * split_line_len))
+            click.echo((" "*pref_len) + term_msg)
+            click.echo((" "*pref_len) + ("^" * len(term_msg)))
+
         click.echo("=" * split_line_len)
         click.echo(info, color=self.is_colored())
         click.echo("=" * split_line_len)
 
         click.echo(stat, color=self.is_colored())
-        click.echo(("-"*split_line_len) + "\033[?25h", nl=True)
-        # print("+" * split_line_len, file=stdout, end='\033[?25h\n')
+        click.echo(("-"*split_line_len) + "\033[?25h")
 
         # show some url report(s)
         show = list(self._opts.get('show', [])) # type: Sequence[str]
