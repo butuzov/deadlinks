@@ -15,5 +15,5 @@ pytest-cov>=2.6.1
 pytest-xdist>=1.29.0
 # docs
 Sphinx==2.2.1
-recommonmark
+recommonmark==0.6.0
 sphinx-rtd-theme
