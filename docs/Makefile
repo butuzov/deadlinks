@@ -12,6 +12,19 @@ BUILDDIR      = ../build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+
+open:
+	open http://localhost:5678
+
+site:
+	ghp -root=../build/dirhtml -port=5678
+
+# Put it first so that "make" without argument is like "make help".
+docs:
+	@$(SPHINXBUILD) -M dirhtml "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+test: open docs site
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new
