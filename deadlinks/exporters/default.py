@@ -94,8 +94,8 @@ class Default(Export):
         if self._opts['no_progress']:
             return
 
-        while not self._crawler.crawled:
-            while self._crawler.crawling:
+        while not (self._crawler.crawled or self._crawler.terminated):
+            if self._crawler.crawling:
                 click.echo(BEFORE_BAR, nl=False)
 
                 unstyled_text_len = len(click.unstyle(self._progress_msg))
