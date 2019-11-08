@@ -4,6 +4,8 @@ PYLINT ?= pylint
 MYPY   ?= mypy
 BUILD  = build
 DIST   = dist
+BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
+COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
 
 .PHONY:*
 
@@ -40,13 +42,35 @@ clean:
 	rm -rf ${DIST}
 	rm -rf ${BUILD}
 
+
+# installing deployment toolset
+deploy:
+	python3 -m pip install --upgrade wheel twine
+
 build: clean
 	python3 setup.py sdist bdist_wheel
 
-deploy-test: build
+# For Pre Release Testing
+deploy-test: deploy build
 	@if [ ! -z ${DEADLINKS_VERSION} ]; then\
 		twine upload -u ${PYPI_TEST_USER} --repository-url https://test.pypi.org/legacy/ dist/*;\
+	else \
+		echo "You need to provide DEADLINKS_VERSION to run this command";\
 	fi
 
-deploy-prod: build
-	twine upload -u ${PYPI_PROD_USER} --repository-url https://pypi.org/legacy/ dist/*;
+# Deployment to production PyPI at https://pypi.org/project/deadlinks
+# require to entrer password (during deploy)
+deploy-prod: deploy build
+	twine upload -u ${PYPI_PROD_USER} --repository-url https://pypi.org/legacy/ dist/*;\
+
+
+# Building Docker Imags Localy.
+docker-build-local:
+	-docker tag butuzov/deadlinks:local butuzov/deadlinks:prev
+	 docker build . -t butuzov/deadlinks:local
+	-docker rmi butuzov/deadlinks:prev
+
+
+# TODO: Add some e2e testing (against) cli
+docker-run-local: docker-build-local
+	docker run --rm -it --network=host  butuzov/deadlinks:local --version
