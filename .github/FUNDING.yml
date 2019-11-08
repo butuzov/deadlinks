@@ -1,2 +1,4 @@
-github: [ "butuzov" ]
-ko_fi: "butuzov"
+github:
+- butuzov
+custom:
+- https://www.buymeacoffee.com/butuzov
