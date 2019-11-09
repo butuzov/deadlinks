@@ -25,10 +25,12 @@ Crawl the links on from the provided start point.
 # -- Imports -------------------------------------------------------------------
 
 from threading import Thread
+from signal import (signal, SIGINT)
 from queue import Queue
 import time
 
-from typing import (List, Tuple, Optional)
+from typing import (List, Tuple, Optional, Dict)
+from types import FrameType
 
 from deadlinks.link import Link
 from deadlinks.status import Status
@@ -53,7 +55,10 @@ class Crawler:
         self.retry = settings.retry
         self.index = Index()
 
-        self.crawling = False
+        # Application state
+        self.terminated = False # type: bool
+        self.crawling = False # type: bool
+        self.crawled = False # type: bool
         self.queue = Queue() # type: Queue
 
         # Initialization of the Queue and Index
@@ -69,24 +74,83 @@ class Crawler:
 
         self.add(self._base)
 
-    def start(self) -> None:
-        r""" Starts the crawling process """
+    def stop(self, sig: int, frame: FrameType) -> None:
+        """ Capturs SIGINT signal and and change terminition state """
 
-        if self.crawling:
+        self.terminated = True
+
+    def terminition_watcher(self) -> None:
+        """ Clears queue on teminated execution
+
+        TODO: Test long term waiting page and terminition
+        """
+
+        while not self.terminated:
+            time.sleep(0.01)
+
+        time.sleep(0.01)
+        try:
+            while not self.queue.empty():
+                self.queue.task_done()
+        except ValueError:
+            pass
+
+    def start(self) -> None:
+        """ Starts the crawling process """
+
+        if self.crawling or self.crawled or self.terminated:
             return
 
         self.crawling = True
 
+        # catching kill signal.
+        signal(SIGINT, self.stop)
+
         if self.settings.threads > 1:
+
+            thread = Thread(target=self.terminition_watcher, daemon=True)
+            thread.start()
+
             for idx in range(1, 1 + self.settings.threads):
                 thread = Thread(target=self.indexer, args=[idx], daemon=True)
                 thread.start()
+
             self.queue.join()
         else:
             self.indexer()
 
+        self.crawling = False
+        self.crawled = True
+
+    def indexer(self, thread_number: int = 0) -> None:
+        """ Indexation process """
+
+        while True:
+            while not self.terminated and not self.queue.empty():
+
+                url = self.queue.get()
+                self.update(url)
+                self.queue.task_done()
+
+            else:
+
+                # catching terminated
+                if self.terminated:
+                    return
+
+                # in case is its only 1 thread we NOT waiting for
+                # new url to come.
+                if thread_number == 0:
+                    break
+
+                # and we wait for fraction of second, if there are many threads.
+                time.sleep(thread_number / 10)
+
     def add(self, link: Link) -> None:
-        """ Queue URL. """
+        """ Queue URL """
+        if link in self.index:
+            return
+
         self.index.put(link)
         self.queue.put(link)
 
@@ -94,6 +158,10 @@ class Crawler:
         """ Check if url can be ignored """
 
         # We can have few different cases when URL is ignored.
+
+        # ok, checking for valid link first
+        if not url.is_valid():
+            return (True, "URL isn't valid")
 
         # TODO - Site Owner Ask (via meta tag) to ignore this URL
         # https://support.google.com/webmasters/answer/93710?hl=en
@@ -135,20 +203,19 @@ class Crawler:
         is_ignored, message = self.is_ignored(url)
 
         if is_ignored:
-            url.status = Status.IGNORED
-            url.message = str(message)
+            self.index.update(url, Status.IGNORED, str(message))
             return
 
         try:
             # TODO - rething short calls implementation.
             is_external = url.is_external(self.settings.base)
             if not url.exists(is_external, retries=self.retry):
-                url.status = Status.NOT_FOUND
+                self.index.update(url, Status.NOT_FOUND, url.message)
                 return
         except DeadlinksRedicrectionURL as _href:
             # ok, so next time we looking for this
             # we will need to make lookup to redirected URL.
-            url.status = Status.REDIRECTION
+            self.index.update(url, Status.REDIRECTION, "")
             self.add_and_go(url, str(_href))
             return
         except DeadlinksIgnoredURL:
@@ -156,7 +223,7 @@ class Crawler:
             return
 
         # we defining status of this url as FOUND
-        url.status = Status.FOUND
+        self.index.update(url, Status.FOUND, "")
 
         for href in url.links:
             self.add_and_go(url, href)
@@ -173,12 +240,6 @@ class Crawler:
 
         # Update link by adding url as link referrer
         link.add_referrer(url.url())
-
-    def ignores(self) -> bool:
-        """ return "ignore" state of the crawler """
-        ignore_domains = len(self.settings.domains) > 0
-        ignore_pathes = len(self.settings.pathes) > 0
-        return ignore_domains or ignore_pathes
 
     @property
     def ignored(self) -> List[Link]:
@@ -200,19 +261,10 @@ class Crawler:
         """ Return URLs failed to exist. """
         return self.index.redirected()
 
-    def indexer(self, thread_number: int = 0) -> None:
-        """ Runs indexation operation using piped source. """
-
-        while True:
-            while not self.queue.empty():
-                url = self.queue.get()
-                self.update(url)
-                self.queue.task_done()
-            else:
-
-                if thread_number == 0:
-                    break
-                time.sleep(thread_number / 10)
+    @property
+    def stats(self) -> Dict[Status, int]:
+        """ return crawler stats """
+        return self.index.get_stats()
 
 
 if __name__ == "__main__":

@@ -49,7 +49,7 @@ class BaseURL(Link):
         if link.is_external(self):
             return False
 
-        return link.path.startswith(self._path)
+        return link.path.startswith(self._path.rstrip("/"))
 
 
 if __name__ == "__main__":

@@ -6,7 +6,6 @@ from recommonmark.parser import CommonMarkParser
 
 sys.path.append(path.dirname(getenv('PWD')))
 # sys.path.insert(0, path.dirname(path.dirname(__file__)))
-from deadlinks.__version__ import __version__
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']
@@ -21,7 +20,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'deadlinks'
-copyright = u'Oleg Butuzov'
+copyright = u'Oleg Butuzov' #pylint: disable-msg=W0622
 author = u'Oleg Butuzov'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -25,7 +25,6 @@ deadlinks module __init__ file
 # -- Imports -------------------------------------------------------------------
 
 from deadlinks.url import URL
-from deadlinks.help import CLI
 from deadlinks.link import Link
 from deadlinks.index import Index
 from deadlinks.crawler import Crawler
@@ -50,7 +49,6 @@ __all__ = [
 
     # App
     'URL',
-    'CLI',
     'Link',
     'Index',
     'Crawler',

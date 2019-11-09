@@ -169,7 +169,8 @@ def test_defaults(server, threads):
     assert not c.ignored
 
 
-def test_redirection(servers):
+def test_external_external(servers):
+    """ redirections tested via added 2nd domain and extra external domains. """
 
     CONTENT = """ Example of the index page
         <a href="{}">external link 1</a> | <a href="{}">external link 2</a>
@@ -193,12 +194,119 @@ def test_redirection(servers):
     c = Crawler(Settings(site_to_index, check_external_urls=True))
     c.start()
 
-    for u in c.index:
-        print(u.status, u.message, u)
-
     # convert index to list
     links = [link.url() for link in c.index]
 
     assert linked_domain in links
     assert external_urls[0] not in links
     assert external_urls[1] not in links
+
+
+def test_mailto(server):
+    """ extra mailto test """
+
+    MAILTO = "mailto:name@example.org"
+    CONTENT = """  <a href="{}">mail link</a>""".format(MAILTO)
+
+    address = server.router({
+        '^/$': Page(CONTENT).exists(),
+    })
+
+    c = Crawler(Settings(address, check_external_urls=True))
+    c.start()
+
+    assert len(c.ignored) == 1
+    assert MAILTO in c.ignored
+
+    assert len(c.failed) == 0
+    assert len(c.index) == 2
+
+
+@pytest.mark.timeout(1)
+def test_double_start(simple_site):
+
+    c = Crawler(Settings(simple_site, threads=10))
+    c.start()
+
+    # should not take same time again.
+    c.start()
+
+
+@pytest.mark.timeout(3)
+def test_redirected_links(server):
+
+    from random import sample
+
+    pages = list(range(1, 51))
+    format_link = lambda x: "<a href='/link-%s'>link</a>" % x
+
+    routes = {
+        '^/$': Page(" / ".join(map(format_link, sample(pages, 4)))).exists(),
+        '^/link-\d{1,2}$': Page("").exists().redirects(pattern='%s/'),
+    }
+
+    for step in pages:
+        route_key = '^/link-%s/$' % step
+        route_contents = Page(" / ".join(map(format_link, sample(pages, 4)))).exists()
+        routes.update({route_key: route_contents})
+
+    address = server.router(routes)
+
+    settings = Settings(address, threads=10)
+    c = Crawler(settings)
+    c.start()
+
+    assert 1 < len(c.index) <= (2 * len(pages) + 1)
+    assert 1 < len(c.redirected) <= len(pages)
+    assert len(c.failed) == 0
+
+
+@pytest.mark.timeout(3)
+def test_no_index_page(server):
+
+    from random import sample
+
+    pages = list(range(1, 51))
+    format_link = lambda x: "<a href='/link-%s'>link</a>" % x
+
+    routes = {
+        '^/$': Page("").exists(),
+    }
+
+    for step in pages:
+        route_key = '^/link-%s/$' % step
+        route_contents = Page(" / ".join(map(format_link, sample(pages, 4)))).exists()
+        routes.update({route_key: route_contents})
+
+    address = server.router(routes)
+
+    settings = Settings(address, threads=10)
+    c = Crawler(settings)
+    c.start()
+
+    assert len(c.index) == 1
+
+
+def test_within_site_root(server):
+    """
+        test checks a case when url without trailing slash is ignored because
+        it's not stays with in path.
+    """
+    CONTENT = """
+        <a href="http://{0}:{1}">link</a>
+        <a href="http://{0}:{1}/">link</a>
+    """.format(*server.sa)
+
+    CONTENT_DOCS = CONTENT.replace('">', '/docs/">').replace('//docs/', '/docs')
+
+    address = server.router({
+        '^/$': Page(CONTENT).exists(),
+        '^/docs/?$': Page(CONTENT_DOCS).exists(),
+    })
+
+    for base in {address.rstrip("/") + "/", address.rstrip("/") + "/docs/"}:
+        settings = Settings(base, stay_within_path=True)
+        c = Crawler(settings)
+        c.start()
+
+        assert len(c.ignored) == 0

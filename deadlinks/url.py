@@ -27,6 +27,7 @@ URL representation with benefits
 from typing import (List, Optional) #pylint: disable-msg=W0611
 
 from urllib.parse import (urlparse, urljoin)
+from html import unescape
 from re import compile as _compile
 
 from requests import RequestException
@@ -45,6 +46,7 @@ __RE_LINKS__ = _compile(r'<a\s{1}([^>]+)>') # pylint: disable=W1401
 # filters
 CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
 ANCHORS = lambda x: x.split("#")[0] # removed part after anchor
+UNESCPE = lambda x: unescape(x) # pylint: disable=W0108
 
 
 class URL:
@@ -134,8 +136,11 @@ class URL:
     def exists(self, is_external: bool = False, retries: int = 0) -> bool:
         """ Return "found" (or "not found") status of the page as bool. """
 
-        if self.status in (Status.FOUND, Status.NOT_FOUND):
-            return True if Status.FOUND else False
+        if self.status == Status.FOUND:
+            return True
+
+        if self.status == Status.NOT_FOUND:
+            return False
 
         if self.status == Status.IGNORED:
             error = "This URL <{}> ignored"
@@ -173,11 +178,8 @@ class URL:
 
         return "{}<{}>".format(self.__class__.__name__, self.url())
 
-    def consume_links(self) -> None:
+    def _consume_links(self) -> None:
         """ Parse response text into list of links. """
-
-        if not self._text:
-            return
 
         links = []
         for attr in __RE_LINKS__.findall(self._text):
@@ -210,7 +212,10 @@ class URL:
 
             links.append(link)
 
-        self._links = list(map(ANCHORS, map(CLEANER, links)))
+        self._links = list(links)
+        self._links = list(map(CLEANER, self._links))
+        self._links = list(map(ANCHORS, self._links))
+        self._links = list(map(UNESCPE, self._links))
 
     @property
     def links(self) -> List[str]:
@@ -219,17 +224,20 @@ class URL:
         if not self._text or self._links:
             return self._links
 
-        self.consume_links()
+        self._consume_links()
 
-        return self._links
+        return list(set(self._links))
 
     def link(self, href: str) -> str:
         """
         Construct a full (“absolute”) URL by combining a
         “URL” object as base with another URL (url).
 
-        note: we not going to use self.url() as it removes ending slash.
+        avoiding using urljoin if self._url and href are same.
         """
+
+        if self._url.geturl() == href:
+            return href
 
         return urljoin(self._url.geturl(), href)
 

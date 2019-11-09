@@ -1,5 +1,5 @@
 language: python
-python: "3.8-dev"
+python: 3.8
 
 
 matrix:
@@ -16,7 +16,7 @@ jobs:
     - &Tests
       stage: tests
       name: "Tests (Python 3.8)"
-      python: "3.8-dev"
+      python: 3.8
       script:
       - make tests
 
@@ -36,14 +36,14 @@ jobs:
     # OK: Linters ------------------------------------------------
     - stage: lints
       name: "Running Linters"
-      python: "3.8-dev"
+      python: 3.8
       script: make lints
 
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
       name: "Code Coverage"
-      python: "3.8-dev"
+      python: 3.8
       if: branch IN (master, develop, develop-deployment)
       script:
       - make coverage

@@ -8,6 +8,8 @@ class Page:
     def __init__(self, content: Optional[str]):
         self._unlocks = 0
         self._content = content
+        self._slow = False
+        self._redirects = False
         self._exists = False
         self._mime_type = ""
 
@@ -15,6 +17,8 @@ class Page:
         """ return dict """
         return {
             'exists': self._exists,
+            'redirects': self._redirects,
+            'slow': self._slow,
             'unlocks': self._unlocks,
             'mime_type': self._mime_type,
             'content': self._content,
@@ -25,6 +29,14 @@ class Page:
         return self
 
     def page(self):
+        return self
+
+    def redirects(self, pattern):
+        self._redirects = pattern
+        return self
+
+    def slow(self):
+        self._slow = True
         return self
 
     def exists(self):

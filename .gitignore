@@ -15,3 +15,10 @@ __pycache__
 .coverage
 build
 dist
+
+# misc
+.DS_Store
+
+
+# dev
+__develop__.py

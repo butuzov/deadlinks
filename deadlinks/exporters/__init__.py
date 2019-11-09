@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-deadlinks.reports.__init__
+deadlinks.exporters.__init__
 ~~~~~~~~~~~~~~~~~~
 
 deadlinks module __init__ file
@@ -24,8 +24,16 @@ deadlinks module __init__ file
 
 # -- Imports -------------------------------------------------------------------
 
-from deadlinks.reports.console import Console
+from typing import (Dict) #pylint: disable-msg=W0611
+
+from .export import Export
+from .default import Default
 
 __all__ = [
-    'Console',
+    'Default',
+    'Export',
 ]
+
+exporters = { # type Dict[str, Export]
+    'default': Default,
+}

@@ -65,7 +65,7 @@ class Settings:
         self.domains = defaults['ignore_domains']
         self.pathes = defaults['ignore_pathes']
 
-        self._stay_within_path = defaults['stay_within_path']
+        self.stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
         self.base = BaseURL(url)
