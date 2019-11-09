@@ -1,5 +1,5 @@
 # initial builder
-FROM python:3.5-slim-stretch as build-env
+FROM docker.io/python:3.5-slim-stretch as build-env
 
 LABEL maintainer "Oleg Butuzov <butuzov@made.ua>"
 COPY  . /app
@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git
 
-RUN echo "Installing deadlinks $DEADLINKS_VERSION" \
+RUN echo "Installing deadlinks" \
     && DEADLINKS_COMMIT=$(git rev-list --abbrev-commit -1 HEAD) \
     && DEADLINKS_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
     && grep "# install" requirements.txt -A100 > docker.requirments.txt \
@@ -21,7 +21,9 @@ RUN echo "Installing deadlinks $DEADLINKS_VERSION" \
     && python3 -m pip uninstall pip wheel -y
 
 
-FROM gcr.io/distroless/python3
+# Uncomment for debug container
+# FROM gcr.io/distroless/python3:debug
+FROM gcr.io/distroless/python3:latest
 COPY --from=build-env /app /app
 
 ENV PYTHONPATH=/usr/local/lib/python3.5/site-packages

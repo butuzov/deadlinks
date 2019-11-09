@@ -2,7 +2,7 @@
 from threading import Thread
 from os import name as os_name
 
-from typing import (Dict, Tuple, List, Sequence, Any)
+from typing import (Dict, Tuple, List, Sequence, Any) #pylint: disable-msg=W0611
 from time import sleep
 
 import click

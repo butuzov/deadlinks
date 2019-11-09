@@ -74,3 +74,12 @@ docker-build-local:
 # TODO: Add some e2e testing (against) cli
 docker-run-local: docker-build-local
 	docker run --rm -it --network=host  butuzov/deadlinks:local --version
+
+# Codacity Code Analysis
+# https://github.com/codacy/codacy-analysis-cli#install
+# https://support.codacy.com/hc/en-us/articles/115002130625-Codacy-Configuration-File
+codacity-validate-config:
+	codacy-analysis-cli validate-configuration --directory `pwd`
+
+codacity:
+	codacy-analysis-cli analyse
