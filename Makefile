@@ -60,10 +60,10 @@ deploy-prod: deploy build
 
 
 # Building Docker Imags Localy.
-docker-build-local:
-	-docker tag butuzov/deadlinks:local butuzov/deadlinks:prev
-	 docker build . -t butuzov/deadlinks:local
-	-docker rmi butuzov/deadlinks:prev
+docker-build-local: clean
+	docker tag butuzov/deadlinks:local butuzov/deadlinks:prev
+	docker build . -t butuzov/deadlinks:local
+	docker rmi butuzov/deadlinks:prev
 
 docker-check-local: docker-build-local
 	docker run --rm -it --network=host  butuzov/deadlinks:local --version

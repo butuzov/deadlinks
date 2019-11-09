@@ -10,6 +10,7 @@ env*
 # articats
 __pycache__
 *egg*
+deadlinks.egg-info
 
 # artifacts
 .coverage
@@ -34,8 +35,12 @@ docs
 Dockerfile
 LICENSE
 Makefile
+dist
 demo.gif
 pyrightconfig.json
 report
 sample.py
 tests
+venv.sh
+commits.md
+CODE_OF_CONDUCT.md

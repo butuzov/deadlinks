@@ -107,7 +107,7 @@ data = read_data()
 
 if branch and branch != "master" and not version:
     dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
-    dev_version_str = ".dev+{}+{}".format(branch, commit).rstrip("+")
+    dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
     with open(str(dev_version_file), "w") as f:
         print("version = '{}'".format(dev_version_str), file=f)
     data['app_version'] += dev_version_str
