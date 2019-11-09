@@ -30,11 +30,6 @@ pylint-details:
 mypy:
 	mypy $(PACKAGE)
 
-# @ codacy remark linter
-remark:
-	@docker run -it -v "${PWD}:/src" codacy/codacy-remark-lint:latest;
-	@docker rm `docker ps -q --filter status=exited --filter ancestor=codacy/codacy-remark-lint:latest` 1> /dev/null
-
 lints: pylint mypy
 
 # @ build procedures
@@ -61,7 +56,7 @@ deploy-test: deploy build
 # Deployment to production PyPI at https://pypi.org/project/deadlinks
 # require to entrer password (during deploy)
 deploy-prod: deploy build
-	twine upload -u ${PYPI_PROD_USER} --repository-url https://pypi.org/legacy/ dist/*;\
+	twine upload -u ${PYPI_PROD_USER} --repository-url https://upload.pypi.org/legacy/ dist/*;\
 
 
 # Building Docker Imags Localy.
@@ -69,6 +64,15 @@ docker-build-local:
 	-docker tag butuzov/deadlinks:local butuzov/deadlinks:prev
 	 docker build . -t butuzov/deadlinks:local
 	-docker rmi butuzov/deadlinks:prev
+
+docker-check-local: docker-build-local
+	docker run --rm -it --network=host  butuzov/deadlinks:local --version
+
+docker-check-dev:
+	docker run --rm -it --network=host  butuzov/deadlinks:dev --version
+
+docker-check-latest:
+	docker run --rm -it --network=host  butuzov/deadlinks:latest --version
 
 
 # TODO: Add some e2e testing (against) cli
