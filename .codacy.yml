@@ -2,8 +2,22 @@
 exclude_paths:
   - '.vscode/**'
   - tests/**
+
 engines:
+  duplication:
+    enabled: true
+  metric:
+    enabled: true
+  coverage:
+    enabled: true
+  remarkLint:
+    enabled: true
   pylint:
     enabled: true
-  remark-lint:
+  prospector:
     enabled: false
+
+languages:
+  python:
+    extensions:
+      - '.py'

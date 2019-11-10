@@ -1,0 +1,46 @@
+# venv
+.venv*
+env*
+
+# development
+.cache
+.vscode
+.tox/*
+
+# articats
+__pycache__
+*egg*
+deadlinks.egg-info
+
+# artifacts
+.coverage
+build
+dist
+
+# misc
+docs
+
+# no need
+.DS_Store
+.codacy.yml
+.codecov.yml
+.dockerignore
+.editorconfig
+.github
+.gitignore
+.pylintrc
+.pyup.yml
+.readthedocs.yml
+.travis.yml
+Dockerfile
+LICENSE
+Makefile
+dist
+demo.gif
+pyrightconfig.json
+report
+sample.py
+tests
+venv.sh
+commits.md
+CODE_OF_CONDUCT.md

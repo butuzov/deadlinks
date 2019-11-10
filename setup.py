@@ -79,19 +79,49 @@ def readme() -> str:
 
 
 # ------------------------------------------------------------------------------
+
+# ~~ Version Releases ~~
+# next code responsible for creating dev release version number.
+# - pypi.org: as we not allowed to have version as X.Y.Z.dev+developer+COMMIT
+#        to be published on test.pypi.org versions for pipy.org can be
+#        overiden only with VERSION=<number> during `make deploy-test` or
+#        `make deploy-prod`
+#
+#        Example
+#        ( e.g VERSION=1 PYPI_TEST_USER=BUTUZOV make deploy-test)
+#
+# - docker hub: dev - auto builds
+#       developermnt branch is going to be builded automatically on push
+#       image name             butuzov/deadlinks:dev
+#       package (for example)  v0.0.2.dev+docker+1a886c6
+#
+# - docker hub: production (autobuilds)
+#       image name             butuzov/deadlinks:0.0.2
+#       package (for example)  v0.0.2
+#
+branch = os.environ.get('DEADLINKS_BRANCH', None)
+commit = os.environ.get('DEADLINKS_COMMIT', None)
+version = os.environ.get('DEADLINKS_VERSION', None)
+
 data = read_data()
 
-# - Overriding version for test deployment
+if branch and branch != "master" and not version:
+    dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
+    dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
+    with open(str(dev_version_file), "w") as f:
+        print("version = '{}'".format(dev_version_str), file=f)
+    data['app_version'] += dev_version_str
 
-if os.environ.get('DEADLINKS_VERSION', None):
-    data['app_version'] += "."
-    data['app_version'] += str(os.environ.get('DEADLINKS_VERSION'))
+if version:
+    data['app_version'] += ".{}".format(version)
+
+# -- Version Releases / End ~~
 
 # - Local testing
 TESTS = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 TESTS_RUNNER = ['pytest-runner'] if TESTS else []
 
-# Setup
+# - Setup
 setup(
     name=data['app_package'],
     version=data['app_version'],

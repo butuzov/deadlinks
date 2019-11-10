@@ -75,8 +75,25 @@ class Crawler:
         self.add(self._base)
 
     def stop(self, sig: int, frame: FrameType) -> None:
-        """ capturing sigint signal and stops runnig engines """
+        """ Capturs SIGINT signal and and change terminition state """
+
         self.terminated = True
+
+    def terminition_watcher(self) -> None:
+        """ Clears queue on teminated execution
+
+        TODO: Test long term waiting page and terminition
+        """
+
+        while not self.terminated:
+            time.sleep(0.01)
+
+        time.sleep(0.01)
+        try:
+            while not self.queue.empty():
+                self.queue.task_done()
+        except ValueError:
+            pass
 
     def start(self) -> None:
         """ Starts the crawling process """
@@ -90,9 +107,14 @@ class Crawler:
         signal(SIGINT, self.stop)
 
         if self.settings.threads > 1:
+
+            thread = Thread(target=self.terminition_watcher, daemon=True)
+            thread.start()
+
             for idx in range(1, 1 + self.settings.threads):
                 thread = Thread(target=self.indexer, args=[idx], daemon=True)
                 thread.start()
+
             self.queue.join()
         else:
             self.indexer()
@@ -100,8 +122,32 @@ class Crawler:
         self.crawling = False
         self.crawled = True
 
+    def indexer(self, thread_number: int = 0) -> None:
+        """ Indexation process """
+
+        while True:
+            while not self.terminated and not self.queue.empty():
+
+                url = self.queue.get()
+                self.update(url)
+                self.queue.task_done()
+
+            else:
+
+                # catching terminated
+                if self.terminated:
+                    return
+
+                # in case is its only 1 thread we NOT waiting for
+                # new url to come.
+                if thread_number == 0:
+                    break
+
+                # and we wait for fraction of second, if there are many threads.
+                time.sleep(thread_number / 10)
+
     def add(self, link: Link) -> None:
-        """ Queue URL. """
+        """ Queue URL """
         if link in self.index:
             return
 
@@ -219,23 +265,6 @@ class Crawler:
     def stats(self) -> Dict[Status, int]:
         """ return crawler stats """
         return self.index.get_stats()
-
-    def indexer(self, thread_number: int = 0) -> None:
-        """ Indexation process """
-
-        while True:
-            while not self.terminated and not self.queue.empty():
-                url = self.queue.get()
-                self.update(url)
-                self.queue.task_done()
-            else:
-
-                if self.terminated:
-                    return
-
-                if thread_number == 0:
-                    break
-                time.sleep(thread_number / 10)
 
 
 if __name__ == "__main__":
