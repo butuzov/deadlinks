@@ -5,6 +5,7 @@ MYPY   ?= mypy
 BUILD  = build
 DIST   = dist
 
+
 .PHONY:*
 
 all: tests
@@ -34,6 +35,19 @@ remark:
 	@docker rm `docker ps -q --filter status=exited --filter ancestor=codacy/codacy-remark-lint:latest` 1> /dev/null
 
 lints: pylint mypy
+
+open:
+	open http://localhost:5678
+
+site:
+	ghp -root=build/dirhtml -port=5678
+
+# Put it first so that "make" without argument is like "make help".
+generate-docs:
+	sphinx-build -M dirhtml docs build/dirhtml -c docs
+
+docs: generate-docs open site
+
 
 # @ build procedures
 clean:
