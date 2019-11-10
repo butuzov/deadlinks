@@ -7,4 +7,5 @@ You can automate deadlinks checks using any of the modern `Continues Integration
 * [GitHub Actions](github-actions.md)
 * [GitLab CI](gitlab-ci.md)
 * [Jenkins](jenkins.md)
+* [tox](tox.md)
 * [Travis CI](travis-ci.md)
