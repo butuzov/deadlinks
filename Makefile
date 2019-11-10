@@ -56,7 +56,7 @@ documentation:
 	ghp -root=build/dirhtml -port=5678
 
 gen-docs:
-	sphinx-build -M dirhtml docs build/dirhtml -c docs
+	sphinx-build -M dirhtml docs build -c docs
 
 docs: gen-docs browse  documentation
 

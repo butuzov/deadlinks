@@ -39,6 +39,21 @@ jobs:
       python: 3.8
       script: make lints
 
+    # OK: Documentation Checks -----------------------------------
+    - stage: docs
+      name: "Docs"
+      python: 3.8
+      script:
+      # prebuilding html files
+      - pip install -e .
+      - make gen-docs
+      - pip uninstall deadlinks -yq
+      # getting a http server & stable deadlinks
+      - go get github.com/CurtisLusmore/ghp
+      - pip install deadlinks
+      # serving files & running deadlinks checks
+      - ghp -root build/dirhtml/ -port 5678 &
+      - deadlinks localhost:5678 -n 10 -r 3 --no-progress --no-colors --fiff
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
@@ -48,7 +63,6 @@ jobs:
       script:
       - make coverage
       - bash <(curl -s https://codecov.io/bash)
-
 
 
 notifications:
