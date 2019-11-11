@@ -131,6 +131,13 @@ setup(
     keywords=["documentation", "website", "spider", "crawler", "link-checker"],
     author=data['author_name'],
     author_email=data['author_mail'],
+    project_urls={
+        "GitHub: repo": "https://github.com/butuzov/deadlinks",
+        "Bugtracker": "https://github.com/butuzov/deadlinks/issues",
+        "Documentation": "http://deadlinks.readthedocs.io/",
+        "Documentation (latest)": "https://deadlinks.readthedocs.io/en/latest/",
+        "Dockerized": "https://hub.docker.com/repository/docker/butuzov/deadlinks/",
+    },
     packages=find_packages(exclude=["tests*"]),
     install_requires=require("install"),
     tests_require=require("tests"),
