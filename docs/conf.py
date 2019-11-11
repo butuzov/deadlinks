@@ -92,6 +92,10 @@ html_context = {
 
 enable_auto_toc_tree = True
 
+extensions = [
+    'sphinx_markdown_tables',
+]
+
 
 class MyCommonMarkParser(CommonMarkParser):
     # remove this hack once upsteam RecommonMark supports inline code
