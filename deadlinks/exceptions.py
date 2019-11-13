@@ -29,7 +29,7 @@ class DeadlinksExeption(BaseException):
     """ General Exception """
 
 
-class DeadlinksRedicrectionURL(DeadlinksExeption):
+class DeadlinksRedirectionURL(DeadlinksExeption):
     """ Redicrection URL """
 
 

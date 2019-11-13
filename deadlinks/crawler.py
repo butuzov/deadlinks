@@ -38,7 +38,7 @@ from deadlinks.index import Index
 from deadlinks.settings import Settings
 from deadlinks.exceptions import (
     DeadlinksIgnoredURL,
-    DeadlinksRedicrectionURL,
+    DeadlinksRedirectionURL,
 )
 
 
@@ -212,7 +212,7 @@ class Crawler:
             if not url.exists(is_external, retries=self.retry):
                 self.index.update(url, Status.NOT_FOUND, url.message)
                 return
-        except DeadlinksRedicrectionURL as _href:
+        except DeadlinksRedirectionURL as _href:
             # ok, so next time we looking for this
             # we will need to make lookup to redirected URL.
             self.index.update(url, Status.REDIRECTION, "")

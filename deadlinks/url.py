@@ -36,7 +36,7 @@ from deadlinks.request import request
 from deadlinks.status import Status
 from deadlinks.exceptions import (
     DeadlinksIgnoredURL,
-    DeadlinksRedicrectionURL,
+    DeadlinksRedirectionURL,
 )
 
 # -- Constants -----------------------------------------------------------------
@@ -160,7 +160,7 @@ class URL:
 
         # redirections catching.
         if response.status_code // 100 == 3:
-            raise DeadlinksRedicrectionURL(response.headers['location'])
+            raise DeadlinksRedirectionURL(response.headers['location'])
 
         self.message = str(response.status_code)
         return False
