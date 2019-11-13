@@ -75,7 +75,7 @@ class Crawler:
         self.add(self._base)
 
     def stop(self, sig: int, frame: FrameType) -> None:
-        """ Capturs SIGINT signal and and change terminition state """
+        """ Captures SIGINT signal and and change terminition state """
         self.terminated = True
 
     def terminition_watcher(self) -> None:
