@@ -7,16 +7,14 @@ DIST   = dist
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
 
-
 .PHONY: help
-
 
 help:
 	@cat Makefile.md
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tests:
+test:
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
 	 	pytest . --verbose -ra -x;\
 	else\

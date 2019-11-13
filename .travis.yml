@@ -18,7 +18,7 @@ jobs:
       name: "Tests (Python 3.8)"
       python: 3.8
       script:
-      - make tests
+      - make test
 
     - <<: *Tests
       name: "Tests (Python 3.7)"
@@ -53,7 +53,7 @@ jobs:
       - pip install deadlinks
       # serving files & running deadlinks checks
       - ghp -root build/dirhtml/ -port 5678 &
-      - deadlinks localhost:5678 -n 10 -r 3 --no-progress --no-colors --fiff
+      - deadlinks localhost:5678 -n10 -r3 --no-progress --no-colors --fiff
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
