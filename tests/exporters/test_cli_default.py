@@ -76,7 +76,7 @@ def test_cli(site_with_links, runner, external, threads, domains, pathes, result
     assert result.exit_code == 0
 
     # -- SETTINGS ----------------------------------------------------------
-    FIRST_LINE = 'URL=<{}>; External Cheks={}; Threads={}; Retry=0'.format(
+    FIRST_LINE = 'URL=<{}>; External Checks={}; Threads={}; Retry=0'.format(
         site_with_links,
         "On" if external else "Off",
         threads,
