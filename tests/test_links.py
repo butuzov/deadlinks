@@ -15,7 +15,7 @@ from deadlinks import (Link, URL)
 from deadlinks.status import Status
 from deadlinks.exceptions import (
     DeadlinksIgnoredURL,
-    DeadlinksRedicrectionURL,
+    DeadlinksRedirectionURL,
 )
 
 
@@ -257,7 +257,7 @@ def test_redirected_page(server):
 
     l = Link(address)
     assert l.status == Status.UNDEFINED
-    with pytest.raises(DeadlinksRedicrectionURL):
+    with pytest.raises(DeadlinksRedirectionURL):
         l.exists()
 
     with pytest.raises(TypeError):

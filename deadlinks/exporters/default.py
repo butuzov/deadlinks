@@ -39,7 +39,7 @@ class Default(Export):
         return not self._opts.get('no_colors', False)
 
     def info(self) -> str:
-        message = "URL=<{}>; External Cheks={}; Threads={}; Retry={}".format(
+        message = "URL=<{}>; External Checks={}; Threads={}; Retry={}".format(
             self._crawler.settings.base,
             "On" if self._crawler.settings.external else "Off",
             self._crawler.settings.threads,

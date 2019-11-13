@@ -107,7 +107,7 @@ data = read_data()
 
 if branch and branch != "master" and not version:
     dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
-    dev_version_str = ".dev+{}+{}".format(branch, commit).rstrip("+")
+    dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
     with open(str(dev_version_file), "w") as f:
         print("version = '{}'".format(dev_version_str), file=f)
     data['app_version'] += dev_version_str
@@ -131,6 +131,13 @@ setup(
     keywords=["documentation", "website", "spider", "crawler", "link-checker"],
     author=data['author_name'],
     author_email=data['author_mail'],
+    project_urls={
+        "GitHub: repo": "https://github.com/butuzov/deadlinks",
+        "Bugtracker": "https://github.com/butuzov/deadlinks/issues",
+        "Documentation": "http://deadlinks.readthedocs.io/",
+        "Documentation (latest)": "https://deadlinks.readthedocs.io/en/latest/",
+        "Dockerized": "https://hub.docker.com/repository/docker/butuzov/deadlinks/",
+    },
     packages=find_packages(exclude=["tests*"]),
     install_requires=require("install"),
     tests_require=require("tests"),

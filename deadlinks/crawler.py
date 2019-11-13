@@ -38,7 +38,7 @@ from deadlinks.index import Index
 from deadlinks.settings import Settings
 from deadlinks.exceptions import (
     DeadlinksIgnoredURL,
-    DeadlinksRedicrectionURL,
+    DeadlinksRedirectionURL,
 )
 
 
@@ -75,8 +75,7 @@ class Crawler:
         self.add(self._base)
 
     def stop(self, sig: int, frame: FrameType) -> None:
-        """ Capturs SIGINT signal and and change terminition state """
-
+        """ Captures SIGINT signal and and change terminition state """
         self.terminated = True
 
     def terminition_watcher(self) -> None:
@@ -88,12 +87,13 @@ class Crawler:
         while not self.terminated:
             time.sleep(0.01)
 
-        time.sleep(0.01)
-        try:
-            while not self.queue.empty():
-                self.queue.task_done()
-        except ValueError:
-            pass
+        while True:
+            try:
+                while not self.queue.empty():
+                    self.queue.task_done()
+                time.sleep(0.01)
+            except ValueError:
+                break
 
     def start(self) -> None:
         """ Starts the crawling process """
@@ -212,7 +212,7 @@ class Crawler:
             if not url.exists(is_external, retries=self.retry):
                 self.index.update(url, Status.NOT_FOUND, url.message)
                 return
-        except DeadlinksRedicrectionURL as _href:
+        except DeadlinksRedirectionURL as _href:
             # ok, so next time we looking for this
             # we will need to make lookup to redirected URL.
             self.index.update(url, Status.REDIRECTION, "")
