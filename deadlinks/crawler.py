@@ -76,7 +76,6 @@ class Crawler:
 
     def stop(self, sig: int, frame: FrameType) -> None:
         """ Capturs SIGINT signal and and change terminition state """
-
         self.terminated = True
 
     def terminition_watcher(self) -> None:
@@ -88,12 +87,13 @@ class Crawler:
         while not self.terminated:
             time.sleep(0.01)
 
-        time.sleep(0.01)
-        try:
-            while not self.queue.empty():
-                self.queue.task_done()
-        except ValueError:
-            pass
+        while True:
+            try:
+                while not self.queue.empty():
+                    self.queue.task_done()
+                time.sleep(0.01)
+            except ValueError:
+                break
 
     def start(self) -> None:
         """ Starts the crawling process """
