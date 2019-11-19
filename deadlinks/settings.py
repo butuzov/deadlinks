@@ -26,7 +26,10 @@ Handles settings passed to crawler.
 
 from typing import (Optional, List, Dict, Any, Union)
 
+from pathlib import Path
+
 from deadlinks.baseurl import BaseURL
+from deadlinks.serving import Server
 
 from deadlinks.exceptions import (
     DeadlinksSettingsThreads,
@@ -36,6 +39,7 @@ from deadlinks.exceptions import (
     DeadlinksSettingsDomains,
     DeadlinksSettingsPathes,
     DeadlinksSettingsPath,
+    DeadlinksSettingsRoot,
 )
 
 
@@ -50,6 +54,7 @@ class Settings:
     _pathes = None # type: Optional[List[str]]
     _retry = None # type: Optional[int]
     _base = None # type: Optional[BaseURL]
+    _root = None # type: Optional[Path]
 
     def __init__(self, url: str, **kwargs: Any) -> None:
         """ Instantiate settings class """
@@ -68,13 +73,22 @@ class Settings:
         self.stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
-        self.base = BaseURL(url)
+
+        # special case of baseurl is internal
+        base = BaseURL(url)
+        if base.domain == "internal":
+            self.root = Path(defaults['root']) # type: ignore
+            web_server = Server(self.root, base.path)
+            base = BaseURL(web_server.url())
+
+        self.base = base
 
     @staticmethod
-    def defaults(kwargs: Dict) -> Dict[str, Union[bool, List[str], Optional[int]]]:
+    def defaults(kwargs: Dict) -> Dict[str, Union[str, bool, List[str], Optional[int]]]:
         """ Return default arguments merged with user provided data. """
 
         _defaults = {
+            'root': '.',
             'check_external_urls': False,
             'ignore_domains': [],
             'ignore_pathes': [],
@@ -84,6 +98,31 @@ class Settings:
         }
 
         return {**_defaults, **kwargs}
+
+    # -- Root ------------------------------------------------------------------
+    @property
+    def root(self) -> str:
+        """ Getter for BaseURL """
+        return self._root
+
+    @root.setter
+    def root(self, value: Path) -> None:
+        if not (self._root is None): #pylint: disable-msg=C0325
+            error = "root is already set to {}"
+            raise DeadlinksSettingsRoot(error.format(self._root))
+
+        if value is None:
+            error = "For URL<internal> checks, Document Root is required."
+            raise DeadlinksSettingsRoot(error)
+
+        if not isinstance(value, Path):
+            raise DeadlinksSettingsRoot("Document Root required to be Path-type.")
+
+        if not value.is_dir():
+            error = "Document Root ({}) not found."
+            raise DeadlinksSettingsRoot(error.format(value.resolve()))
+
+        self._root = value
 
     # -- Base URL --------------------------------------------------------------
     @property

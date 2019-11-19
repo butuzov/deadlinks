@@ -39,6 +39,8 @@ from .__version__ import __app_version__ as version
 from .__version__ import __app_package__ as name
 
 from .options import default_options
+from .serving.options import default_options as serving_options
+
 from .clicker import register_options
 from .clicker import register_exports
 from .clicker import command
@@ -49,20 +51,28 @@ from .clicker import argument
 @click.argument('url', **argument)
 @click.version_option(message='%(prog)s: v%(version)s', prog_name=name, version=version)
 @register_exports(exporters)
+@register_options("Server Settings", serving_options)
+# keep default_options last in list of register_options decoratos
 @register_options("Default Options", default_options)
 @click.pass_context
 def main(ctx: click.Context, url: str, **opts: Dict[str, Any]) -> None:
     """ Check links in your (web) documentation for accessibility. """
 
     try:
+        # TODO: Get Rid of this, in favor of **opts
+        # - [ ] Implement transformers
+
         settings = Settings(
-            url, **{
+            url,
+            **{
                 'check_external_urls': opts['external'],
                 'stay_within_path': not opts['full_site_check'],
                 'threads': opts['threads'],
                 'retry': opts['retry'],
                 'ignore_domains': opts['domains'],
                 'ignore_pathes': opts['pathes'],
+                # internal
+                'root': opts['root'],
             })
         crawler = Crawler(settings)
 

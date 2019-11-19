@@ -45,6 +45,10 @@ class DeadlinksSettingsBase(DeadlinksSettings):
     """ Error on Settings object related to `BaseUrl` property """
 
 
+class DeadlinksSettingsRoot(DeadlinksSettings):
+    """ Error on Setting Root directory """
+
+
 class DeadlinksSettingsThreads(DeadlinksSettings):
     """ Error on Settings object related to `threads` property """
 
