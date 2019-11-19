@@ -179,7 +179,7 @@ class Clicker(Command):
 command = dict({
     "cls": Clicker,
     "context_settings": {
-        "ignore_unknown_options": True
+        "ignore_unknown_options": False
     },
 }) # type: Dict[str, Any]
 
