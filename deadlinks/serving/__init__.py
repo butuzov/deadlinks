@@ -16,7 +16,7 @@
 deadlinks.serving.__init__
 ~~~~~~~~~~~~~~~~~~
 
-simple webserver service
+Simple webserver service
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.

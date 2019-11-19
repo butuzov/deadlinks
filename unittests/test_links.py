@@ -1,6 +1,6 @@
 """
-links_test.py
---------------
+test_links.py
+~~~~~~~~~~~~~
 
 Links object test coverage
 """
@@ -9,7 +9,7 @@ Links object test coverage
 
 import pytest
 
-from tests.helpers import Page
+from .helpers import Page
 
 from deadlinks import (Link, URL)
 from deadlinks.status import Status
@@ -106,7 +106,7 @@ def test_non_string_message():
         ("https://www.google.com:443/", "https://google.com"),
     ],
 )
-def test_is_interal_links(base, url):
+def test_is_internal_links(base, url):
     """ Are this links internal to url? """
 
     assert not Link(base).is_external(url)
@@ -189,15 +189,15 @@ def test_eq():
         Link('http://google.com') == 1 # pylint: disable=expression-not-assigned
 
 
-def test_refferer():
+def test_referrer():
     """ Test referrer. """
 
     l = Link("https://made.ua")
-    refferer = "https://google.com"
-    l.add_referrer(refferer)
-    l.add_referrer(refferer)
+    referrer = "https://google.com"
+    l.add_referrer(referrer)
+    l.add_referrer(referrer)
 
-    assert refferer in l.get_referrers()
+    assert referrer in l.get_referrers()
 
 
 def test_match_domain():
@@ -237,7 +237,7 @@ def test_not_existing_page(server):
     l = Link(address)
     assert l.status == Status.UNDEFINED
 
-    # timeedout
+    # timed out
     assert not l.exists(retries=2)
     # setting new status
     l.status = Status.NOT_FOUND

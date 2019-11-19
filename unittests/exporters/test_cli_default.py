@@ -13,7 +13,7 @@ import pytest
 
 from click.testing import CliRunner
 from click import unstyle
-from tests.helpers import Page
+from ..helpers import Page
 
 from deadlinks.__main__ import main
 from deadlinks.exporters import Default
