@@ -1,11 +1,8 @@
 """
-index_test.py
---------------
+test_index.py
+~~~~~~~~~~~~~
 
-test for Index (indexed links collection) object.
-
-TODO
-- [ ] Better way to test __iter__ and __contains__
+Test(s) for Index (collection of the links) object.
 """
 
 from typing import (List)
@@ -36,6 +33,6 @@ def test_index():
     # total uniq links
     assert len(index) == 6
 
-    # # __iter__ and __contains__ test.
+    # __iter__ and __contains__ test.
     for link in index:
         assert link in index # __contains__

@@ -1,7 +1,13 @@
+"""
+test_baseurl.py
+~~~~~~~~~~~~~~~
+
+We need baseurl as starting point of indexation.
+"""
+import pytest
+
 from deadlinks.link import Link
 from deadlinks.baseurl import BaseURL
-
-import pytest
 
 
 @pytest.mark.parametrize(
@@ -33,7 +39,7 @@ def test_basepath_within(url, internal_link):
         ("https://example.org/docs/", "https://example.org/index.html"),
         ("https://example.org/docs/samples/simple.html", "https://example.org/index.html"),
     ])
-def test_basepath_within(url, internal_link):
+def test_basepath_not_within(url, internal_link):
     assert not BaseURL(url).within(Link(internal_link))
     assert BaseURL(internal_link).within(Link(url))
 

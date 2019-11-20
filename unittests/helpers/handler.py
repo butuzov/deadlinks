@@ -11,7 +11,7 @@ class Handler(BaseHTTPRequestHandler):
         """ Ignoring logging """
 
     def do_HEAD(self):
-        """ Additionaly we need to cover head for tests. """
+        """ HEAD, but GET """
         return self.do_GET()
 
     def do_GET(self):

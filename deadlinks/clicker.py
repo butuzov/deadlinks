@@ -118,26 +118,22 @@ class Clicker(Command):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """ Getting Options groups """
 
-        # print(type(args))
-        # print(type(kwargs))
-
         self._groups = kwargs['callback'].__click_params_groups__
         self._groups['Other'] = []
 
         super().__init__(*args, **kwargs)
 
     def format_help(self, ctx: Context, formatter: Formatter) -> None:
-        """Writes the help into the formatter if it exists."""
+        """ Writes the help into the formatter if it exists. """
 
-        # shuld print
-        # checking links from web resource for dead/alive status.
+        # Checking links from web resource for dead/alive status.
         self.format_help_text(ctx, formatter)
         self.format_examples(ctx, formatter)
         self.format_options(ctx, formatter)
         self.format_epilog(ctx, formatter)
 
     def format_options(self, ctx: Context, formatter: Formatter) -> None:
-        """ group options """
+        """ Group options together. """
 
         # building reverse look up
         lookup = {}

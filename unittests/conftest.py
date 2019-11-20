@@ -8,7 +8,7 @@ from textwrap import dedent
 
 import pytest
 
-from tests.helpers import Server, Page
+from .helpers import Server, Page
 
 
 @pytest.fixture
@@ -99,7 +99,7 @@ def site_with_links(server):
             <hr>
             <b>not existing links</b><br/>
             <ahref=link-6 style=background:#f00;>this isn't a link at all</a>
-            <a onlick="this.location=http://google.com">js</a>
+            <a onclick="this.location=http://google.com">js</a>
             <a href>just href</a>
             <a href=''>just href</a>
             <a href=''>just href</a>
@@ -117,7 +117,7 @@ def site_with_links(server):
             <b>external dead links</b><br/>
             <a href="http://loclahost:21">(18) localhost: 21</a>
             <a href="https://lolhost:90">(19) lolhost: 90</a>
-            <a href="https://this site isnt exitng.de">(20) spaces in domain</a>
+            <a href="https://this site isn't existing.de">(20) spaces in domain</a>
             <a href="http://lol/">(21) hostname (lol)</a>
             <a href='/limk-19'>mistyped  link</a>
             <hr>

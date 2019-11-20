@@ -1,11 +1,8 @@
 """
 settings_test.py
---------------
-These tests are covers Settings API.
+~~~~~~~~~~~~~~~~
 
-TODO
-- [ ] Write test: base url that match one in the ignored urls -> fail expected.
-- [ ] Write test: threads with None
+These tests are covers Settings API.
 """
 
 # pylint: disable=redefined-outer-name
@@ -128,7 +125,7 @@ def test_pathes_bad(pathes):
 
 @pytest.mark.parametrize('pathes', [
     ["do/not/follow"],
-    ["isses/new"],
+    ["issues/new"],
 ])
 def test_pathes_ok(pathes):
     """ General test for `ignored pathes` property """

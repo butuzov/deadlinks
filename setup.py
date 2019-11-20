@@ -138,7 +138,7 @@ setup(
         "Documentation (latest)": "https://deadlinks.readthedocs.io/en/latest/",
         "Dockerized": "https://hub.docker.com/repository/docker/butuzov/deadlinks/",
     },
-    packages=find_packages(exclude=["tests*"]),
+    packages=find_packages(exclude=["unittests*"]),
     install_requires=require("install"),
     tests_require=require("tests"),
     setup_requires=(require("install") + TESTS_RUNNER),

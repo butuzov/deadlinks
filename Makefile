@@ -14,7 +14,7 @@ help:
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-test:
+tests:
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
 	 	pytest . --verbose -ra -x;\
 	else\
@@ -35,6 +35,7 @@ mypy:
 
 lints: pylint mypy
 
+all: tests lints
 
 # Codacity Code Analysis
 # https://github.com/codacy/codacy-analysis-cli#install
@@ -67,10 +68,10 @@ clean:
 pre-deploy:
 	python3 -m pip install --upgrade wheel twine -q
 
-build: clean
+build: pre-deploy clean
 	python3 setup.py sdist bdist_wheel
 
-deploy-test: pre-deploy build
+deploy-test: pre-deploy
 	@if [ ! -z ${DEADLINKS_VERSION} ]; then\
 		twine upload -u ${PYPI_TEST_USER} --repository-url https://test.pypi.org/legacy/ dist/*;\
 	else \
