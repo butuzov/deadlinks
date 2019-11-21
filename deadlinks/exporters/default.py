@@ -9,6 +9,7 @@ import click
 
 from .export import Export
 from ..crawler import Crawler
+from ..clicker import OptionRaw
 
 BEFORE_BAR = '\r' if os_name == 'nt' else '\r\033[?25l'
 AFTER_BAR = '\n' if os_name == 'nt' else '\033[?25h\n'
@@ -49,43 +50,41 @@ class Default(Export):
         return message
 
     @staticmethod
-    def options() -> Tuple[str, List[Tuple[Tuple[str], Dict[str, Any]]]]:
+    def options() -> Tuple[str, List[OptionRaw]]:
 
-        name = "Exporter (default)"
-        options = [
-            # Default export
-            (
-                ('--export', ),
-                {
-                    'default': 'default',
-                    'hidden': True,
-                    'multiple': False,
-                    'type': click.Choice(['default'], case_sensitive=False),
-                    'help': 'Export type',
-                },
-            ),
-            # do not show colored output
-            (
-                ('--no-colors', ),
-                {
-                    'default': False,
-                    'is_flag': True,
-                    'help': 'Color output of `default` export',
-                },
-            ),
+        options = [] # type: List[OptionRaw]
 
-            # do not show colored output
-            (
-                ('--no-progress', ),
-                {
-                    'default': False,
-                    'is_flag': True,
-                    'help': 'Disable Proogresion output',
-                },
-            ),
-        ]
+        # Default export
+        options.append((
+            ('--export', ),
+            {
+                'default': 'default',
+                'hidden': True,
+                'multiple': False,
+                'type': click.Choice(['default'], case_sensitive=False),
+                'help': 'Export type',
+            },
+        ))
 
-        return (name, options)
+        options.append((
+            ('--no-colors', ),
+            {
+                'default': False,
+                'is_flag': True,
+                'help': 'Color output of `default` export',
+            },
+        ))
+
+        options.append((
+            ('--no-progress', ),
+            {
+                'default': False,
+                'is_flag': True,
+                'help': 'Disable Proogresion output',
+            },
+        ))
+
+        return ("Exporter (default)", options)
 
     def _progress_handler(self) -> None:
         """ progress handler desides states regarding crawler """
