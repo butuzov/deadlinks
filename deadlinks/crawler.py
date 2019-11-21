@@ -24,13 +24,13 @@ Crawl the links on from the provided start point.
 
 # -- Imports -------------------------------------------------------------------
 
+from typing import (List, Tuple, Optional, Dict)
+from types import FrameType
+
 from threading import Thread
 from signal import (signal, SIGINT)
 from queue import Queue
-import time
-
-from typing import (List, Tuple, Optional, Dict)
-from types import FrameType
+from time import sleep
 
 from deadlinks.link import Link
 from deadlinks.status import Status
@@ -41,15 +41,14 @@ from deadlinks.exceptions import (
     DeadlinksRedirectionURL,
 )
 
+# -- Implementation ------------------------------------------------------------
+
 
 class Crawler:
-    """ Crawler/Spider Application """
+    """ Crawler/Spider Application. """
 
     def __init__(self, settings: Settings) -> None:
-        r"""
-        Accepts settings and assign them to the members
-        in order to start crawling.
-        """
+        """ Performe Crawling described by Settings. """
 
         self.settings = settings
         self.retry = settings.retry
@@ -85,18 +84,18 @@ class Crawler:
         """
 
         while not self.terminated:
-            time.sleep(0.01)
+            sleep(0.01)
 
         while True:
             try:
                 while not self.queue.empty():
                     self.queue.task_done()
-                time.sleep(0.01)
+                sleep(0.01)
             except ValueError:
                 break
 
     def start(self) -> None:
-        """ Starts the crawling process """
+        """ Starts the crawling process. """
 
         if self.crawling or self.crawled or self.terminated:
             return
@@ -123,7 +122,7 @@ class Crawler:
         self.crawled = True
 
     def indexer(self, thread_number: int = 0) -> None:
-        """ Indexation process """
+        """ Indexation process. """
 
         while True:
             while not self.terminated and not self.queue.empty():
@@ -144,10 +143,10 @@ class Crawler:
                     break
 
                 # and we wait for fraction of second, if there are many threads.
-                time.sleep(thread_number / 10)
+                sleep(thread_number / 10)
 
     def add(self, link: Link) -> None:
-        """ Queue URL """
+        """ Queue URL. """
         if link in self.index:
             return
 
@@ -166,7 +165,7 @@ class Crawler:
         # TODO - Site Owner Ask (via meta tag) to ignore this URL
         # https://support.google.com/webmasters/answer/93710?hl=en
 
-        # TODO - Site Owner Ask (via robota.txt) to ignore this URL
+        # TODO - Site Owner Ask (via robots.txt) to ignore this URL
         # https://www.robotstxt.org/robotstxt.html
 
         # We have an external URL and cheking external URL are Off
@@ -189,7 +188,7 @@ class Crawler:
         return (False, None)
 
     def update(self, url: Link) -> None:
-        """ Update state or the url by checking it's data."""
+        """ Update state or the url by checking it's data. """
 
         # We assume that URL Link that passed to this method is in status
         # Status.UNDEFINED, therefor we can perform required checks.
@@ -229,7 +228,7 @@ class Crawler:
             self.add_and_go(url, href)
 
     def add_and_go(self, url: Link, href: str) -> None:
-        """ reducing code duplication"""
+        """ Reducing code duplication. """
 
         # Create link variable of type Link that represent a new
         #    relative to URL link that has href
@@ -265,22 +264,3 @@ class Crawler:
     def stats(self) -> Dict[Status, int]:
         """ return crawler stats """
         return self.index.get_stats()
-
-
-if __name__ == "__main__":
-
-    crawler = Crawler(
-        Settings(
-            "http://localhost:1313/docs/azure/",
-            check_external_urls=False,
-            ignore_pathes=["issues/new", "edit/master", "commit/"],
-            threads=10,
-            retry=None,
-        ),
-    )
-    crawler.start()
-    print("RESULTS - TOTAL (", len(crawler.index), ")")
-
-    print("All")
-    for k, item in enumerate(crawler.index.succeed()):
-        print("{0!s:^8}\t{1!s:^8}\t{2}\t{3}".format(k, item.status, item.url(), item.message))

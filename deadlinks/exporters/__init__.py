@@ -14,9 +14,9 @@
 
 """
 deadlinks.exporters.__init__
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-deadlinks module __init__ file
+Export module init file.
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
@@ -24,10 +24,12 @@ deadlinks module __init__ file
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict) #pylint: disable-msg=W0611
+from typing import Dict #pylint: disable-msg=W0611
 
 from .export import Export
 from .default import Default
+
+# -- Exports -------------------------------------------------------------------
 
 __all__ = [
     'Default',

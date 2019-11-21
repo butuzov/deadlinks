@@ -1,18 +1,27 @@
 """
-exporter/test_cli.py
------------
+unittests.exporters.test_cli.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Testing cli functionality.
+
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
 
-from collections import OrderedDict
+# -- Imports -------------------------------------------------------------------
 
 import pytest
 
+from collections import OrderedDict
+
 from click.testing import CliRunner
+
 from ..helpers import Page
 
 from deadlinks.__main__ import main
+
+# -- Tests -~~------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -58,7 +67,7 @@ def test_version(runner):
 def test_default_fail_if_failed_found(server, runner):
     """ Checks general `fiff` option/ """
 
-    # adress exists, page isn't
+    # address exists, page isn't
     address = server.router({'^/$': Page("")})
 
     args = [address, '-s', 'none', '--no-progress']

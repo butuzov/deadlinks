@@ -1,4 +1,18 @@
+"""
+unittests.helpers.handler.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Provides Default fixtures for deadlinks tests
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
+# -- Imports -------------------------------------------------------------------
+
 from http.server import BaseHTTPRequestHandler
+
+# -- Implementation ------------------------------------------------------------
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -8,10 +22,10 @@ class Handler(BaseHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def log_message(self, *args):
-        """ Ignoring logging """
+        """ Ignoring logging. """
 
     def do_HEAD(self):
-        """ HEAD, but GET """
+        """ HEAD, but GET. """
         return self.do_GET()
 
     def do_GET(self):

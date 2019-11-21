@@ -1,13 +1,20 @@
 """
-test_baseurl.py
-~~~~~~~~~~~~~~~
+unittests.test_baseurl.py
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We need baseurl as starting point of indexation.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
+
+# -- Imports -------------------------------------------------------------------
+
 import pytest
 
-from deadlinks.link import Link
-from deadlinks.baseurl import BaseURL
+from deadlinks import (Link, BaseURL)
+
+# -- Tests ---------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -48,6 +55,6 @@ def test_basepath_not_within(url, internal_link):
     "url, internal_link", [
         ("https://example.org/docs/", "https://example.net/docs/"),
     ])
-def test_basepath_within_extranal(url, internal_link):
+def test_basepath_within_external(url, internal_link):
     assert not BaseURL(url).within(Link(internal_link))
     assert not BaseURL(internal_link).within(Link(url))
