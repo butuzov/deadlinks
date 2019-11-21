@@ -33,6 +33,7 @@ from click import Command, Context
 from click import HelpFormatter as Formatter
 
 from .link import Link
+from .__version__ import __app_package__ as app
 
 # -- Typing Decorators -----~---------------------------------------------------
 OptionsValues = Union[str, bool, int, List[str], List[Callable]]
@@ -153,6 +154,13 @@ class Clicker(Command):
         self.format_options(ctx, formatter)
         self.format_epilog(ctx, formatter)
 
+    def make_context(self, info_name, args, parent=None, **extra) -> Context: # type: ignore
+        """ Hooking into context in oder to make pro_name for unnamed call. """
+
+        extra['help_option_names'] = ['--help', '-h']
+
+        return super().make_context(app, args, parent, **extra)
+
     def format_options(self, ctx: Context, formatter: Formatter) -> None:
         """ Group options together. """
 
@@ -197,7 +205,7 @@ class Clicker(Command):
                 formatter.write("  {}\n".format(line))
 
     def modify(self, ctx: Context) -> None:
-
+        """ Modifing params based on context. """
         if not self._modify:
             return
 
@@ -207,11 +215,8 @@ class Clicker(Command):
                     ctx.params = modify(ctx.params)
 
     def invoke(self, ctx: Context) -> None:
-
-        # print(self._modify)
-
+        """ Hooking into invoke in order to modify params. """
         self.modify(ctx)
-
         super().invoke(ctx)
 
 

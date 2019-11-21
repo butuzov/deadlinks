@@ -52,7 +52,7 @@ from .__version__ import __app_package__ as name
 
 @click.command(name, **command)
 @click.argument('url', **argument)
-@click.version_option(message='%(prog)s: v%(version)s', prog_name=name, version=version)
+@click.version_option(version, '-V', '--version', message='%(prog)s: v%(version)s', prog_name=name)
 @register_exports(exporters)
 @register_options("Server Settings", serving_options)
 @register_options("Default Options", general_options)
