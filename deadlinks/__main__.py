@@ -24,26 +24,30 @@ Main (cli interface)
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import Dict, Any
-
 import click
 
-from deadlinks.settings import Settings
-from deadlinks.crawler import Crawler
-from deadlinks.exceptions import DeadlinksExeption
+from .settings import Settings
+from .crawler import Crawler
+from .exceptions import DeadlinksException
 
-from .exporters import Export #pylint: disable-msg=W0611
-from .exporters import exporters
-
-from .__version__ import __app_version__ as version
-from .__version__ import __app_package__ as name
-
-from .options import default_options as general_options
-from .serving.options import default_options as serving_options
-
+# CLI implementation related
 from .clicker import (register_options, register_exports)
 from .clicker import Options
 from .clicker import (command, argument)
+
+# Exporters
+from .exporters import Export #pylint: disable-msg=W0611
+from .exporters import exporters
+
+# Default and Specified Options
+from .options import default_options as general_options
+from .serving.options import default_options as serving_options
+
+# Version and App.
+from .__version__ import __app_version__ as version
+from .__version__ import __app_package__ as name
+
+# -- Implementation ------------------------------------------------------------
 
 
 @click.command(name, **command)
@@ -77,10 +81,9 @@ def main(ctx: click.Context, url: str, **opts: Options) -> None:
         if opts['fail_if_fails_found'] and len(crawler.failed) > 0:
             ctx.exit(1)
 
-    except DeadlinksExeption as e:
+    except DeadlinksException as e:
         ctx.fail(e.__str__())
 
 
 if __name__ == "__main__":
-    # pylint: disable=no-value-for-parameter
-    main()
+    main() # pylint: disable=no-value-for-parameter

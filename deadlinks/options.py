@@ -22,9 +22,15 @@ Default options to be consumed by click
 :license:   Apache2, see LICENSE for more details.
 """
 
-from click import IntRange, Choice
+# -- Imports -------------------------------------------------------------------
+
 from typing import List
+
+from click import IntRange, Choice
+
 from .clicker import OptionRaw
+
+# -- Options -------------------------------------------------------------------
 
 default_options = [] # type: List[OptionRaw]
 

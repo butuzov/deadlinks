@@ -1,22 +1,30 @@
 """
-exporter/test_cli_default.py
------------
+unittests.exporters.test_cli_default.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Testing General/Default Exporter of cli.
 
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
+
+# -- Imports -------------------------------------------------------------------
+
+import pytest
 
 from collections import Counter
 from random import choice
 
-import pytest
-
 from click.testing import CliRunner
 from click import unstyle
+
 from ..helpers import Page
 
 from deadlinks.__main__ import main
 from deadlinks.exporters import Default
+
+# -- Tests -------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -131,7 +139,7 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
 
 def test_help(runner):
     result = runner.invoke(main, ['--help'])
-    section, options = Default.options()
+    section, _ = Default.options()
     assert section in result.output
 
 

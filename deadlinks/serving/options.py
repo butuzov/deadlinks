@@ -22,10 +22,15 @@ Default options to be consumed by click if `internal` domain passed.
 :license:   Apache2, see LICENSE for more details.
 """
 
-from click import Path
+# -- Imports -------------------------------------------------------------------
 
 from typing import List
+
+from click import Path
+
 from ..clicker import OptionRaw, Options
+
+# -- Code ----------------------------------------------------------------------
 
 
 def root_option_modifier(options: Options) -> Options:

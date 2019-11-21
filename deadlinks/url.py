@@ -63,10 +63,10 @@ class URL:
 
         # internal error or mesage field, used to store ignore message
         # or error or status code.
-        # TODO - rethink logick behined this value.
+        # TODO - rethink logic behind this value.
         self._message = "" # type: str
 
-    # Basic properies of the URL Link
+    # Basic properties of the URL Link
     @property
     def domain(self) -> str:
         """ Short netlocation prop. """
@@ -105,12 +105,12 @@ class URL:
         self._message = value
 
     def is_valid(self) -> bool:
-        """ Check if url looks "valid" """
+        """ Check if url looks "valid". """
 
         return (self.domain != "" and self.scheme in {"http", "https"})
 
     def add_referrer(self, url: str) -> None:
-        """ Add a page that links (refferer) to self object. """
+        """ Add a page that links (referrer) to self object. """
         if url in self._referrers:
             return
         self._referrers.append(url)

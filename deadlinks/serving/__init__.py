@@ -14,7 +14,7 @@
 
 """
 deadlinks.serving.__init__
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Simple webserver service
 
@@ -25,6 +25,8 @@ Simple webserver service
 # -- Imports -------------------------------------------------------------------
 
 from .simple_server import SimpleServer as Server
+
+# -- Exports -------------------------------------------------------------------
 
 __all__ = [
     'Server',

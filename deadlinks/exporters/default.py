@@ -1,8 +1,33 @@
+# Copyright 2019 Oleg Butuzov. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+deadlinks.exporters.__init__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Export module init file.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
 # -- Imports -------------------------------------------------------------------
-from threading import Thread
-from os import name as os_name
 
 from typing import (Dict, Tuple, List, Sequence, Any) #pylint: disable-msg=W0611
+
+from threading import Thread
+from os import name as os_name
 from time import sleep
 
 import click
@@ -10,6 +35,8 @@ import click
 from .export import Export
 from ..crawler import Crawler
 from ..clicker import OptionRaw
+
+# -- Implementation ------------------------------------------------------------
 
 BEFORE_BAR = '\r' if os_name == 'nt' else '\r\033[?25l'
 AFTER_BAR = '\n' if os_name == 'nt' else '\033[?25h\n'
@@ -103,7 +130,7 @@ class Default(Export):
 
                 self._progress_msg = self._get_progress()
                 click.echo(self._progress_msg, color=self.is_colored(), nl=False)
-                sleep(0.1)
+                sleep(0.3)
 
     def _get_progress(self) -> str:
         """ get progress report from crawler"""

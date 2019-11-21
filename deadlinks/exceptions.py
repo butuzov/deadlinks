@@ -22,27 +22,27 @@ Exceptions used for deadlinks package.
 :license:   Apache2, see LICENSE for more details.
 """
 
-# -- Imports -------------------------------------------------------------------
+# -- Exceptions ----------------------------------------------------------------
 
 
-class DeadlinksExeption(BaseException):
-    """ General Exception """
+class DeadlinksException(BaseException):
+    """ General Exception. """
 
 
-class DeadlinksRedirectionURL(DeadlinksExeption):
-    """ Redicrection URL """
+class DeadlinksRedirectionURL(DeadlinksException):
+    """ Redicrection URL. """
 
 
-class DeadlinksIgnoredURL(DeadlinksExeption):
-    """ Error when we trying to index ignored URL """
+class DeadlinksIgnoredURL(DeadlinksException):
+    """ Error when we trying to index ignored URL. """
 
 
-class DeadlinksSettings(DeadlinksExeption):
-    """ Error on Settings object """
+class DeadlinksSettings(DeadlinksException):
+    """ Error on Settings object. """
 
 
 class DeadlinksSettingsBase(DeadlinksSettings):
-    """ Error on Settings object related to `BaseUrl` property """
+    """ Error on Settings object related to `BaseUrl` property. """
 
 
 class DeadlinksSettingsRoot(DeadlinksSettings):
@@ -50,15 +50,15 @@ class DeadlinksSettingsRoot(DeadlinksSettings):
 
 
 class DeadlinksSettingsThreads(DeadlinksSettings):
-    """ Error on Settings object related to `threads` property """
+    """ Error on Settings object related to `threads` property. """
 
 
 class DeadlinksSettingsRetry(DeadlinksSettings):
-    """ Error on Settings object related to `retry` property """
+    """ Error on Settings object related to `retry` property. """
 
 
 class DeadlinksSettingsChange(DeadlinksSettings):
-    """ Error on Settings object related to settings change  """
+    """ Error on Settings object related to settings change. """
 
 
 class DeadlinksSettingsDomains(DeadlinksSettings):

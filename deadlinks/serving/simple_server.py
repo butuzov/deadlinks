@@ -1,21 +1,47 @@
-from functools import partial
+# Copyright 2019 Oleg Butuzov. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from http.server import HTTPServer
+"""
+deadlinks.main
+~~~~~~~~~~~~~~
 
-from socket import (socket, SOCK_STREAM, AF_INET)
+Main (cli interface)
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
+# -- Imports -------------------------------------------------------------------
+
 from typing import (Union, Optional)
 
+from functools import partial
+from http.server import HTTPServer
+from socket import (socket, SOCK_STREAM, AF_INET)
 from threading import Thread
 from pathlib import Path
 
-from deadlinks.serving.handler import Handler
-from deadlinks.serving.router import Router
+from .handler import Handler
+from .router import Router
+
+# -- Implementation ------------------------------------------------------------
 
 
 class SimpleServer:
 
     def __init__(self, web_root: Union[str, Path], web_path: Optional[str]) -> None:
-
+        """ Starts simple webserver and handles requests to local folder. """
         self.web_path = "/" if not web_path else web_path
         if not self.web_path.startswith("/"):
             self.web_path = "/" + self.web_path
@@ -45,30 +71,4 @@ class SimpleServer:
 
     def url(self) -> str:
         """ Return URL of running server (including path). """
-
         return "http://{}:{}{}".format(self._sa[0], self._sa[1], self.web_path)
-
-
-if __name__ == "__main__":
-
-    import subprocess
-    import requests
-    import time
-
-    # web_server = SimpleServer(Path("../gobyexample/public"), None)
-    web_server = SimpleServer(Path("../gobyexample/public"), "/go/")
-
-    subprocess.run([
-        "open",
-        web_server.url(),
-    ])
-
-    requests.get(web_server.url())
-    time.sleep(.5)
-    requests.get(web_server.url() + 'panic')
-    requests.get(web_server.url() + 'goroutines')
-    time.sleep(.5)
-    time.sleep(.5)
-    time.sleep(.5)
-
-    time.sleep(10)

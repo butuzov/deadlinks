@@ -1,11 +1,16 @@
 """
-test_links.py
-~~~~~~~~~~~~~
+unittests.test_links.py
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Links object test coverage
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
 
 # pylint: disable=redefined-outer-name
+
+# -- Imports -------------------------------------------------------------------
 
 import pytest
 
@@ -17,6 +22,8 @@ from deadlinks.exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksRedirectionURL,
 )
+
+# -- Tests ---------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")

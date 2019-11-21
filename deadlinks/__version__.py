@@ -31,7 +31,7 @@ __description__ = "CLI/API for links liveness checking."
 __author_name__ = "Oleg Butuzov"
 __author_mail__ = "butuzov@made.ua"
 
-# for development proposes (docker butuzov/ddeadlinks:dev images)
+# for development proposes (docker butuzov/deadlinks:dev images)
 
 try:
     from .__develop__ import version

@@ -16,7 +16,7 @@
 deadlinks.serving.handler
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Handles reqeust responses for simple documentation webserver.
+Handles requests responses via simple webserver.
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
@@ -24,10 +24,13 @@ Handles reqeust responses for simple documentation webserver.
 
 # -- Imports -------------------------------------------------------------------
 
+from typing import Any
+
 from http.server import BaseHTTPRequestHandler
 
-from typing import (Any)
-from deadlinks.serving.router import Router
+from .router import Router
+
+# -- Implementation ------------------------------------------------------------
 
 
 class Handler(BaseHTTPRequestHandler):

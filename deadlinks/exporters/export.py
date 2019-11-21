@@ -14,9 +14,9 @@
 
 """
 deadlinks.exporters.export
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Abstract Interface we will ask to implemnt child classes.
+Abstract Interface we will ask to implement child classes.
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
@@ -24,11 +24,13 @@ Abstract Interface we will ask to implemnt child classes.
 
 # -- Imports -------------------------------------------------------------------
 
+from typing import (Dict, Tuple)
 from abc import ABC, abstractmethod
-from typing import (Dict, List, Tuple, Any)
 
 from ..crawler import Crawler
 from ..clicker import OptionsList
+
+# -- Abstract ------------------------------------------------------------------
 
 
 class Export(ABC):

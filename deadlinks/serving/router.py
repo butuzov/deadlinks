@@ -24,12 +24,14 @@ Implements simple file system lookups for web requests on generated docs.
 
 # -- Imports -------------------------------------------------------------------
 
+from typing import (Union, Dict, Optional, Tuple)
+
 from pathlib import Path
 from collections import OrderedDict
 
-from typing import (Union, Dict, Optional, Tuple)
+from ..exceptions import DeadlinksSettingsRoot
 
-from deadlinks.exceptions import DeadlinksSettingsRoot
+# -- Implementation ------------------------------------------------------------
 
 root_web_files = [
     '/robots.txt',
@@ -87,7 +89,7 @@ class Router():
         if request_url in self._redirects:
             return (301, self._redirects[request_url])
 
-        # requests for favico, robots.txt and sitemap.xml
+        # requests for favicon, robots.txt and sitemap.xml
         if request_url in root_web_files:
             request_file = self._siteroot / request_url.lstrip("/")
             if request_file.is_file():
@@ -106,10 +108,9 @@ class Router():
             try_files.append(request_file / "index.html")
             try_files.append(request_file / "index.htm")
         else:
-            # TODO - is there more elegant way to append extension to
-            #        PosixPath ?
-            try_files.append(Path(str(request_file) + ".html"))
-            try_files.append(Path(str(request_file) + ".htm"))
+            _path = str(request_file)
+            try_files.append(Path(_path + ".html"))
+            try_files.append(Path(_path + ".htm"))
             try_files.append(request_file)
 
         for file in try_files:

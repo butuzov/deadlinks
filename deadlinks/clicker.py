@@ -23,13 +23,13 @@ Functions related to click package and cli implementation.
 """
 
 # -- Imports -------------------------------------------------------------------
+
 from typing import (Dict, List, Tuple, Union, Any, Callable, Sequence)
 from textwrap import dedent
 from collections import OrderedDict
 
 from click import Option, Argument
-from click import Command
-from click import Context
+from click import Command, Context
 from click import HelpFormatter as Formatter
 
 from .link import Link

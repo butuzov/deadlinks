@@ -28,13 +28,13 @@ from requests import Session, Response
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from deadlinks.__version__ import __app_version__ as version
-from deadlinks.__version__ import __app_website__ as website
-from deadlinks.__version__ import __app_package__ as package
+from .__version__ import __app_version__ as version
+from .__version__ import __app_website__ as website
+from .__version__ import __app_package__ as package
 
 
 def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> Response:
-    r"""Request a web resource and return Response
+    """Request a web resource and return Response
 
     Perform GET  - for the local resource
             HEAD - for the remote resource

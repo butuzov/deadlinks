@@ -1,13 +1,20 @@
 """
-test_index.py
-~~~~~~~~~~~~~
+unittests.test_index.py
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Test(s) for Index (collection of the links) object.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
+
+# -- Imports -------------------------------------------------------------------
 
 from typing import (List)
 
 from deadlinks import (Link, Index)
+
+# -- Tests ---------------------------------------------------------------------
 
 
 def test_index():
