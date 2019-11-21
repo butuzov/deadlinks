@@ -28,17 +28,7 @@ from abc import ABC, abstractmethod
 from typing import (Dict, List, Tuple, Any)
 
 from ..crawler import Crawler
-"""
-class Sample(Export):
-
-    def __init__(self, crawler: Crawler, **opts: Dict) -> None:
-        self._crawler = crawler
-        self._opts = opts
-
-    def report(self) -> None:
-        print("Total", len(self._crawler.index))
-
-"""
+from ..clicker import OptionsList
 
 
 class Export(ABC):
@@ -50,7 +40,7 @@ class Export(ABC):
 
     @staticmethod
     @abstractmethod
-    def options() -> Tuple[str, List[Tuple[Tuple[str], Dict[str, Any]]]]:
+    def options() -> Tuple[str, OptionsList]:
         """ you need to implement report method """
         raise NotImplementedError
 

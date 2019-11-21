@@ -14,23 +14,43 @@
 
 """
 deadlinks.serving.options
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-default options to be consumed by click
+Default options to be consumed by click if `internal` domain passed.
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
+
 from click import Path
 
-default_options = [
+from typing import List
+from ..clicker import OptionRaw, Options
 
-    # root, in case of URL<internal>, defaults to . (pwd or current directory)
-    (
-        ('--root', ),
-        {
-            'help': 'Document Root for html files',
-            'type': Path(),
-        },
-    ),
-]
+
+def root_option_modifier(options: Options) -> Options:
+    """ this modifier will be triggered if root option passed. """
+
+    if not options["root"]:
+        return options
+
+    if options.get("retry", 0) == 0:
+        options["retry"] = 3
+
+    if options.get("threads", 1) == 1:
+        options["threads"] = 10
+
+    return options
+
+
+default_options = [] # type: List[OptionRaw]
+# root, in case of URL<internal>, defaults to . (pwd or current directory)
+default_options.append((
+    ('root', '-R', '--root'),
+    {
+        'help': 'Path to the documentation\'s Document Root',
+        'metavar': '',
+        'type': Path(),
+        'modifier': [root_option_modifier]
+    },
+))
