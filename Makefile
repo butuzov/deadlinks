@@ -92,6 +92,8 @@ docker-build-local: clean
 docker-check-local: docker-build-local
 	docker run --rm -it --network=host  butuzov/deadlinks:local --version
 
+# enable `--pull=alway` once it will be available https://github.com/docker/cli/pull/1498
+# status - 19.03 not avaialbe.
 docker-check-dev:
 	docker run --rm -it --network=host  butuzov/deadlinks:dev --version
 
