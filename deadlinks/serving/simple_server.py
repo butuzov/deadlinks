@@ -60,9 +60,10 @@ class SimpleServer:
         # https://github.com/python/mypy/issues/1484
 
         self._server = HTTPServer(self._sa, partial(Handler, _router)) # type: ignore
-        server_thread = Thread(target=self._server.serve_forever)
-        server_thread.setDaemon(True)
-        server_thread.start()
+
+        for _ in range(0, 1):
+            server_thread = Thread(target=self._server.serve_forever, daemon=True)
+            server_thread.start()
 
     def __str__(self) -> str:
         """ Instance as browsable URL. """

@@ -43,7 +43,7 @@ def root_option_modifier(options: Options) -> Options:
         options["retry"] = 3
 
     if options.get("threads", 1) == 1:
-        options["threads"] = 10
+        options["threads"] = 1
 
     return options
 
