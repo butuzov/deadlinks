@@ -48,7 +48,6 @@ from .exceptions import (
 
 class Settings:
     """ Handles general settings. """
-
     # pylint: disable=R0902
     _stay_within_path = None # type: Optional[bool]
     _external = None # type: Optional[bool]
@@ -76,10 +75,11 @@ class Settings:
         self.stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
-
+        self._is_masked = False
         # special case of baseurl is internal
         base = BaseURL(url)
         if base.domain == "internal":
+            self._is_masked = True
             self.root = Path(defaults['root']) # type: ignore
             web_server = Server(self.root, base.path)
             base = BaseURL(web_server.url())
@@ -103,6 +103,13 @@ class Settings:
         return {**_defaults, **kwargs}
 
     # -- Root ------------------------------------------------------------------
+
+    @property
+    def masked(self) -> bool:
+        """ Is Base url masked? """
+
+        return self._is_masked
+
     @property
     def root(self) -> str:
         """ Getter for Document Root value. """

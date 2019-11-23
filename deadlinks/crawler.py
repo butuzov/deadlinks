@@ -240,25 +240,36 @@ class Crawler:
         # Update link by adding url as link referrer
         link.add_referrer(url.url())
 
+    def internal(self, links: List[Link]) -> List[Link]:
+        """ Masks URL for local files, so it looks like internal domain real. """
+
+        if not self.settings.masked:
+            return links
+
+        domain = self.settings.base.domain
+        mapper = lambda x: x.url().replace(domain, 'internal')
+
+        return list(map(Link, map(mapper, links)))
+
     @property
     def ignored(self) -> List[Link]:
         """ Return URLs we have ignore to check. """
-        return self.index.ignored()
+        return self.internal(self.index.ignored())
 
     @property
     def succeed(self) -> List[Link]:
         """ Return URLs we exists. """
-        return self.index.succeed()
+        return self.internal(self.index.succeed())
 
     @property
     def failed(self) -> List[Link]:
         """ Return URLs failed to exist. """
-        return self.index.failed()
+        return self.internal(self.index.failed())
 
     @property
     def redirected(self) -> List[Link]:
         """ Return URLs failed to exist. """
-        return self.index.redirected()
+        return self.internal(self.index.redirected())
 
     @property
     def stats(self) -> Dict[Status, int]:
