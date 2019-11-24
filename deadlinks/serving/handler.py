@@ -26,7 +26,10 @@ Handles requests responses via simple webserver.
 
 from typing import Any
 
-from http.server import BaseHTTPRequestHandler
+try:
+    from http.server import BaseHTTPRequestHandler
+except ModuleNotFoundError:
+    from BaseHTTPServer import BaseHTTPRequestHandler # type: ignore
 
 from .router import Router
 

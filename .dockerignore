@@ -35,12 +35,10 @@ docs
 Dockerfile
 LICENSE
 Makefile
+Makefile.md
 dist
 demo.gif
 pyrightconfig.json
 report
-sample.py
-tests
+unittests
 venv.sh
-commits.md
-CODE_OF_CONDUCT.md

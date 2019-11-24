@@ -67,8 +67,13 @@ class Default(Export):
         return not self._opts.get('no_colors', False)
 
     def info(self) -> str:
+
+        base = self._crawler.settings.base
+        baseurl = base if not self._crawler.settings.masked else \
+                    base.url().replace(base.domain, 'internal')
+
         message = "URL=<{}>; External Checks={}; Threads={}; Retry={}".format(
-            self._crawler.settings.base,
+            baseurl,
             "On" if self._crawler.settings.external else "Off",
             self._crawler.settings.threads,
             self._crawler.settings.retry,
@@ -130,7 +135,7 @@ class Default(Export):
 
                 self._progress_msg = self._get_progress()
                 click.echo(self._progress_msg, color=self.is_colored(), nl=False)
-                sleep(0.3)
+                sleep(0.1)
 
     def _get_progress(self) -> str:
         """ get progress report from crawler"""

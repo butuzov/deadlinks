@@ -27,7 +27,14 @@ Main (cli interface)
 from typing import (Union, Optional)
 
 from functools import partial
-from http.server import HTTPServer
+
+try:
+    from socketserver import ThreadingMixIn
+    from http.server import HTTPServer
+except ModuleNotFoundError:
+    from SocketServer import ThreadingMixIn # type: ignore
+    from BaseHTTPServer import HTTPServer # type: ignore
+
 from socket import (socket, SOCK_STREAM, AF_INET)
 from threading import Thread
 from pathlib import Path
@@ -36,6 +43,11 @@ from .handler import Handler
 from .router import Router
 
 # -- Implementation ------------------------------------------------------------
+
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+    daemon_threads = True
 
 
 class SimpleServer:
@@ -49,21 +61,23 @@ class SimpleServer:
         if not isinstance(web_root, Path):
             web_root = Path(web_root)
 
-        _router = Router(web_root.resolve(), self.web_path)
+        self.router = Router(web_root.resolve(), self.web_path)
 
         _socket = socket(AF_INET, type=SOCK_STREAM)
         _socket.bind(('localhost', 0))
         self._sa = _socket.getsockname()
         _socket.close()
 
+        self.start()
+
+    def start(self) -> None:
+
         # implement correct type annotation, when change
         # https://github.com/python/mypy/issues/1484
-
-        self._server = HTTPServer(self._sa, partial(Handler, _router)) # type: ignore
-
-        for _ in range(0, 1):
-            server_thread = Thread(target=self._server.serve_forever, daemon=True)
-            server_thread.start()
+        self._handler = partial(Handler, self.router)
+        self._server = ThreadedHTTPServer(self._sa, self._handler) # type: ignore
+        server_thread = Thread(target=self._server.serve_forever, daemon=True)
+        server_thread.start()
 
     def __str__(self) -> str:
         """ Instance as browsable URL. """
