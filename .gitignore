@@ -1,11 +1,11 @@
 # venv
 .venv*
-env*
 
 # development
 .cache
 .vscode
 .tox/*
+extra
 
 # articats
 __pycache__

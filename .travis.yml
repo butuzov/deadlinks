@@ -46,7 +46,7 @@ jobs:
       script:
       - pip install -e .
       - make gen-docs
-      - deadlinks internal --root=build/dirhtml/ --no-progress --no-colors --fiff
+      - deadlinks internal --root=build/sphinx/html --no-progress --no-colors --fiff
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov

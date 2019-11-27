@@ -12,7 +12,7 @@
 
 **deadlinks** is a simple cli tool to check your documentation/website for deadlinks.
 
-![](demo.gif)
+![](https://i.imgur.com/9Ekznio.gif)
 
 ## Features
 
@@ -51,7 +51,7 @@ pip install --upgrade pip
 
 # in case if you developing within forked repository
 cd /home/user/deadlinks-fork
-pip install -r requirments.txt
+pip install -r requirements.txt
 pip install -e .
 ```
 

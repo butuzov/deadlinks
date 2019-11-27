@@ -52,10 +52,10 @@ browse:
 	open http://localhost:5678
 
 documentation:
-	ghp -root=build/dirhtml -port=5678
+	ghp -root=build/sphinx/html -port=5678
 
 gen-docs:
-	sphinx-build -M dirhtml docs build -c docs
+	python3 setup.py build_sphinx -c docs
 
 docs: gen-docs browse  documentation
 
