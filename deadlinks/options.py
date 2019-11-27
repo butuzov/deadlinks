@@ -73,21 +73,21 @@ default_options.append((
 
 # Ignored Domains  ---------------------------------------------------------
 default_options.append((
-    ('ignore_domains', '-d', '--domains'),
+    ('ignore_domains', '-d', '--domain'),
     {
         'multiple': True,
         'metavar': '',
-        'help': 'Domain to ignore ()',
+        'help': 'Domain to ignore (multiple options allowed)',
     },
 ))
 
 # Ignored Paths  -----------------------------------------------------------
 default_options.append((
-    ('ignore_pathes', '-p', '--pathes'),
+    ('ignore_pathes', '-p', '--path'),
     {
         'multiple': True,
         'metavar': '',
-        'help': 'Path to ignore ()',
+        'help': 'Path to ignore (multiple options allowe)',
     },
 ))
 

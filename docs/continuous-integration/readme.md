@@ -18,7 +18,6 @@ If tool you using to create documentation has support for links checking, please
 
 * [Azure Pipelines](azure-pipelines.md)
 * [GitHub Actions](github-actions.md)
-* [GitLab CI](gitlab-ci.md)
 * [Jenkins](jenkins.md)
 * [tox](tox.md)
 * [Travis CI](travis-ci.md)
