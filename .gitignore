@@ -19,6 +19,9 @@ dist
 # misc
 .DS_Store
 
+# brew
+deadlinks.rb
+homebrew-deadlinks
 
 # dev
 __develop__.py

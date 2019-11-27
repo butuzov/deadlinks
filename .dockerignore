@@ -20,6 +20,10 @@ dist
 # misc
 docs
 
+# brew
+deadlinks.rb
+homebrew-deadlinks
+
 # no need
 .DS_Store
 .codacy.yml

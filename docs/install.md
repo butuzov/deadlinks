@@ -29,7 +29,7 @@ docker pull butuzov/deadlinks
 ## Mac
 
 ```bash
-brew update
-brew install deadlinks
+# we using custom tap to install deadlinks
+brew install butuzov/deadlinks/deadlinks
 ```
 

@@ -30,6 +30,13 @@
 pip install deadlinks
 ```
 
+### Mac
+
+```bash
+# we using custom tap to install deadlinks
+brew install butuzov/deadlinks/deadlinks
+```
+
 ### Using forked repo for development propose.
 
 ```bash

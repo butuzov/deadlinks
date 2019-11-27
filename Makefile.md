@@ -23,6 +23,8 @@ Deployments:
   * pre-deploy            Install `wheel` and `twine`
   * deploy-test           Deploy to test PyPi server
   * deploy-prod           Deploy to production PyPi server
+  * brew                  Create Brew formula and run brew tests
+  * brew-update-prepare   Prepare Formula repository
 
 Docker:
 

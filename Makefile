@@ -59,6 +59,23 @@ gen-docs:
 
 docs: gen-docs browse  documentation
 
+# ~~~ Brew ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+brew:
+	@python3 -m pip install --upgrade requests Jinja2 -q
+	@python3 setup.py brew_formula_create
+	@python3 -m pip uninstall requests chardet Jinja2 MarkupSafe urllib3 certifi idna -y -q
+	@brew reinstall deadlinks.rb
+	@brew audit --new-formula deadlinks.rb
+	@brew audit --strict deadlinks.rb
+	@brew test --verbose --debug deadlinks.rb
+	@brew uninstall deadlinks
+
+
+brew-update-prepare: brew
+	@git clone https://github.com/butuzov/homebrew-deadlinks
+	@cp deadlinks.rb homebrew-deadlinks/Formula/deadlinks.rb
+
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 clean:
