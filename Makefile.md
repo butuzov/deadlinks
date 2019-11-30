@@ -1,7 +1,7 @@
 # Makefile Help
 
 Installs:
-  * develop               Installs development vesion.
+  * develop               Installs development version.
 
 Tests and Continues Integration:
   * all                   run (almost) all checks.

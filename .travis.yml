@@ -1,11 +1,16 @@
 language: python
 python: 3.8
 
+cache: { directories: [ $HOME/.cache/pip ] }
 
 matrix:
   fast_finish: true
   allow_failures:
   - env: FAILURES=ALLOWED
+
+
+install:
+- make requirements
 
 script: skip
 
@@ -44,7 +49,7 @@ jobs:
       name: "Docs"
       python: 3.8
       script:
-      - pip install -e .
+      - make develop
       - make gen-docs
       - deadlinks internal --root=build/sphinx/html --no-progress --no-colors --fiff
 
@@ -52,7 +57,7 @@ jobs:
     - stage: codecov
       name: "Code Coverage"
       python: 3.8
-      if: branch IN (master, develop, develop-deployment)
+      if: branch IN (master, develop)
       script:
       - make coverage
       - bash <(curl -s https://codecov.io/bash)
