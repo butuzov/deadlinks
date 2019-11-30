@@ -13,7 +13,10 @@ from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py as _build_py
 
 from utils.setup import (read_data, require, readme)
-from utils.brew import build_formula
+try:
+    from utils.brew import build_formula
+except BaseException:
+    build_formula = lambda a, b: "Brew Build not implemented"
 
 # ------------------------------------------------------------------------------
 
