@@ -12,6 +12,14 @@ COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
 help:
 	@cat Makefile.md
 
+# ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+requirements:
+	python3 -m pip install -r requirements.txt
+
+develop: requirements
+	python3 setup.py develop
+
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 tests:
@@ -35,7 +43,8 @@ mypy:
 
 lints: pylint mypy
 
-all: tests lints
+all: clean pylint mypy docker-build-local
+	@echo "Not Implemented"
 
 # Codacity Code Analysis
 # https://github.com/codacy/codacy-analysis-cli#install

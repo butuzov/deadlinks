@@ -1,7 +1,10 @@
 # Makefile Help
 
-Tests and Continues Integration:
+Installs:
+  * develop               Installs development vesion.
 
+Tests and Continues Integration:
+  * all                   run (almost) all checks.
   * tests                 pytest (travis and local versions)
   * pylint                pylint static checks
   * coverage              pylint static checks with coverage output
@@ -27,7 +30,6 @@ Deployments:
   * brew-update-prepare   Prepare Formula repository
 
 Docker:
-
   * docker-build-local    Build Local Docker image
   * docker-check-local    Check deadlinks version in "local" image
   * docker-check-dev      Check deadlinks version in "dev" image
