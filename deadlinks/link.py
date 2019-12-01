@@ -14,16 +14,11 @@
 
 """
 deadlinks.link
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
-Link representation based on URL object, due typing imcompatibility
-Link do same thing that URL
+Link representation based on URL object.
 
-
-TODO
-- [ ] Fix issue with W0212
-
-:copyright: (c) 2019 by Oleg Butuziv.
+:copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
 
@@ -31,7 +26,7 @@ TODO
 
 from typing import Union
 
-from deadlinks.url import URL
+from .url import URL
 
 
 class Link(URL):
@@ -56,10 +51,10 @@ class Link(URL):
         elif not isinstance(url, URL):
             raise TypeError("url of type {}".format(type(url)))
 
-        base_scheme, this_scheme = url._url.scheme, self._url.scheme # pylint: disable-msg=W0212
-        base, this = url._url.netloc, self._url.netloc # pylint: disable-msg=W0212
+        base_scheme, this_scheme = url.scheme, self.scheme
+        base, this = url.domain, self.domain
 
-        # we assiming that www.domain.com and domain.com are same
+        # we assuming that www.domain.com and domain.com are same
         pattern = "www."
         base = base[len(pattern):] if base.startswith(pattern) else base
         this = this[len(pattern):] if this.startswith(pattern) else this
@@ -77,7 +72,7 @@ class Link(URL):
         return base != this
 
     def __eq__(self, other: object) -> bool:
-        """ Compare two links """
+        """ Compare two links. """
 
         if isinstance(other, str):
             other = Link(other)

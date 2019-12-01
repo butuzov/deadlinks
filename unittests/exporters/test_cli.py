@@ -1,18 +1,27 @@
 """
-exporter/test_cli.py
------------
+unittests.exporters.test_cli.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Testing cli frunctionality.
+Testing cli functionality.
+
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
 
-from collections import OrderedDict
+# -- Imports -------------------------------------------------------------------
 
 import pytest
 
+from collections import OrderedDict
+
 from click.testing import CliRunner
-from tests.helpers import Page
+
+from ..helpers import Page
 
 from deadlinks.__main__ import main
+
+# -- Tests -~~------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -21,7 +30,7 @@ def runner():
 
 
 def test_options():
-    """ testing 'main' callback properties """
+    """ Testing 'main' callback properties """
 
     assert not hasattr(main, '__click_params_groups__')
     assert hasattr(main, '_groups')
@@ -31,7 +40,7 @@ def test_options():
 
 
 def test_help(runner):
-    """ will check if section and main title are present in help """
+    """ Will check if section and main title are present in help """
 
     result = runner.invoke(main, ['--help'])
 
@@ -44,7 +53,7 @@ def test_help(runner):
 
 
 def test_version(runner):
-    """ simple version test """
+    """ Simple version test. """
     result = runner.invoke(main, ['--version'])
 
     assert result.exit_code == 0
@@ -56,9 +65,9 @@ def test_version(runner):
 
 
 def test_default_fail_if_failed_found(server, runner):
-    """ checks genra fiff option """
+    """ Checks general `fiff` option/ """
 
-    # adress exists, page isn't
+    # address exists, page isn't
     address = server.router({'^/$': Page("")})
 
     args = [address, '-s', 'none', '--no-progress']
@@ -76,10 +85,10 @@ def test_default_fail_if_failed_found(server, runner):
 
 @pytest.mark.parametrize('dsn', [
     "ssh://127.0.0.1:21",
-    "mailto:example@exmaple.org",
+    "mailto:example@example.org",
 ])
-def test_default_url_issue(runner, dsn):
-
+def test_default_dsn_with_issues(runner, dsn):
+    """ Passing unsupported DSN string. """
     result = runner.invoke(main, [dsn])
 
     assert result.exit_code == 2
@@ -87,7 +96,7 @@ def test_default_url_issue(runner, dsn):
     assert MESSAGE.format(dsn) in result.output
 
 
-def test_default_url_noscheme_issue(server, runner):
+def test_default_url_no_scheme_issue(server, runner):
     """ no domain cli execution test """
     address = server.router({
         '^/$': Page("").exists(),

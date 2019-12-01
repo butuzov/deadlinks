@@ -1,22 +1,28 @@
 """
-test_server.py
---------------
+unittests.test_crawler.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    New webServer logic tests implementation, done in order to introduce new
-    concepts to crawler (noindex, nofollow, sitemaps.xml, robots.txt, etc) as
-    long as testing currently implemented things.
+New webServer logic tests implementation, done in order to introduce new
+concepts to crawler (noindex, nofollow, sitemaps.xml, robots.txt, etc) as
+long as testing currently implemented things.
 
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
+
+# -- Imports -------------------------------------------------------------------
 
 import pytest
 
-from tests.helpers import Page
+from .helpers import Page
 
 from deadlinks import (Settings, Crawler)
 from deadlinks import (
     DeadlinksIgnoredURL,
     DeadlinksSettingsBase,
 )
+
+# -- Tests ---------------------------------------------------------------------
 
 
 # TODO - Fix this bug issue and fix tests.
@@ -40,12 +46,6 @@ def test_index_within_path(simple_site, stay_within_path, check_external, result
     c.start()
 
     exists, failed, ignored = results
-    # for i in c.succeed:
-    #     print(i)
-    # for i in c.failed:
-    #     print('failed', i)
-    # for i in c.ignored:
-    #     print('ign', i)
 
     assert len(c.succeed) == exists
     assert len(c.failed) == failed
@@ -154,7 +154,7 @@ def test_defaults(server, threads):
     # there are 2*3 links on the page, and half of them are working
     links_number = 3
 
-    HTML_FORMATTER = lambda x: "<a href='{}-{{0}}'>{{0}}</a>".format(x)
+    HTML_FORMATTER = lambda x: "<a href='{}-{{0}}'>{{0}}</a>".format(x) #pylint: disable-msg=W0108
     LINK_FORMATTER = lambda x: HTML_FORMATTER("link").format(x)
     LIMK_FORMATTER = lambda x: HTML_FORMATTER("limk").format(x)
 
@@ -178,7 +178,7 @@ def test_defaults(server, threads):
 
 
 def test_external_external(servers):
-    """ redirections tested via added 2nd domain and extra external domains. """
+    """ Redirections tested via added 2nd domain and extra external domains. """
 
     CONTENT = """ Example of the index page
         <a href="{}">external link 1</a> | <a href="{}">external link 2</a>
@@ -211,7 +211,7 @@ def test_external_external(servers):
 
 
 def test_mailto(server):
-    """ extra mailto test """
+    """ Extra mailto test. """
 
     MAILTO = "mailto:name@example.org"
     CONTENT = """  <a href="{}">mail link</a>""".format(MAILTO)
@@ -297,8 +297,8 @@ def test_no_index_page(server):
 
 def test_within_site_root(server):
     """
-        test checks a case when url without trailing slash is ignored because
-        it's not stays with in path.
+        This Test checks a case when url without trailing slash is ignored
+        because it's not stays within path.
     """
     CONTENT = """
         <a href="http://{0}:{1}">link</a>

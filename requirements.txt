@@ -15,11 +15,16 @@ pytest-xdist>=1.29.0
 Sphinx==2.2.1
 recommonmark==0.6.0
 sphinx-rtd-theme==0.4.3
+sphinx-markdown-tables
 
+# brew
+chardet>=3.0.4
+certifi>=2019.9.11
+idna>=2.8
 
 # install
 requests>=2.22.0
-click==7.0
-urllib3==1.25.6
+click>=7.0
+urllib3>=1.25.6
 
 # ^^^  KEEP THIS SECTION LAST --- ALWAYS ^^^

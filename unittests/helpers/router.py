@@ -1,8 +1,22 @@
+"""
+unittests.helpers.page.py
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simple page emulator.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
+# -- Imports -------------------------------------------------------------------
+
 from collections import defaultdict
 from re import compile as _compile
 from time import sleep
 
 PAGE_TEMPLATE = "<!DOCTYPE HTML><html><head>{0}</head><body>{1}</body></html>"
+
+# -- Implementation ------------------------------------------------------------
 
 
 class Router:

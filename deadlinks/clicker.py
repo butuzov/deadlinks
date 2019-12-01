@@ -23,84 +23,102 @@ Functions related to click package and cli implementation.
 """
 
 # -- Imports -------------------------------------------------------------------
-from typing import (Dict, List, Tuple, Any, Callable)
+
+from typing import (Dict, List, Tuple, Union, Any, Callable, Sequence)
 from textwrap import dedent
 from collections import OrderedDict
 
 from click import Option, Argument
-from click import Command
-from click import Context
+from click import Command, Context
 from click import HelpFormatter as Formatter
 
 from .link import Link
+from .__version__ import __app_package__ as app
+
+# -- Typing Decorators -----~---------------------------------------------------
+OptionsValues = Union[str, bool, int, List[str], List[Callable]]
+Options = Dict[str, OptionsValues]
+OptionModifier = Callable
+OptionRaw = Tuple[Sequence[str], Dict[str, Any]]
+OptionsList = List[OptionRaw]
+HelpDefList = List[Tuple[str, str]]
+
+# -- Options Decorators --------------------------------------------------------
+#   Its better to make own wrappet than add number of options directly to
+#   main function each time.
+
+
+class OrderedDefaultDict(OrderedDict):
+    factory = list
+
+    def __missing__(self, key: str) -> List:
+        self[key] = value = self.factory() # type: ignore
+        return value
+
+
+default_attributes = {
+    '__click_params_groups__': OrderedDefaultDict,
+    '__click_params__': list,
+    '__click_params_modify__': OrderedDefaultDict,
+}
+
+
+def modify(f: Any, group: str, options: OptionsList) -> Any:
+
+    for attr, factory in default_attributes.items():
+        if not hasattr(f, attr):
+            f.__dict__[attr] = factory()
+
+    for option in reversed(options):
+        # exported value is variable that we getting in the function.
+        # params is a list of options
+        # key=>value
+        params, attrs = option
+
+        OptionClass = attrs.pop('cls', Option)
+        Modifiers = attrs.pop('modifier', [])
+
+        _option = OptionClass(params, **attrs)
+
+        # adding option and group
+        f.__click_params__.append(_option)
+        f.__click_params_groups__[group].append(_option.name)
+        if Modifiers:
+            f.__click_params_modify__[_option.name] += Modifiers
+
+    return f
 
 
 def register_exports(exporters: Dict[str, Any]) -> Callable:
 
     def decorator(f: Any) -> Any:
 
-        if not hasattr(f, '__click_params_groups__'):
-            f.__click_params_groups__ = OrderedDict()
-
-        if not hasattr(f, '__click_params__'):
-            f.__click_params__ = []
-
         for exporter in exporters.values():
             group, options = exporter.options()
-
-            for option in reversed(options):
-                param, attr = option
-                option_attr = attr.copy()
-                OptionClass = option_attr.pop('cls', Option)
-
-                _option = OptionClass(param, **attr)
-                f.__click_params__.append(_option)
-
-                if group not in f.__click_params_groups__:
-                    f.__click_params_groups__[group] = []
-
-                f.__click_params_groups__[group].append(_option.name)
+            f = modify(f, group, options)
 
         return f
 
     return decorator
 
 
-def register_options(group: str, options: List[Tuple[Any, Dict[str, Any]]]) -> Callable:
+def register_options(group: str, options: OptionsList) -> Callable:
     """ Register Multiple Options in one set  """
 
     def decorator(f: Any) -> Any:
         """ Final decoration for main """
 
-        if not hasattr(f, '__click_params_groups__'):
-            f.__click_params_groups__ = OrderedDict()
-
-        if not hasattr(f, '__click_params__'):
-            f.__click_params__ = []
-
-        # Issue 926, just in case we also need to worry about custom cls.
-        for option in reversed(options):
-            param, attr = option
-            option_attr = attr.copy()
-            OptionClass = option_attr.pop('cls', Option)
-
-            _option = OptionClass(param, **attr)
-            f.__click_params__.append(_option)
-
-            # groups
-
-            if group not in f.__click_params_groups__:
-                f.__click_params_groups__[group] = []
-
-            f.__click_params_groups__[group].append(_option.name)
-
-        return f
+        return modify(f, group, options)
 
     return decorator
 
 
+# -- CLI wrapper ---------------------------------------------------------------
+#   So we can have nice looking options groups.
+
+
 class Clicker(Command):
-    """ Custom CLI class, for henerating better `help`"""
+    """ For a better --help function """
 
     EXAMPLES = dedent(
         """\
@@ -118,33 +136,43 @@ class Clicker(Command):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """ Getting Options groups """
 
-        # print(type(args))
-        # print(type(kwargs))
+        if hasattr(kwargs['callback'], '__click_params_groups__'):
+            self._groups = kwargs['callback'].__click_params_groups__
+            self._groups['Other'] = []
 
-        self._groups = kwargs['callback'].__click_params_groups__
-        self._groups['Other'] = []
+        if hasattr(kwargs['callback'], '__click_params_modify__'):
+            self._modify = kwargs['callback'].__click_params_modify__
 
         super().__init__(*args, **kwargs)
 
     def format_help(self, ctx: Context, formatter: Formatter) -> None:
-        """Writes the help into the formatter if it exists."""
+        """ Writes the help into the formatter if it exists. """
 
-        # shuld print
-        # checking links from web resource for dead/alive status.
+        # Checking links from web resource for dead/alive status.
         self.format_help_text(ctx, formatter)
         self.format_examples(ctx, formatter)
         self.format_options(ctx, formatter)
         self.format_epilog(ctx, formatter)
 
+    def make_context(self, info_name, args, parent=None, **extra) -> Context: # type: ignore
+        """ Hooking into context in oder to make pro_name for unnamed call. """
+
+        extra['help_option_names'] = ['--help', '-h']
+
+        return super().make_context(app, args, parent, **extra)
+
     def format_options(self, ctx: Context, formatter: Formatter) -> None:
-        """ group options """
+        """ Group options together. """
+
+        if not hasattr(self, '_groups'):
+            return super().format_options(ctx, formatter)
 
         # building reverse look up
         lookup = {}
         for group, items in self._groups.items():
             lookup.update({item: group for item in items})
 
-        groups = {group: [] for group in self._groups} #type: Dict[str, List[Tuple[str, str]]]
+        groups = {group: [] for group in self._groups} #type: Dict[str, HelpDefList]
 
         for param in self.get_params(ctx):
             rv = param.get_help_record(ctx)
@@ -172,14 +200,33 @@ class Clicker(Command):
         """ Writes the examples into the formatter. """
 
         with formatter.section('Usage Examples'):
+            formatter.write("\n")
             for line in self.EXAMPLES.split("\n"):
                 formatter.write("  {}\n".format(line))
 
+    def modify(self, ctx: Context) -> None:
+        """ Modifing params based on context. """
+        if not self._modify:
+            return
+
+        for key, modifiers in self._modify.items():
+            if ctx.params.get(key, None):
+                for modify in modifiers:
+                    ctx.params = modify(ctx.params)
+
+    def invoke(self, ctx: Context) -> None:
+        """ Hooking into invoke in order to modify params. """
+        self.modify(ctx)
+        super().invoke(ctx)
+
+
+# -- CLI wrapper ---------------------------------------------------------------
+#   So we can have nice looking options groups.
 
 command = dict({
     "cls": Clicker,
     "context_settings": {
-        "ignore_unknown_options": True
+        "ignore_unknown_options": False
     },
 }) # type: Dict[str, Any]
 

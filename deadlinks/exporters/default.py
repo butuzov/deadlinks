@@ -1,14 +1,42 @@
+# Copyright 2019 Oleg Butuzov. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+deadlinks.exporters.__init__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Export module init file.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
 # -- Imports -------------------------------------------------------------------
-from threading import Thread
-from os import name as os_name
 
 from typing import (Dict, Tuple, List, Sequence, Any) #pylint: disable-msg=W0611
+
+from threading import Thread
+from os import name as os_name
 from time import sleep
 
 import click
 
 from .export import Export
 from ..crawler import Crawler
+from ..clicker import OptionRaw
+
+# -- Implementation ------------------------------------------------------------
 
 BEFORE_BAR = '\r' if os_name == 'nt' else '\r\033[?25l'
 AFTER_BAR = '\n' if os_name == 'nt' else '\033[?25h\n'
@@ -39,8 +67,13 @@ class Default(Export):
         return not self._opts.get('no_colors', False)
 
     def info(self) -> str:
+
+        base = self._crawler.settings.base
+        baseurl = base if not self._crawler.settings.masked else \
+                    base.url().replace(base.domain, 'internal')
+
         message = "URL=<{}>; External Checks={}; Threads={}; Retry={}".format(
-            self._crawler.settings.base,
+            baseurl,
             "On" if self._crawler.settings.external else "Off",
             self._crawler.settings.threads,
             self._crawler.settings.retry,
@@ -49,43 +82,41 @@ class Default(Export):
         return message
 
     @staticmethod
-    def options() -> Tuple[str, List[Tuple[Tuple[str], Dict[str, Any]]]]:
+    def options() -> Tuple[str, List[OptionRaw]]:
 
-        name = "Exporter (default)"
-        options = [
-            # Default export
-            (
-                ('--export', ),
-                {
-                    'default': 'default',
-                    'hidden': True,
-                    'multiple': False,
-                    'type': click.Choice(['default'], case_sensitive=False),
-                    'help': 'Export type',
-                },
-            ),
-            # do not show colored output
-            (
-                ('--no-colors', ),
-                {
-                    'default': False,
-                    'is_flag': True,
-                    'help': 'Color output of `default` export',
-                },
-            ),
+        options = [] # type: List[OptionRaw]
 
-            # do not show colored output
-            (
-                ('--no-progress', ),
-                {
-                    'default': False,
-                    'is_flag': True,
-                    'help': 'Disable Proogresion output',
-                },
-            ),
-        ]
+        # Default export
+        options.append((
+            ('--export', ),
+            {
+                'default': 'default',
+                'hidden': True,
+                'multiple': False,
+                'type': click.Choice(['default'], case_sensitive=False),
+                'help': 'Export type',
+            },
+        ))
 
-        return (name, options)
+        options.append((
+            ('--no-colors', ),
+            {
+                'default': False,
+                'is_flag': True,
+                'help': 'Color output of `default` export',
+            },
+        ))
+
+        options.append((
+            ('--no-progress', ),
+            {
+                'default': False,
+                'is_flag': True,
+                'help': 'Disable Proogresion output',
+            },
+        ))
+
+        return ("Exporter (default)", options)
 
     def _progress_handler(self) -> None:
         """ progress handler desides states regarding crawler """

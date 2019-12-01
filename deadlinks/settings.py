@@ -26,9 +26,12 @@ Handles settings passed to crawler.
 
 from typing import (Optional, List, Dict, Any, Union)
 
-from deadlinks.baseurl import BaseURL
+from pathlib import Path
 
-from deadlinks.exceptions import (
+from .baseurl import BaseURL
+from .serving import Server
+
+from .exceptions import (
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
     DeadlinksSettingsRetry,
@@ -36,12 +39,15 @@ from deadlinks.exceptions import (
     DeadlinksSettingsDomains,
     DeadlinksSettingsPathes,
     DeadlinksSettingsPath,
+    DeadlinksSettingsRoot,
 )
+
+# -- Implementation ------------------------------------------------------------
+# TODO - Review, and may be somehow simplify arguments
 
 
 class Settings:
-    """ handles general settings for """
-
+    """ Handles general settings. """
     # pylint: disable=R0902
     _stay_within_path = None # type: Optional[bool]
     _external = None # type: Optional[bool]
@@ -50,9 +56,10 @@ class Settings:
     _pathes = None # type: Optional[List[str]]
     _retry = None # type: Optional[int]
     _base = None # type: Optional[BaseURL]
+    _root = None # type: Optional[Path]
 
     def __init__(self, url: str, **kwargs: Any) -> None:
-        """ Instantiate settings class """
+        """ Instantiate settings class. """
 
         defaults = Settings.defaults(kwargs)
 
@@ -68,13 +75,23 @@ class Settings:
         self.stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
-        self.base = BaseURL(url)
+        self._is_masked = False
+        # special case of baseurl is internal
+        base = BaseURL(url)
+        if base.domain == "internal":
+            self._is_masked = True
+            self.root = Path(defaults['root']) # type: ignore
+            web_server = Server(self.root, base.path)
+            base = BaseURL(web_server.url())
+
+        self.base = base
 
     @staticmethod
-    def defaults(kwargs: Dict) -> Dict[str, Union[bool, List[str], Optional[int]]]:
+    def defaults(kwargs: Dict) -> Dict[str, Union[str, bool, List[str], Optional[int]]]:
         """ Return default arguments merged with user provided data. """
 
         _defaults = {
+            'root': '.',
             'check_external_urls': False,
             'ignore_domains': [],
             'ignore_pathes': [],
@@ -85,10 +102,42 @@ class Settings:
 
         return {**_defaults, **kwargs}
 
+    # -- Root ------------------------------------------------------------------
+
+    @property
+    def masked(self) -> bool:
+        """ Is Base url masked? """
+
+        return self._is_masked
+
+    @property
+    def root(self) -> str:
+        """ Getter for Document Root value. """
+        return self._root
+
+    @root.setter
+    def root(self, value: Path) -> None:
+        if not (self._root is None): #pylint: disable-msg=C0325
+            error = "root is already set to {}"
+            raise DeadlinksSettingsRoot(error.format(self._root))
+
+        if value is None:
+            error = "For URL<internal> checks, Document Root is required."
+            raise DeadlinksSettingsRoot(error)
+
+        if not isinstance(value, Path):
+            raise DeadlinksSettingsRoot("Document Root required to be Path-type.")
+
+        if not value.is_dir():
+            error = "Document Root ({}) not found."
+            raise DeadlinksSettingsRoot(error.format(value.resolve()))
+
+        self._root = value
+
     # -- Base URL --------------------------------------------------------------
     @property
     def base(self) -> BaseURL:
-        """ Getter for BaseURL """
+        """ Getter for BaseURL ."""
         return self._base
 
     @base.setter
@@ -105,7 +154,7 @@ class Settings:
     # -- Ignored Domains -------------------------------------------------------
     @property
     def domains(self) -> List[str]:
-        """ Getter for Ignored Domains """
+        """ Getter for Ignored Domains. """
         return self._domains
 
     @domains.setter
@@ -119,7 +168,7 @@ class Settings:
                 error = 'Domain "{}" is not a string'
                 raise DeadlinksSettingsDomains(error.format(domain))
 
-            # TODO - Should I add a better check for 3986 ?
+            # TODO - Should I add a better check for rfc 3986 ?
             if not domain:
                 error = 'Empty Domain is not accepted.'
                 raise DeadlinksSettingsDomains(error.format(domain))
@@ -133,7 +182,7 @@ class Settings:
     # -- Ignored Pathes --------------------------------------------------------
     @property
     def pathes(self) -> List[str]:
-        """ Getter for Ignored Pathes """
+        """ Getter for Ignored Pathes. """
         return self._pathes
 
     @pathes.setter
@@ -156,12 +205,12 @@ class Settings:
     # -- Stay with in path setting ---------------------------------------------
     @property
     def stay_within_path(self) -> bool:
-        """ Default value of stay within path setting """
+        """ Default value of stay within path setting. """
         return self._stay_within_path
 
     @stay_within_path.setter
     def stay_within_path(self, value: bool) -> None:
-        """ Getter for stay_within_path setting """
+        """ Getter for stay_within_path setting. """
         if not (self._stay_within_path is None): #pylint: disable-msg=C0325
             error = "Stay within path is already defined."
             raise DeadlinksSettingsPath(error)
@@ -195,7 +244,7 @@ class Settings:
 
     @property
     def retry(self) -> int:
-        """ Getter for retry information """
+        """ Getter for retry information. """
         return self._retry
 
     @retry.setter
@@ -221,14 +270,14 @@ class Settings:
     # -- External -------------------------------------------------------------
 
     """
-    Should crawler check external urls existense?
-        True - Check existance of external urls
+    Should crawler check external urls existence?
+        True  - Check existence of external urls
         False - Ignore external urls while indexing website
     """
 
     @property
     def external(self) -> bool:
-        """ Getter for External Indexation State """
+        """ Getter for External Indexation State. """
         return self._external
 
     @external.setter
@@ -267,20 +316,3 @@ class Settings:
             raise DeadlinksSettingsThreads(error)
 
         raise DeadlinksSettingsThreads('Setting "threads" is not a number')
-
-
-if __name__ == "__main__":
-    s = Settings(
-        "http://localhost:1313/data/new",
-        retry=None,
-        ignore_domains=[],
-        ignore_pathes=[],
-        threads=2,
-    )
-    # print("Base Url", s.get_base_url())
-    # print("External_Urls", s.index_external())
-    # print("Ignore_Domains", s.ignored("domains"))
-    # print("Ignore_Pathes", s.ignored("pathes"))
-    print("Threads", s.threads)
-
-    # print("Retries", s.retries())

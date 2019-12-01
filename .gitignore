@@ -1,24 +1,27 @@
 # venv
 .venv*
-env*
 
 # development
 .cache
 .vscode
 .tox/*
+extra
 
 # articats
 __pycache__
 *egg*
 
 # artifacts
-.coverage
+.coverage*
 build
 dist
 
 # misc
 .DS_Store
 
+# brew
+deadlinks.rb
+homebrew-deadlinks
 
 # dev
 __develop__.py

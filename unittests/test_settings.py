@@ -1,14 +1,16 @@
 """
-settings_test.py
---------------
+unittest.test_settings.py
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 These tests are covers Settings API.
 
-TODO
-- [ ] Write test: base url that match one in the ignored urls -> fail expected.
-- [ ] Write test: threads with None
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
 """
 
 # pylint: disable=redefined-outer-name
+
+# -- Imports -------------------------------------------------------------------
 
 import pytest
 
@@ -23,6 +25,8 @@ from deadlinks.exceptions import (
     DeadlinksSettingsDomains,
 )
 
+# -- Tests ---------------------------------------------------------------------
+
 
 @pytest.fixture
 def settings():
@@ -33,7 +37,7 @@ def settings():
 # --- Base Url -----------------------------------------------------------------
 @pytest.mark.parametrize('base', ["localhost", "1012031023"])
 def test_base_bad(base):
-    """ Bad Url form, no scheme """
+    """ Bad Url form, no scheme. """
     with pytest.raises(DeadlinksSettingsBase):
         Settings(base)
 
@@ -128,7 +132,7 @@ def test_pathes_bad(pathes):
 
 @pytest.mark.parametrize('pathes', [
     ["do/not/follow"],
-    ["isses/new"],
+    ["issues/new"],
 ])
 def test_pathes_ok(pathes):
     """ General test for `ignored pathes` property """

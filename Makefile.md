@@ -1,7 +1,10 @@
 # Makefile Help
 
-Tests and Continues Integration:
+Installs:
+  * install               Installs development version.
 
+Tests and Continues Integration:
+  * all                   Run (almost) all checks.
   * tests                 pytest (travis and local versions)
   * pylint                pylint static checks
   * coverage              pylint static checks with coverage output
@@ -23,9 +26,10 @@ Deployments:
   * pre-deploy            Install `wheel` and `twine`
   * deploy-test           Deploy to test PyPi server
   * deploy-prod           Deploy to production PyPi server
+  * brew                  Create Brew formula and run brew tests
+  * brew-update-prepare   Prepare Formula repository
 
 Docker:
-
   * docker-build-local    Build Local Docker image
   * docker-check-local    Check deadlinks version in "local" image
   * docker-check-dev      Check deadlinks version in "dev" image

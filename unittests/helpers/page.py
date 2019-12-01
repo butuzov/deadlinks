@@ -1,4 +1,18 @@
+"""
+unittests.helpers.page.py
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simple page emulator.
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
+
+# -- Imports -------------------------------------------------------------------
+
 from typing import Optional
+
+# -- Implementation ------------------------------------------------------------
 
 
 class Page:

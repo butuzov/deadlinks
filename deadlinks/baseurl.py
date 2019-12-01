@@ -16,12 +16,13 @@
 deadlinks.baseurl
 ~~~~~~~~~~~~~~~~~
 
+Starting Point URL or BaseURL
 
-:copyright: (c) 2019 by Oleg Butuziv.
+:copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
 """
 
-from deadlinks.link import Link
+from .link import Link
 
 
 class BaseURL(Link):

@@ -24,16 +24,19 @@ deadlinks module __init__ file
 
 # -- Imports -------------------------------------------------------------------
 
-from deadlinks.url import URL
-from deadlinks.link import Link
-from deadlinks.index import Index
-from deadlinks.crawler import Crawler
-from deadlinks.request import request
-from deadlinks.settings import Settings
+from .url import URL
+from .link import Link
+from .index import Index
+from .baseurl import BaseURL
+from .crawler import Crawler
+from .request import request
+from .settings import Settings
 
-from deadlinks.__version__ import __version__ as version
+from .__version__ import __version__ as version
 
-from deadlinks.exceptions import (
+# -- Exports  ------------------------------------------------------------------
+
+from .exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
@@ -50,6 +53,7 @@ __all__ = [
     # App
     'URL',
     'Link',
+    'BaseURL',
     'Index',
     'Crawler',
     'request',

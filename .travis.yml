@@ -1,14 +1,17 @@
 language: python
 python: 3.8
 
+cache: { directories: [ $HOME/.cache/pip ] }
 
 matrix:
   fast_finish: true
   allow_failures:
   - env: FAILURES=ALLOWED
 
-script: skip
+install:
+- make requirements
 
+script: skip
 
 jobs:
   include:
@@ -18,7 +21,7 @@ jobs:
       name: "Tests (Python 3.8)"
       python: 3.8
       script:
-      - make test
+      - make tests
 
     - <<: *Tests
       name: "Tests (Python 3.7)"
@@ -32,7 +35,6 @@ jobs:
       name: "Tests (Python 3.5)"
       python: 3.5
 
-
     # OK: Linters ------------------------------------------------
     - stage: lints
       name: "Running Linters"
@@ -44,22 +46,15 @@ jobs:
       name: "Docs"
       python: 3.8
       script:
-      # prebuilding html files
-      - pip install -e .
+      - make install
       - make gen-docs
-      - pip uninstall deadlinks -yq
-      # getting a http server & stable deadlinks
-      - go get github.com/CurtisLusmore/ghp
-      - pip install deadlinks
-      # serving files & running deadlinks checks
-      - ghp -root build/dirhtml/ -port 5678 &
-      - deadlinks localhost:5678 -n10 -r3 --no-progress --no-colors --fiff
+      - make check-docs
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
       name: "Code Coverage"
       python: 3.8
-      if: branch IN (master, develop, develop-deployment)
+      if: branch IN (master, develop)
       script:
       - make coverage
       - bash <(curl -s https://codecov.io/bash)

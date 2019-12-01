@@ -13,10 +13,10 @@
 # limitations under the License.
 
 """
-deadlinks.exporters.export
+deadlinks.serving.__init__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Abstract Interface we will ask to implement child classes.
+Simple webserver service
 
 :copyright: (c) 2019 by Oleg Butuzov.
 :license:   Apache2, see LICENSE for more details.
@@ -24,29 +24,10 @@ Abstract Interface we will ask to implement child classes.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, Tuple)
-from abc import ABC, abstractmethod
+from .simple_server import SimpleServer as Server
 
-from ..crawler import Crawler
-from ..clicker import OptionsList
+# -- Exports -------------------------------------------------------------------
 
-# -- Abstract ------------------------------------------------------------------
-
-
-class Export(ABC):
-
-    @abstractmethod
-    def __init__(self, crawler: Crawler, **opts: Dict) -> None:
-        """ you need to implement init method """
-        raise NotImplementedError
-
-    @staticmethod
-    @abstractmethod
-    def options() -> Tuple[str, OptionsList]:
-        """ you need to implement report method """
-        raise NotImplementedError
-
-    @abstractmethod
-    def report(self) -> None:
-        """ you need to implement report method """
-        raise NotImplementedError
+__all__ = [
+    'Server',
+]

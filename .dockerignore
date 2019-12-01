@@ -6,6 +6,7 @@ env*
 .cache
 .vscode
 .tox/*
+extra
 
 # articats
 __pycache__
@@ -19,6 +20,10 @@ dist
 
 # misc
 docs
+
+# brew
+deadlinks.rb
+homebrew-deadlinks
 
 # no need
 .DS_Store
@@ -35,12 +40,10 @@ docs
 Dockerfile
 LICENSE
 Makefile
+Makefile.md
 dist
 demo.gif
 pyrightconfig.json
 report
-sample.py
-tests
+unittests
 venv.sh
-commits.md
-CODE_OF_CONDUCT.md

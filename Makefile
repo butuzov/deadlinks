@@ -6,15 +6,28 @@ BUILD  = build
 DIST   = dist
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
+TAGGED = $(shell git describe)
 
 .PHONY: help
 
 help:
 	@cat Makefile.md
 
+# ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+requirements:
+	@python3 -m pip install -q -r requirements.txt
+
+install: clean requirements
+	DEADLINKS_BRANCH=$(BRANCH) \
+	DEADLINKS_COMMIT=$(COMMIT) \
+	DEADLINKS_TAGGED=$(TAGGED) \
+	python3 setup.py develop
+
+
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-test:
+tests:
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
 	 	pytest . --verbose -ra -x;\
 	else\
@@ -35,6 +48,13 @@ mypy:
 
 lints: pylint mypy
 
+all: clean install
+	@echo "Running All Checks"
+	@echo "Running mypy static analizer"
+	@make mypy
+	@echo "Running pylint static analizer"
+	@make pylint-details
+	@make docker-build-local
 
 # Codacity Code Analysis
 # https://github.com/codacy/codacy-analysis-cli#install
@@ -51,26 +71,48 @@ browse:
 	open http://localhost:5678
 
 documentation:
-	ghp -root=build/dirhtml -port=5678
+	ghp -root=build/html -port=5678
 
 gen-docs:
-	sphinx-build -M dirhtml docs build -c docs
+	sphinx-build docs build/html -qW --keep-going
 
-docs: gen-docs browse  documentation
+check-docs:
+	deadlinks internal --root=build/html --no-progress --no-colors --fiff
+
+docs: gen-docs browse check-docs documentation
+
+# ~~~ Brew ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+brew:
+	@python3 -m pip install --upgrade requests Jinja2 -q
+	@python3 setup.py brew_formula_create
+	@python3 -m pip uninstall requests chardet Jinja2 MarkupSafe urllib3 certifi idna -y -q
+	@brew reinstall deadlinks.rb
+	@brew audit --new-formula deadlinks.rb
+	@brew audit --strict deadlinks.rb
+	@brew test --verbose --debug deadlinks.rb
+	@brew uninstall deadlinks
+
+
+brew-update-prepare: brew
+	@git clone https://github.com/butuzov/homebrew-deadlinks
+	@cp deadlinks.rb homebrew-deadlinks/Formula/deadlinks.rb
 
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 clean:
-	rm -rf ${DIST}
-	rm -rf ${BUILD}
+	@echo "Cleanup Temporary Files"
+	@rm -rf ${DIST}
+	@rm -rf ${BUILD}
+	@rm -f deadlinks/__develop__.py
 
 pre-deploy:
 	python3 -m pip install --upgrade wheel twine -q
 
-build: clean
+build: pre-deploy clean
 	python3 setup.py sdist bdist_wheel
 
-deploy-test: pre-deploy build
+deploy-test: pre-deploy
 	@if [ ! -z ${DEADLINKS_VERSION} ]; then\
 		twine upload -u ${PYPI_TEST_USER} --repository-url https://test.pypi.org/legacy/ dist/*;\
 	else \
@@ -91,6 +133,8 @@ docker-build-local: clean
 docker-check-local: docker-build-local
 	docker run --rm -it --network=host  butuzov/deadlinks:local --version
 
+# enable `--pull=alway` once it will be available https://github.com/docker/cli/pull/1498
+# status - 19.03 not avaialbe.
 docker-check-dev:
 	docker run --rm -it --network=host  butuzov/deadlinks:dev --version
 
