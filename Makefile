@@ -85,9 +85,9 @@ docs: gen-docs browse check-docs documentation
 
 brew:
 	@python3 -m pip install --upgrade requests Jinja2 -q
-	@python3 setup.py brew_formula_create
+	@python3 make_brew_formula.py
 	@python3 -m pip uninstall requests chardet Jinja2 MarkupSafe urllib3 certifi idna -y -q
-	@brew reinstall deadlinks.rb
+	@brew reinstall --verbose --debug deadlinks.rb
 	@brew audit --new-formula deadlinks.rb
 	@brew audit --strict deadlinks.rb
 	@brew test --verbose --debug deadlinks.rb
