@@ -1,10 +1,10 @@
 # Makefile Help
 
 Installs:
-  * develop               Installs development version.
+  * install               Installs development version.
 
 Tests and Continues Integration:
-  * all                   run (almost) all checks.
+  * all                   Run (almost) all checks.
   * tests                 pytest (travis and local versions)
   * pylint                pylint static checks
   * coverage              pylint static checks with coverage output

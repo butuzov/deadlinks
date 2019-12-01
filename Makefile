@@ -18,7 +18,7 @@ help:
 requirements:
 	@python3 -m pip install -q -r requirements.txt
 
-devinstall: clean requirements
+install: clean requirements
 	DEADLINKS_BRANCH=$(BRANCH) \
 	DEADLINKS_COMMIT=$(COMMIT) \
 	DEADLINKS_TAGGED=$(TAGGED) \
@@ -48,7 +48,7 @@ mypy:
 
 lints: pylint mypy
 
-all: clean devinstall
+all: clean install
 	@echo "Running All Checks"
 	@echo "Running mypy static analizer"
 	@make mypy

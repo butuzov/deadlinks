@@ -49,7 +49,7 @@ jobs:
       name: "Docs"
       python: 3.8
       script:
-      - make develop
+      - make install
       - make gen-docs
       - deadlinks internal --root=build/sphinx/html --no-progress --no-colors --fiff
 
