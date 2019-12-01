@@ -7,7 +7,7 @@ deadlinks checker for your static website. It's better keep house clean, right?
 from typing import (Dict, Tuple, Optional, List) #pylint: disable-msg=W0611
 
 from pathlib import Path
-
+from re import match
 import os
 from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py as _build_py
@@ -20,40 +20,25 @@ except BaseException:
 
 # ------------------------------------------------------------------------------
 
-# ~~ Version Releases ~~
-# next code responsible for creating dev release version number.
-# - pypi.org: as we not allowed to have version as X.Y.Z.dev+developer+COMMIT
-#        to be published on test.pypi.org versions for pipy.org can be
-#        overridden only with VERSION=<number> during `make deploy-test` or
-#        `make deploy-prod`
-#
-#        Example
-#        ( e.g VERSION=1 PYPI_TEST_USER=BUTUZOV make deploy-test)
-#
-# - docker hub: dev - auto builds
-#       development branch is going to be builded automatically on push
-#       image name             butuzov/deadlinks:dev
-#       package (for example)  v0.0.2.dev+docker+1a886c6
-#
-# - docker hub: production (autobuilds)
-#       image name             butuzov/deadlinks:0.0.2
-#       package (for example)  v0.0.2
-#
-branch = os.environ.get('DEADLINKS_BRANCH', None)
-commit = os.environ.get('DEADLINKS_COMMIT', None)
-version = os.environ.get('DEADLINKS_VERSION', None)
+# ~~ Version Releases / Start ~~
 
+# PyPi: only releases (x.y.z)
+#
+#
 data = read_data()
 
-if branch and branch != "master" and not version:
+branch = os.environ.get('DEADLINKS_BRANCH', None)
+commit = os.environ.get('DEADLINKS_COMMIT', None)
+tagged = os.environ.get('DEADLINKS_TAGGED', None)
+
+VERSION = r'^\d{1,}.\d{1,}.\d{1,}$' # type: str
+
+if tagged and not match(VERSION, tagged) and branch and commit:
     dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
     dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
     with open(str(dev_version_file), "w") as f:
         print("version = '{}'".format(dev_version_str), file=f)
     data['app_version'] += dev_version_str
-
-if version:
-    data['app_version'] += ".{}".format(version)
 
 # -- Version Releases / End ~~
 
@@ -64,7 +49,6 @@ class BrewFormulaBuilder(_build_py):
     def run(self) -> None:
         data = read_data()
         requirements = require("install") + require("brew")
-        print(requirements)
 
         with open("{}.rb".format(data['app_package']), 'w') as f:
             print(build_formula(app=data, requirements=requirements), file=f)
@@ -73,7 +57,6 @@ class BrewFormulaBuilder(_build_py):
 # -- Setup ---------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # - Setup
     setup(
         name=data['app_package'],
         version=data['app_version'],

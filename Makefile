@@ -6,6 +6,7 @@ BUILD  = build
 DIST   = dist
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
+TAGGED = $(shell git describe)
 
 .PHONY: help
 
@@ -15,10 +16,14 @@ help:
 # ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 requirements:
-	python3 -m pip install -r requirements.txt
+	@python3 -m pip install -q -r requirements.txt
 
-develop: requirements
+devinstall: clean requirements
+	DEADLINKS_BRANCH=$(BRANCH) \
+	DEADLINKS_COMMIT=$(COMMIT) \
+	DEADLINKS_TAGGED=$(TAGGED) \
 	python3 setup.py develop
+
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,8 +48,13 @@ mypy:
 
 lints: pylint mypy
 
-all: clean pylint mypy docker-build-local
-	@echo "Not Implemented"
+all: clean devinstall
+	@echo "Running All Checks"
+	@echo "Running mypy static analizer"
+	@make mypy
+	@echo "Running pylint static analizer"
+	@make pylint-details
+	@make docker-build-local
 
 # Codacity Code Analysis
 # https://github.com/codacy/codacy-analysis-cli#install
@@ -88,8 +98,10 @@ brew-update-prepare: brew
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 clean:
-	rm -rf ${DIST}
-	rm -rf ${BUILD}
+	@echo "Cleanup Temporary Files"
+	@rm -rf ${DIST}
+	@rm -rf ${BUILD}
+	@rm -f deadlinks/__develop__.py
 
 pre-deploy:
 	python3 -m pip install --upgrade wheel twine -q
