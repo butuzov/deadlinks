@@ -22,7 +22,7 @@ Starting Point URL or BaseURL
 :license:   Apache2, see LICENSE for more details.
 """
 
-from deadlinks.link import Link
+from .link import Link
 
 
 class BaseURL(Link):

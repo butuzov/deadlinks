@@ -32,9 +32,9 @@ from re import compile as _compile
 
 from requests import RequestException
 
-from deadlinks.request import request
-from deadlinks.status import Status
-from deadlinks.exceptions import (
+from .request import request
+from .status import Status
+from .exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksRedirectionURL,
 )

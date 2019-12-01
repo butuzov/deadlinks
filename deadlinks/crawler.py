@@ -32,11 +32,11 @@ from signal import (signal, SIGINT)
 from queue import Queue
 from time import sleep
 
-from deadlinks.link import Link
-from deadlinks.status import Status
-from deadlinks.index import Index
-from deadlinks.settings import Settings
-from deadlinks.exceptions import (
+from .link import Link
+from .status import Status
+from .index import Index
+from .settings import Settings
+from .exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksRedirectionURL,
 )

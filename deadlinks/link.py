@@ -26,7 +26,7 @@ Link representation based on URL object.
 
 from typing import Union
 
-from deadlinks.url import URL
+from .url import URL
 
 
 class Link(URL):
