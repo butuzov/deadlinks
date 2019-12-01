@@ -16,8 +16,5 @@ If tool you using to create documentation has support for links checking, please
 
 <h2>Continues Integration Providers</h2>
 
-* [Azure Pipelines](azure-pipelines.md)
-* [GitHub Actions](github-actions.md)
-* [Jenkins](jenkins.md)
 * [tox](tox.md)
 * [Travis CI](travis-ci.md)

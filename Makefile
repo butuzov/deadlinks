@@ -71,12 +71,15 @@ browse:
 	open http://localhost:5678
 
 documentation:
-	ghp -root=build/sphinx/html -port=5678
+	ghp -root=build/html -port=5678
 
 gen-docs:
-	python3 setup.py build_sphinx -c docs
+	sphinx-build docs build/html -qW --keep-going
 
-docs: gen-docs browse  documentation
+check-docs:
+	deadlinks internal --root=build/html --no-progress --no-colors --fiff
+
+docs: gen-docs browse check-docs documentation
 
 # ~~~ Brew ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

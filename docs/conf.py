@@ -11,9 +11,9 @@ sys.path.append(path.dirname(getenv('PWD')))
 # templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
-source_suffix = [
-    '.md',
-]
+source_suffix = {
+    '.md': 'markdown',
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -107,7 +107,8 @@ class MyCommonMarkParser(CommonMarkParser):
 
 def setup(app):
     from recommonmark.transform import AutoStructify
-    app.add_source_parser('.md', MyCommonMarkParser)
+    app.add_source_suffix('.md', 'markdown')
+    app.add_source_parser(MyCommonMarkParser)
 
     app.add_config_value(
         'recommonmark_config',

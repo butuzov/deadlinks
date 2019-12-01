@@ -8,12 +8,10 @@ matrix:
   allow_failures:
   - env: FAILURES=ALLOWED
 
-
 install:
 - make requirements
 
 script: skip
-
 
 jobs:
   include:
@@ -37,7 +35,6 @@ jobs:
       name: "Tests (Python 3.5)"
       python: 3.5
 
-
     # OK: Linters ------------------------------------------------
     - stage: lints
       name: "Running Linters"
@@ -51,7 +48,7 @@ jobs:
       script:
       - make install
       - make gen-docs
-      - deadlinks internal --root=build/sphinx/html --no-progress --no-colors --fiff
+      - make check-docs
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
