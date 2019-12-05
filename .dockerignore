@@ -25,6 +25,8 @@ docs
 # brew
 deadlinks.rb
 homebrew-deadlinks
+make_brew_formula.py
+commits.md
 
 # no need
 .DS_Store
@@ -41,10 +43,7 @@ homebrew-deadlinks
 Dockerfile
 LICENSE
 Makefile
-Makefile.md
 dist
-demo.gif
-pyrightconfig.json
 report
 unittests
 venv.sh
