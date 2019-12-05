@@ -10,9 +10,6 @@ TAGGED = $(shell git describe)
 
 .PHONY: help
 
-# help:
-# 	@cat Makefile.md
-
 help:
 	@cat $(MAKEFILE_LIST) | \
 		grep -E '^# ~~~ .*? [~]+$$|^[a-zA-Z0-9_-]+:.*?## .*$$' | \
@@ -21,12 +18,12 @@ help:
 			{print "\n", a[1], "\n"}\
 		} else { \
 			match($$0, /^([a-zA-Z-]+):.*?## (.*)$$/, a); \
-			printf "  - \033[32m%-20s\033[0m %s\n",   a[1], a[2]; \
+			{printf "  - \033[32m%-20s\033[0m %s\n",   a[1], a[2]} \
 		};}'
 
 # ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-install: clean requirements ## Install Development version
+install-dev: clean requirements ## Install Development version
 	DEADLINKS_BRANCH=$(BRANCH) \
 	DEADLINKS_COMMIT=$(COMMIT) \
 	DEADLINKS_TAGGED=$(TAGGED) \
@@ -37,27 +34,36 @@ requirements: ## Install requirements.txt
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-all: clean install ## Running All Checks
+all: clean install-dev ## Running All Checks
 	@echo "===> Running Standard Lints";
-	@make lints;
+	$(MAKE) lints;
 	@echo "===> Running Standard Tests";
-	@make tests;
+	$(MAKE) tests;
 
 	@echo "===> Docker lints"
-	make docker
+	$(MAKE) docker
 
-integration: ## Integration tests (brew, docker)
-	pytest . -m "slow" --verbose -ra -x;\
+	@echo "===> Brew Test"
+	$(MAKE) brew-dev-pipeline
+
+	@echo "===> Integrations Tests (Slow)"
+	$(MAKE) integ-slow
+
+integ-slow: ## Integration tests (brew, docker)
+	pytest . -m "integration and slow" --randomly-dont-reorganize -n12 -svrax;\
+
+integ-fast: ## Integration tests (brew, docker) Skipp interfaces creation
+	pytest . -m "integration and fast" --randomly-dont-reorganize -n12 -svrax;\
 
 tests: ## Run PyTest for CI/Localy
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
-	 	pytest . -m "not slow" --verbose -ra -x;\
+	 	pytest . -m "not integration" -vrax;\
 	else\
-	 	pytest . -m "not slow" --cov=$(PACKAGE) -n12 --randomly-dont-reorganize --verbose -ra --ff -x;\
+	 	pytest . -m "not integration" --cov=$(PACKAGE) -n12 --randomly-dont-reorganize -vrax --ff;\
 	fi
 
 coverage: ## Run PyTest with coverage report
-	pytest . -m "not slow" --cov=$(PACKAGE)
+	pytest . -m "not integration" --cov=$(PACKAGE)
 
 pylint: ## Run Linter: pylint
 	pylint $(PACKAGE)
@@ -95,13 +101,21 @@ codacity-config: ## Codacity: check codacity config
 
 # ~~~ Documentation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-docs: gen-docs browse deadlinks docs-serve ## Docs Pipeline (build->browse->check->serve)
+docs: gen-docs ## Documentation Pipeline (build->browse->check->serve)
+	$(MAKE) browse
+	$(MAKE) docs-ci
+	$(MAKE) docs-serve
 
-browse:  ## Open documentation in browser
+browse:  ## Open documentation server in browser
 	open http://localhost:5678
 
-docs-serve: ghp ## Run documentation server
+docs-serve: ghp #- Run documentation server
 	ghp -root=build/html -port=5678 &
+
+docs-serve-stop: #- Stop documentation server
+	@ps -a | grep '[g]hp -root=build/html -port=5678' --color=never \
+		| awk '{print $$1}' | xargs -L1 kill -9
+
 
 gen-docs: ## Generate Documentation
 	@if [ -z ${VIRTUAL_ENV} ]; then\
@@ -112,7 +126,7 @@ gen-docs: ## Generate Documentation
 	@ $(PYTHON) -m pip install recommonmark sphinx-markdown-tables -q;
 	sphinx-build docs build/html -qW --keep-going;
 
-deadlinks: ## Run deadlinks checks for own docs
+docs-ci: ## Run deadlinks checks for own docs
 	deadlinks internal --root=build/html --no-progress --no-colors --fiff
 
 # ~~~ Brew ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,30 +137,27 @@ brew-env:
 	@ $(PYTHON) -m pip install --upgrade pip requests Jinja2 -q;\
 
 brew-web-start: ghp
-	@echo "Starting (brew-web) http://localhost:8878" 2>&1 1>/dev/null
 	@ghp -port=8878  2>&1 1>/dev/null &
 
 brew-web-stop:
-	@echo "Stoping (brew-web) http://localhost:8878" 2>&1 1>/dev/null
-	@ps -a | grep '[g]hp port=8878' --color=never | awk '{print $$1}' | xargs -L1 kill -9
-
-
-brew-dev: brew-web-start brew-env build-dev ## Create Formula: Create (Development)
-	@ VIRTUAL_ENV=""
-	@ source .brew/bin/activate;
-	@ $(PYTHON) make_brew_formula.py --dev
+	@ps -a | grep '[g]hp port=8878' --color=never \
+		| awk '{print $$1}' | xargs -L1 kill -9
 
 brew: brew-env build ## Create Formula: Create (Production)
 	@ VIRTUAL_ENV=""
 	@ source .brew/bin/activate;
 	@ $(PYTHON) make_brew_formula.py
 
+brew-dev: brew-web-start brew-env build-dev ## Create Formula: Create (Development)
+	@ VIRTUAL_ENV=""
+	@ source .brew/bin/activate;
+	@ $(PYTHON) make_brew_formula.py --dev
+
 brew-install: ## Formula: Install
 	brew install --include-test deadlinks.rb
 
 brew-uninstall: ## Formula: UnInstall
 	@brew list -1 | grep deadlinks --color=never | xargs -I {} sh -c 'brew uninstall {}' 2>&1 1>/dev/null
-
 
 brew-cleanup: ## Cleanup
 	@ VIRTUAL_ENV=""
@@ -157,27 +168,23 @@ brew-audit: ## Formula: Audit
 	brew audit --new-formula deadlinks.rb;
 	brew audit --strict deadlinks.rb;
 
-brew-dev-pipeline: brew-dev brew-uninstall brew-install brew-audit brew-web-stop brew-uninstall
+brew-dev-pipeline: ## Dev Pipeline (Create/Install/Test/Uninstall)
+	$(MAKE) brew-dev
+	$(MAKE) brew-uninstall
+	$(MAKE) brew-install
+	$(MAKE) brew-audit
+	$(MAKE) brew-web-stop
+	$(MAKE) brew-uninstall
 
 brew-pytest-start: brew-dev brew-uninstall brew-install ## (pytest) Install Pipeline
+
 brew-pytest-final: brew-uninstall brew-web-stop ## (pytest) Finalizer
-
-
 
 brew-update-prepare: brew ## Prepare brew for deploying new version.p
 	@git clone https://github.com/butuzov/homebrew-deadlinks
 	@cp deadlinks.rb homebrew-deadlinks/Formula/deadlinks.rb
 
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-clean: ## Cleanup Build artifacts
-	@echo "Cleanup Temporary Files"
-	@rm -rf ${DIST}
-	@rm -rf ${BUILD}
-	@rm -f deadlinks/__develop__.py
-
-pre-deploy: ## Install deploy packages
-	@ $(PYTHON) -m pip install --upgrade wheel twine -q
 
 build: pre-deploy clean ## Build disto (source & wheel) - Production
 	@ $(PYTHON) setup.py sdist bdist_wheel 1>&2 2> /dev/null
@@ -188,6 +195,16 @@ build-dev: pre-deploy clean ## Build disto (source & wheel) - Development
 	DEADLINKS_COMMIT=$(COMMIT) \
 	DEADLINKS_TAGGED=$(TAGGED) \
 	$(PYTHON) setup.py sdist bdist_wheel 1>&2 2>/dev/null
+
+clean: ## Cleanup Build artifacts
+	@echo "Cleanup Temporary Files"
+	@rm -rf ${DIST}
+	@rm -rf ${BUILD}
+	@rm -f deadlinks/__develop__.py
+
+pre-deploy: ## Install deploy packages
+	@ $(PYTHON) -m pip install --upgrade wheel twine -q
+
 
 deploy-test: pre-deploy ## PyPi Deploy (test.pypi.org)
 	twine upload -u ${PYPI_TEST_USER} --repository-url https://test.pypi.org/legacy/ dist/*;\
