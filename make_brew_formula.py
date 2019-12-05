@@ -112,7 +112,7 @@ template = Template(
         end"""))
 
 
-def build_formula(app, requirements) -> str:
+def build_formula(app, requirements, build_dev=False) -> str:
 
     data = {
         'class': app['app_package'][0].upper() + app['app_package'][1:],
@@ -121,7 +121,12 @@ def build_formula(app, requirements) -> str:
         'packages': [],
     }
 
-    data['url'], data['digest'] = info(app['app_package'], "", "")
+
+
+    if build_dev:
+        data['url'], data['digest'] = get_local_pacage()
+    else:
+        data['url'], data['digest'] = info(app['app_package'], "", "")
 
     for _package in requirements:
         pkg, cmp, version = clean_version(_package)
@@ -129,6 +134,16 @@ def build_formula(app, requirements) -> str:
         data['packages'].append((pkg, digest, url))
 
     return template.render(**data)
+
+def get_local_pacage():
+    import hashlib, glob
+
+    sha256 = hashlib.sha256()
+
+    files = glob.glob("dist/deadlinks-*.tar.gz")
+    with open(files[0], "rb") as f:
+        data = f.read()
+    return "http://localhost:8878/%s" % files[0], hashlib.sha256(data).hexdigest()
 
 
 def clean_version(package) -> Tuple[str, str, str]:
@@ -190,8 +205,16 @@ def release(releases, pkg_cmp, pkg_ver):
 
 if __name__ == "__main__":
 
+    import sys
+
     data = read_data()
-    requirements = require("install") + require("brew")
+    options = {
+        'app': data,
+        'requirements': require("install") + require("brew"),
+    }
+
+    if '--dev' in sys.argv[1:]:
+        options['build_dev'] = True
 
     with open("{}.rb".format(data['app_package']), 'w') as f:
-        print(build_formula(app=data, requirements=requirements), file=f)
+        print(build_formula(**options), file=f)

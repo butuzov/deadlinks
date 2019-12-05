@@ -18,7 +18,9 @@ RUN grep "# install" requirements.txt -A100 > docker.requirments.txt \
 RUN DEADLINKS_COMMIT=$(git rev-list --abbrev-commit -1 HEAD) \
     DEADLINKS_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
     DEADLINKS_TAGGED=$(git describe) \
-    python3 setup.py install
+    python3 setup.py install \
+    && rm -rf dist \
+    && rm -rf build
 
 RUN python3 -m pip uninstall pip wheel -y
 

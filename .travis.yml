@@ -46,9 +46,9 @@ jobs:
       name: "Docs"
       python: 3.8
       script:
-      - make install
+      - make install-dev
       - make gen-docs
-      - make check-docs
+      - make docs-ci
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov
