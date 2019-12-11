@@ -45,5 +45,5 @@ LICENSE
 Makefile
 dist
 report
-unittests
+tests
 venv.sh

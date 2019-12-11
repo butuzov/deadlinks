@@ -1,5 +1,5 @@
 """
-unittests.test_crawler.py
+tests.test_crawler.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New webServer logic tests implementation, done in order to introduce new
@@ -76,12 +76,12 @@ site_with_links_defaults = [
 @pytest.mark.parametrize(
     'check_external, threads, ignore_domains, ignore_pathes, results', site_with_links_defaults)
 def test_crawling_advanced(
-        site_with_links,
-        check_external,
-        threads,
-        ignore_domains,
-        ignore_pathes,
-        results,
+    site_with_links,
+    check_external,
+    threads,
+    ignore_domains,
+    ignore_pathes,
+    results,
 ):
     options = {
         'check_external_urls': check_external,

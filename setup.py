@@ -122,7 +122,7 @@ if __name__ == "__main__":
             "Documentation (latest)": "https://deadlinks.readthedocs.io/en/latest/",
             "Dockerized": "https://hub.docker.com/repository/docker/butuzov/deadlinks/",
         },
-        packages=find_packages(exclude=["unittests*"]),
+        packages=find_packages(exclude=["tests*"]),
         install_requires=require("install"),
         entry_points='''
             [console_scripts]

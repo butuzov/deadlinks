@@ -1,5 +1,5 @@
 """
-unittests.exporters.test_cli.py
+tests.exporters.test_cli.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Testing cli functionality.

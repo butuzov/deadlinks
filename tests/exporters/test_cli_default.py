@@ -1,5 +1,5 @@
 """
-unittests.exporters.test_cli_default.py
+tests.exporters.test_cli_default.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Testing General/Default Exporter of cli.

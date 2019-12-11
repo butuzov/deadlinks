@@ -1,5 +1,5 @@
 """
-unittests.helpers.__init__.py
+tests.helpers.__init__.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Simple Testing Server implementation
