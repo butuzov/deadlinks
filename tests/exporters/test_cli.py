@@ -15,18 +15,11 @@ import pytest
 
 from collections import OrderedDict
 
-from click.testing import CliRunner
-
 from ..helpers import Page
 
 from deadlinks.__main__ import main
 
-# -- Tests -~~------------------------------------------------------------------
-
-
-@pytest.fixture
-def runner():
-    return CliRunner()
+# -- Tests ---------------------------------------------------------------------
 
 
 def test_options():
@@ -113,7 +106,7 @@ def test_default_url_no_scheme_issue(server, runner):
 
 
 def test_breaking_process(server, runner):
-    """ handling sigint signal """
+    """ Handling SIGINT signal """
 
     from multiprocessing import Queue, Process
     from threading import Timer
