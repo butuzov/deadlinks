@@ -110,3 +110,39 @@ def test_default_url_no_scheme_issue(server, runner):
 
     assert result.exit_code == 0
     assert "{}//{}".format(scheme, address) in result.output
+
+
+def test_breaking_process(server, runner):
+    """ handling sigint signal """
+
+    from multiprocessing import Queue, Process
+    from threading import Timer
+    from time import sleep
+    from os import kill, getpid
+    from signal import SIGINT
+
+    url = server.router({'^/$': Page("").slow().exists()})
+    args = [url, '--no-colors', '--no-progress']
+
+    q = Queue()
+
+    def background():
+        Timer(0.2, lambda: kill(getpid(), SIGINT)).start()
+        result = runner.invoke(main, args)
+        q.put(('exit_code', result.exit_code))
+        q.put(('output', result.output))
+
+    p = Process(target=background)
+    p.start()
+
+    results = {}
+
+    while p.is_alive():
+        sleep(0.1)
+    else:
+        while not q.empty():
+            key, value = q.get()
+            results[key] = value
+
+    assert results['exit_code'] == 0
+    assert "Results can be inconsistent, as execution was terminated" in results['output']
