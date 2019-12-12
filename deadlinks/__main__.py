@@ -33,7 +33,7 @@ from .exceptions import DeadlinksException
 # CLI implementation related
 from .clicker import (register_options, register_exports)
 from .clicker import Options
-from .clicker import (command, argument)
+from .clicker import (Clicker, validate_url)
 
 # Exporters
 from .exporters import Export #pylint: disable-msg=W0611
@@ -50,8 +50,8 @@ from .__version__ import __app_package__ as name
 # -- Implementation ------------------------------------------------------------
 
 
-@click.command(name, **command)
-@click.argument('url', **argument)
+@click.command(name, cls=Clicker, context_settings={'ignore_unknown_options': True})
+@click.argument('url', nargs=1, required=True, callback=validate_url, metavar='<URL>')
 @click.version_option(version, '-V', '--version', message='%(prog)s: v%(version)s', prog_name=name)
 @register_exports(exporters)
 @register_options("Server Settings", serving_options)
