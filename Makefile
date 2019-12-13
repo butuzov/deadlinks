@@ -55,6 +55,7 @@ integ-slow: ## Integration tests (brew, docker)
 integ-fast: ## Integration tests (brew, docker) Skipp interfaces creation
 	pytest . -m "integration and fast" --randomly-dont-reorganize -n12 -svrax;\
 
+.PHONY: tests
 tests: ## Run PyTest for CI/Localy
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
 	 	pytest . -m "not integration" -vrax;\

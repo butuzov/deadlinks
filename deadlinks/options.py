@@ -28,7 +28,7 @@ from typing import List
 
 from click import IntRange, Choice
 
-from .clicker import OptionRaw
+from .clicker import OptionRaw #pylint: disable-msg=W0611
 
 # -- Options -------------------------------------------------------------------
 

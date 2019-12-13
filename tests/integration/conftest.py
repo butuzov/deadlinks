@@ -1,6 +1,6 @@
 """
 integration/conftest.py
-~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 Provides fixtures for integration tests.
 """
 

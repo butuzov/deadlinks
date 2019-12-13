@@ -1,5 +1,5 @@
 """
-unittests.test_crawler.py
+tests.test_crawler.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New webServer logic tests implementation, done in order to introduce new
@@ -13,6 +13,7 @@ long as testing currently implemented things.
 # -- Imports -------------------------------------------------------------------
 
 import pytest
+from flaky import flaky
 
 from .helpers import Page
 
@@ -25,14 +26,12 @@ from deadlinks import (
 # -- Tests ---------------------------------------------------------------------
 
 
-# TODO - Fix this bug issue and fix tests.
-# https://github.com/butuzov/deadlinks/issues/33
 @pytest.mark.parametrize(
     'stay_within_path, check_external, results', [
-        (True, False, (1, 1, 5)),
-        (True, True, (3, 2, 2)),
-        (False, False, (3, 1, 5)),
-        (False, True, (7, 2, 0)),
+        (True, False, (1, 1, 6)),
+        (True, True, (4, 2, 2)),
+        (False, False, (3, 1, 6)),
+        (False, True, (8, 2, 0)),
     ])
 def test_index_within_path(simple_site, stay_within_path, check_external, results):
 
@@ -76,12 +75,12 @@ site_with_links_defaults = [
 @pytest.mark.parametrize(
     'check_external, threads, ignore_domains, ignore_pathes, results', site_with_links_defaults)
 def test_crawling_advanced(
-        site_with_links,
-        check_external,
-        threads,
-        ignore_domains,
-        ignore_pathes,
-        results,
+    site_with_links,
+    check_external,
+    threads,
+    ignore_domains,
+    ignore_pathes,
+    results,
 ):
     options = {
         'check_external_urls': check_external,
@@ -240,6 +239,7 @@ def test_double_start(simple_site):
     c.start()
 
 
+@flaky(max_runs=3)
 @pytest.mark.timeout(3)
 def test_redirected_links(server):
 

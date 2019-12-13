@@ -1,5 +1,5 @@
 """
-unittests.test_index.py
+tests.test_index.py
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Test(s) for Index (collection of the links) object.

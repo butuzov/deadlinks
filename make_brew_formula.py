@@ -121,8 +121,6 @@ def build_formula(app, requirements, build_dev=False) -> str:
         'packages': [],
     }
 
-
-
     if build_dev:
         data['url'], data['digest'] = get_local_pacage()
     else:
@@ -134,6 +132,7 @@ def build_formula(app, requirements, build_dev=False) -> str:
         data['packages'].append((pkg, digest, url))
 
     return template.render(**data)
+
 
 def get_local_pacage():
     import hashlib, glob
@@ -212,6 +211,10 @@ if __name__ == "__main__":
         'app': data,
         'requirements': require("install") + require("brew"),
     }
+
+    # python3.5 patch excuded as brew's python 3.7
+    options['requirements'] = list(
+        filter(lambda x: "python_full_version" not in x, options['requirements']))
 
     if '--dev' in sys.argv[1:]:
         options['build_dev'] = True

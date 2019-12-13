@@ -28,7 +28,7 @@ from typing import List
 
 from click import Path
 
-from ..clicker import OptionRaw, Options
+from ..clicker import OptionRaw, Options #pylint: disable-msg=W0611
 
 # -- Code ----------------------------------------------------------------------
 
