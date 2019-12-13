@@ -147,10 +147,10 @@ def test_help(runner):
 # https://github.com/butuzov/deadlinks/issues/33
 @pytest.mark.parametrize(
     'stay_within_path, check_external, results', [
-        (True, False, (1, 1, 5)),
-        (True, True, (3, 2, 2)),
-        (False, False, (3, 1, 5)),
-        (False, True, (7, 2, 0)),
+        (True, False, (1, 1, 6)),
+        (True, True, (4, 2, 2)),
+        (False, False, (3, 1, 6)),
+        (False, True, (8, 2, 0)),
     ])
 def test_full_site(simple_site, runner, stay_within_path, check_external, results):
 
