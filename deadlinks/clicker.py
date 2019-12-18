@@ -83,8 +83,7 @@ def modify(f: Any, group: str, options: OptionsList) -> Any:
         # adding option and group
         f.__click_params__.append(_option)
         f.__click_params_groups__[group].append(_option.name)
-        if Modifiers:
-            f.__click_params_modify__[_option.name] += Modifiers
+        f.__click_params_modify__[_option.name] += Modifiers
 
     return f
 
