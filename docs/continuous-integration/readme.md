@@ -16,5 +16,6 @@ If tool you using to create documentation has support for links checking, please
 
 <h2>Continues Integration Providers</h2>
 
+* [CircleCI](circleci.md)
 * [tox](tox.md)
 * [Travis CI](travis-ci.md)
