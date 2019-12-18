@@ -70,15 +70,11 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         try:
-
-            with open(response, "r") as f:
-
-                try:
-                    self.send_response(200)
-                    self.end_headers()
-                    self.wfile.write(f.read().encode())
-                except UnicodeDecodeError:
-                    pass
+            with open(response, "rb") as file:
+                self.send_response(code)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(file.read())
 
         except FileNotFoundError:
             self.send_response(404)
