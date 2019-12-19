@@ -1,5 +1,9 @@
 # CHANGELOG
 
+0.2.1 - 09-12-2019
+  * `docs`: Added AzurePilelines and CircleCI integration examples (https://deadlinks.readthedocs.io/).
+  * `bugfix`: Improved a bit local files checks (https://github.com/butuzov/deadlinks/issues/45).
+
 0.2.0 - 01-12-2019
   * `docs`: better documentation with ci examples (https://deadlinks.readthedocs.io/).
   * `install`: install `deadlinks` on mac with `brew` (https://github.com/butuzov/homebrew-deadlinks)
