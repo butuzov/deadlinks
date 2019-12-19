@@ -32,7 +32,7 @@ deploy:
     branch: master
 ```
 
-Read more about `sphinx` at [Static Site Generators](../static-site-generators#sphinx) page.
+Read more about `sphinx` at [Static Site Generators](../static-site-generators.html#sphinx) page.
 
 <h3>Serving Files</h3>
 
@@ -56,4 +56,4 @@ script:
 
 ```
 
-Read more about `mkdocs` at [Static Site Generators](../static-site-generators#mkdocs) page.
+Read more about `mkdocs` at [Static Site Generators](../static-site-generators.html#mkdocs) page.

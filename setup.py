@@ -6,25 +6,84 @@ deadlinks checker for your static website. It's better keep house clean, right?
 
 from typing import (Dict, Tuple, Optional, List) #pylint: disable-msg=W0611
 
+from collections import defaultdict
 from pathlib import Path
 from re import match
-import os
-from setuptools import find_packages, setup
-from setuptools.command.build_py import build_py as _build_py
+from re import compile as _compile
 
-from utils.setup import (read_data, require, readme)
-try:
-    from utils.brew import build_formula
-except BaseException:
-    build_formula = lambda a, b: "Brew Build not implemented"
+import os
+
+from setuptools import find_packages, setup
+
+# -- Common Functions ----------------------------------------------------------
+
+DUNDER_REGEXP = _compile(r'(__(.*?)__ = "(.*?)")\n')
+
+
+def read_data() -> Dict[str, str]:
+    """ Read data from __versions__ py """
+
+    init = Path(".").parent / "deadlinks" / "__version__.py"
+
+    if not Path(init).is_file():
+        raise RuntimeError("Can not find source for deadlinks/__version__.py")
+
+    values = dict() # type: Dict[str, str]
+    with open(str(init)) as fh:
+        content = "".join(fh.readlines())
+        for match in DUNDER_REGEXP.findall(content):
+            values[match[1]] = match[2]
+
+    return values
+
+
+def require(section: str = "install") -> List[str]:
+    """ Requirements txt parser. """
+
+    require_txt = Path(".").parent / "requirements.txt"
+    if not Path(require_txt).is_file():
+        return []
+
+    requires = defaultdict(list) # type: Dict[str, List[str]]
+    with open(str(require_txt), "rb") as fh:
+        key = "" # type: str
+        for line in fh.read().decode("utf-8").split("\n"):
+
+            if not line.strip():
+                " empty line "
+                continue
+
+            if line[0] == "#":
+                " section key "
+                key = line[2:]
+                continue
+
+            # actual package
+            requires[key].append(line.strip())
+
+    return requires[section]
+
+
+def readme() -> str:
+    """ different version of readme changed for pypi """
+    readme = Path(".").parent / "README.md"
+
+    if not Path(readme).is_file():
+        return ""
+
+    contents = " "
+    with open("README.md", encoding="utf8") as f:
+        contents = f.read()
+
+    # cutout first header
+    return contents.replace("# deadlinks", "", 1).lstrip()
+
 
 # ------------------------------------------------------------------------------
 
 # ~~ Version Releases / Start ~~
 
 # PyPi: only releases (x.y.z)
-#
-#
 data = read_data()
 
 branch = os.environ.get('DEADLINKS_BRANCH', None)
@@ -33,7 +92,9 @@ tagged = os.environ.get('DEADLINKS_TAGGED', None)
 
 VERSION = r'^\d{1,}.\d{1,}.\d{1,}$' # type: str
 
-if tagged and not match(VERSION, tagged) and branch and commit:
+if os.environ.get('DEADLINKS_VERSION', None) is not None:
+    data['app_version'] += os.environ.get('DEADLINKS_VERSION', None)
+elif tagged and not match(VERSION, tagged) and branch and commit:
     dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
     dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
     with open(str(dev_version_file), "w") as f:
@@ -41,18 +102,6 @@ if tagged and not match(VERSION, tagged) and branch and commit:
     data['app_version'] += dev_version_str
 
 # -- Version Releases / End ~~
-
-
-class BrewFormulaBuilder(_build_py):
-    """ Run external formula builder """
-
-    def run(self) -> None:
-        data = read_data()
-        requirements = require("install") + require("brew")
-
-        with open("{}.rb".format(data['app_package']), 'w') as f:
-            print(build_formula(app=data, requirements=requirements), file=f)
-
 
 # -- Setup ---------------------------------------------------------------------
 
@@ -73,14 +122,13 @@ if __name__ == "__main__":
             "Documentation (latest)": "https://deadlinks.readthedocs.io/en/latest/",
             "Dockerized": "https://hub.docker.com/repository/docker/butuzov/deadlinks/",
         },
-        packages=find_packages(exclude=["utils*", "unittests*"]),
+        packages=find_packages(exclude=["tests*"]),
         install_requires=require("install"),
         entry_points='''
             [console_scripts]
             deadlinks=deadlinks.__main__:main
         ''',
         zip_safe=False,
-        cmdclass={'brew_formula_create': BrewFormulaBuilder},
         python_requires='>=3.5',
         url=data['app_website'],
         license=data['app_license'],

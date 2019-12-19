@@ -11,132 +11,226 @@ TAGGED = $(shell git describe)
 .PHONY: help
 
 help:
-	@cat Makefile.md
+	@cat $(MAKEFILE_LIST) | \
+		grep -E '^# ~~~ .*? [~]+$$|^[a-zA-Z0-9_-]+:.*?## .*$$' | \
+		awk '{if ( $$1=="#" ) {\
+			match($$0, /^# ~~~ (.+?) [~]+$$/, a);\
+			{print "\n", a[1], "\n"}\
+		} else { \
+			match($$0, /^([a-zA-Z-]+):.*?## (.*)$$/, a); \
+			{printf "  - \033[32m%-20s\033[0m %s\n",   a[1], a[2]} \
+		};}'
 
-# ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-requirements:
-	@python3 -m pip install -q -r requirements.txt
-
-install: clean requirements
+install-dev: clean requirements ## Install Development version
 	DEADLINKS_BRANCH=$(BRANCH) \
 	DEADLINKS_COMMIT=$(COMMIT) \
 	DEADLINKS_TAGGED=$(TAGGED) \
-	python3 setup.py develop
+	$(PYTHON) setup.py develop -q 2>&1 1> /dev/null
 
+requirements: ## Install requirements.txt
+	@ $(PYTHON) -m pip install -q -r requirements.txt
 
-# ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tests:
+all: clean install-dev ## Running All Checks
+	@echo "===> Running Standard Lints";
+	$(MAKE) lints;
+	@echo "===> Running Standard Tests";
+	$(MAKE) tests;
+
+	@echo "===> Docker lints"
+	$(MAKE) docker
+
+	@echo "===> Brew Test"
+	$(MAKE) brew-dev-pipeline
+
+	@echo "===> Integrations Tests (Slow)"
+	$(MAKE) integ-slow
+
+integ-slow: ## Integration tests (brew, docker)
+	pytest . -m "integration and slow" --randomly-dont-reorganize -n12 -svrax;\
+
+integ-fast: ## Integration tests (brew, docker) Skipp interfaces creation
+	pytest . -m "integration and fast" --randomly-dont-reorganize -n12 -svrax;\
+
+.PHONY: tests
+tests: ## Run PyTest for CI/Localy
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
-	 	pytest . --verbose -ra -x;\
+	 	pytest . -m "not integration" -vrax;\
 	else\
-	 	pytest . --cov=$(PACKAGE) -n12 --randomly-dont-reorganize --verbose -ra --ff -x;\
+	 	pytest . -m "not integration" --cov=$(PACKAGE) -n12 --randomly-dont-reorganize -vrax --ff;\
 	fi
 
-coverage:
-	pytest . --cov=$(PACKAGE)
+coverage: ## Run PyTest with coverage report
+	pytest . -m "not integration" --cov=$(PACKAGE)
 
-pylint:
+pylint: ## Run Linter: pylint
 	pylint $(PACKAGE)
 
-pylint-details:
+pylint-details: ## Run Linter: pylint (with details report)
 	pylint $(PACKAGE) -r y
 
-mypy:
+mypy: ## Run Linter: mypy
 	mypy $(PACKAGE)
 
-lints: pylint mypy
+lints: pylint mypy ### Run All Linters
 
-all: clean install
-	@echo "Running All Checks"
-	@echo "Running mypy static analizer"
-	@make mypy
-	@echo "Running pylint static analizer"
-	@make pylint-details
-	@make docker-build-local
+codacy: bandit prospector docker remark ## Codacy: run all codacy linters (bandit, remark, docker, prospector)
 
-# Codacity Code Analysis
+# https://bandit.readthedocs.io/en/latest/plugins/index.html
+bandit: ## Codacy Linter: Bandit (python)
+	codacy-analysis-cli analyse --tool bandit
+
+remark: ## Codacy Linter: Remark (markdown)
+	codacy-analysis-cli analyse --tool remark-int
+
+# https://prospector.readthedocs.io/en/master/
+prospector: ## Codacy Linter: Prospector (python)
+	codacy-analysis-cli analyse --tool prospector
+
+# https://github.com/hadolint/hadolint
+docker: ## Codacy Linter: hadolint (Dockerfile)
+	codacy-analysis-cli analyse --tool hadolint
+
+# Codacy Code Analysis
 # https://github.com/codacy/codacy-analysis-cli#install
 # https://support.codacy.com/hc/en-us/articles/115002130625-Codacy-Configuration-File
-codacity-config:
+codacity-config: ## Codacity: check codacity config
 	codacy-analysis-cli validate-configuration --directory `pwd`
 
-codacity:
-	codacy-analysis-cli analyse
+# ~~~ Documentation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ~~~ Documentation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+docs: gen-docs ## Documentation Pipeline (build->browse->check->serve)
+	$(MAKE) browse
+	$(MAKE) docs-ci
+	$(MAKE) docs-serve
 
-browse:
+browse:  ## Open documentation server in browser
 	open http://localhost:5678
 
-documentation:
-	ghp -root=build/html -port=5678
+docs-serve: ghp #- Run documentation server
+	ghp -root=build/html -port=5678 &
 
-gen-docs:
-	sphinx-build docs build/html -qW --keep-going
+docs-serve-stop: #- Stop documentation server
+	@ps -a | grep '[g]hp -root=build/html -port=5678' --color=never \
+		| awk '{print $$1}' | xargs -L1 kill -9
 
-check-docs:
+
+gen-docs: ## Generate Documentation
+	@if [ -z ${VIRTUAL_ENV} ]; then\
+		@ $(PYTHON) -m venv .venv;\
+		@ source .venv/bin/activate; \
+	fi
+	@ $(PYTHON) -m pip install Sphinx sphinx-rtd-theme -q;
+	@ $(PYTHON) -m pip install recommonmark sphinx-markdown-tables -q;
+	sphinx-build docs build/html -qW --keep-going;
+
+docs-ci: ## Run deadlinks checks for own docs
 	deadlinks internal --root=build/html --no-progress --no-colors --fiff
 
-docs: gen-docs browse check-docs documentation
+# ~~~ Brew ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ~~~ Brew ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+brew-env:
+	@ $(PYTHON) -m venv .brew;
+	@ source .brew/bin/activate;
+	@ $(PYTHON) -m pip install --upgrade pip requests Jinja2 -q;\
 
-brew:
-	@python3 -m pip install --upgrade requests Jinja2 -q
-	@python3 setup.py brew_formula_create
-	@python3 -m pip uninstall requests chardet Jinja2 MarkupSafe urllib3 certifi idna -y -q
-	@brew reinstall deadlinks.rb
-	@brew audit --new-formula deadlinks.rb
-	@brew audit --strict deadlinks.rb
-	@brew test --verbose --debug deadlinks.rb
-	@brew uninstall deadlinks
+brew-web-start: ghp
+	@ghp -port=8878  2>&1 1>/dev/null &
 
+brew-web-stop:
+	@ps -a | grep '[g]hp port=8878' --color=never \
+		| awk '{print $$1}' | xargs -L1 kill -9
 
-brew-update-prepare: brew
+brew: brew-env build ## Create Formula: Create (Production)
+	@ VIRTUAL_ENV=""
+	@ source .brew/bin/activate;
+	@ $(PYTHON) make_brew_formula.py
+
+brew-dev: brew-web-start brew-env build-dev ## Create Formula: Create (Development)
+	@ VIRTUAL_ENV=""
+	@ source .brew/bin/activate;
+	@ $(PYTHON) make_brew_formula.py --dev
+
+brew-install: ## Formula: Install
+	brew install --include-test deadlinks.rb
+
+brew-uninstall: ## Formula: UnInstall
+	@brew list -1 | grep deadlinks --color=never | xargs -I {} sh -c 'brew uninstall {}' 2>&1 1>/dev/null
+
+brew-cleanup: ## Cleanup
+	@ VIRTUAL_ENV=""
+	@ source .brew/bin/activate;
+	@ $(PYTHON) -m pip uninstall requests chardet Jinja2 MarkupSafe urllib3 certifi idna -y -q
+
+brew-audit: ## Formula: Audit
+	brew audit --new-formula deadlinks.rb;
+	brew audit --strict deadlinks.rb;
+
+brew-dev-pipeline: ## Dev Pipeline (Create/Install/Test/Uninstall)
+	$(MAKE) brew-dev
+	$(MAKE) brew-uninstall
+	$(MAKE) brew-install
+	$(MAKE) brew-audit
+	$(MAKE) brew-web-stop
+	$(MAKE) brew-uninstall
+
+brew-pytest-start: brew-dev brew-uninstall brew-install ## (pytest) Install Pipeline
+
+brew-pytest-final: brew-uninstall brew-web-stop ## (pytest) Finalizer
+
+brew-update-prepare: brew ## Prepare brew for deploying new version.p
 	@git clone https://github.com/butuzov/homebrew-deadlinks
 	@cp deadlinks.rb homebrew-deadlinks/Formula/deadlinks.rb
 
-# ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-clean:
+build: pre-deploy clean ## Build disto (source & wheel) - Production
+	@ $(PYTHON) setup.py sdist bdist_wheel 1>&2 2> /dev/null
+
+build-dev: pre-deploy clean ## Build disto (source & wheel) - Development
+	@ \
+	DEADLINKS_BRANCH=$(BRANCH) \
+	DEADLINKS_COMMIT=$(COMMIT) \
+	DEADLINKS_TAGGED=$(TAGGED) \
+	$(PYTHON) setup.py sdist bdist_wheel 1>&2 2>/dev/null
+
+clean: ## Cleanup Build artifacts
 	@echo "Cleanup Temporary Files"
 	@rm -rf ${DIST}
 	@rm -rf ${BUILD}
 	@rm -f deadlinks/__develop__.py
 
-pre-deploy:
-	python3 -m pip install --upgrade wheel twine -q
+pre-deploy: ## Install deploy packages
+	@ $(PYTHON) -m pip install --upgrade wheel twine -q
 
-build: pre-deploy clean
-	python3 setup.py sdist bdist_wheel
 
-deploy-test: pre-deploy
-	@if [ ! -z ${DEADLINKS_VERSION} ]; then\
-		twine upload -u ${PYPI_TEST_USER} --repository-url https://test.pypi.org/legacy/ dist/*;\
-	else \
-		echo "You need to provide DEADLINKS_VERSION to run this command";\
-	fi
+deploy-test: pre-deploy ## PyPi Deploy (test.pypi.org)
+	twine upload -u ${PYPI_TEST_USER} --repository-url https://test.pypi.org/legacy/ dist/*;\
 
-deploy-prod: pre-deploy build
+deploy-prod: pre-deploy build ## PyPi Deploy (pypi.org)
 	twine upload -u ${PYPI_PROD_USER} --repository-url https://upload.pypi.org/legacy/ dist/*;\
 
 
-# ~~~ Docker  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~ Docker ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-docker-build-local: clean
-	docker tag butuzov/deadlinks:local butuzov/deadlinks:prev
-	docker build . -t butuzov/deadlinks:local
-	docker rmi butuzov/deadlinks:prev
+docker-clean: ## Clean untagged images
+	@docker ps -q -f "status=exited" | xargs -L1 docker rm
+	@docker images -q -f "dangling=true" | xargs -L1 docker rmi
 
-docker-check-local: docker-build-local
-	docker run --rm -it --network=host  butuzov/deadlinks:local --version
+docker-build: clean ## Build Image
+	@docker build . -t butuzov/deadlinks:local
+
+docker-local-version:
+	@docker run --rm -it --network=host  butuzov/deadlinks:local --version
 
 # enable `--pull=alway` once it will be available https://github.com/docker/cli/pull/1498
 # status - 19.03 not avaialbe.
-docker-check-dev:
-	docker run --rm -it --network=host  butuzov/deadlinks:dev --version
 
-docker-check-latest:
-	docker run --rm -it --network=host  butuzov/deadlinks:latest --version
+
+# --- Helpers --- Do Not Show --------------------------------------------------
+
+ghp:
+	go get github.com/butuzov/ghp

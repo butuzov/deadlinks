@@ -83,8 +83,7 @@ def modify(f: Any, group: str, options: OptionsList) -> Any:
         # adding option and group
         f.__click_params__.append(_option)
         f.__click_params_groups__[group].append(_option.name)
-        if Modifiers:
-            f.__click_params_modify__[_option.name] += Modifiers
+        f.__click_params_modify__[_option.name] += Modifiers
 
     return f
 
@@ -223,13 +222,6 @@ class Clicker(Command):
 # -- CLI wrapper ---------------------------------------------------------------
 #   So we can have nice looking options groups.
 
-command = dict({
-    "cls": Clicker,
-    "context_settings": {
-        "ignore_unknown_options": False
-    },
-}) # type: Dict[str, Any]
-
 
 def validate_url(ctx: Context, param: Argument, value: str) -> str:
     """ if received url with no scheme will try to fix it """
@@ -239,11 +231,3 @@ def validate_url(ctx: Context, param: Argument, value: str) -> str:
         return "http://{}".format(url)
 
     return value
-
-
-argument = dict({
-    'nargs': 1,
-    'required': True,
-    'callback': validate_url,
-    'metavar': '<URL>',
-}) # type: Dict[str, Any]

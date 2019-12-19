@@ -28,25 +28,9 @@ from typing import List
 
 from click import Path
 
-from ..clicker import OptionRaw, Options
+from ..clicker import OptionRaw, Options #pylint: disable-msg=W0611
 
 # -- Code ----------------------------------------------------------------------
-
-
-def root_option_modifier(options: Options) -> Options:
-    """ this modifier will be triggered if root option passed. """
-
-    if not options["root"]:
-        return options
-
-    if options.get("retry", 0) == 0:
-        options["retry"] = 3
-
-    if options.get("threads", 1) == 1:
-        options["threads"] = 10
-
-    return options
-
 
 default_options = [] # type: List[OptionRaw]
 # root, in case of URL<internal>, defaults to . (pwd or current directory)
@@ -55,7 +39,6 @@ default_options.append((
     {
         'help': 'Path to the documentation\'s Document Root',
         'metavar': '',
-        'type': Path(),
-        'modifier': [root_option_modifier]
+        'type': Path()
     },
 ))

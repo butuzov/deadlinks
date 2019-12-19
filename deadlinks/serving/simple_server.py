@@ -75,7 +75,7 @@ class SimpleServer:
         # implement correct type annotation, when change
         # https://github.com/python/mypy/issues/1484
         self._handler = partial(Handler, self.router)
-        self._server = ThreadedHTTPServer(self._sa, self._handler) # type: ignore
+        self._server = ThreadedHTTPServer(self._sa, self._handler)
         server_thread = Thread(target=self._server.serve_forever, daemon=True)
         server_thread.start()
 

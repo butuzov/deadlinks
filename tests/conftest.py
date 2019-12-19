@@ -58,6 +58,7 @@ def simple_site(server):
         <h1>~ <a href="/">/index</a> - <a href="/about/">/about</a> - <strong>/projects</strong></h1>
         <hr>
         <a href="https://github.com/butuzov/deadlinks">deadlinks</a> -
+        <a href="http://gobyexample.com">gobyexample</a> -
         <a href="http://gobyexample.com.ua">gobyexample</a> -
         <a href="https://wordpress.org/plugins/debug-bar-rewrite-rules">(wordpress) debug bar rewrite rules</a> -
         <a href="nope-no-such-page">secret project</a>

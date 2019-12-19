@@ -6,16 +6,68 @@ brew py is brew formula generator for the deadlinks package
 """
 from typing import (Dict, Tuple, Optional, List) #pylint: disable-msg=W0611
 
+from collections import defaultdict
+from pathlib import Path
 from textwrap import dedent
+from re import compile as _compile
+import json
 
 import requests
 from jinja2 import Template
-import json
 
 try:
     from packaging.version import parse
 except ImportError:
     from pip._vendor.packaging.version import parse
+
+# -- Code ----------------------------------------------------------------------
+
+DUNDER_REGEXP = _compile(r'(__(.*?)__ = "(.*?)")\n')
+
+
+def read_data() -> Dict[str, str]:
+    """ Read data from __versions__ py """
+
+    init = Path(".").parent / "deadlinks" / "__version__.py"
+
+    if not Path(init).is_file():
+        raise RuntimeError("Can not find source for deadlinks/__version__.py")
+
+    values = dict() # type: Dict[str, str]
+    with open(str(init)) as fh:
+        content = "".join(fh.readlines())
+        for match in DUNDER_REGEXP.findall(content):
+            values[match[1]] = match[2]
+
+    return values
+
+
+def require(section: str = "install") -> List[str]:
+    """ Requirements txt parser. """
+
+    require_txt = Path(".").parent / "requirements.txt"
+    if not Path(require_txt).is_file():
+        return []
+
+    requires = defaultdict(list) # type: Dict[str, List[str]]
+    with open(str(require_txt), "rb") as fh:
+        key = "" # type: str
+        for line in fh.read().decode("utf-8").split("\n"):
+
+            if not line.strip():
+                " empty line "
+                continue
+
+            if line[0] == "#":
+                " section key "
+                key = line[2:]
+                continue
+
+            # actual package
+            requires[key].append(line.strip())
+
+    return requires[section]
+
 
 template = Template(
     dedent(
@@ -60,7 +112,7 @@ template = Template(
         end"""))
 
 
-def build_formula(app, requirements) -> str:
+def build_formula(app, requirements, build_dev=False) -> str:
 
     data = {
         'class': app['app_package'][0].upper() + app['app_package'][1:],
@@ -69,7 +121,10 @@ def build_formula(app, requirements) -> str:
         'packages': [],
     }
 
-    data['url'], data['digest'] = info(app['app_package'], "", "")
+    if build_dev:
+        data['url'], data['digest'] = get_local_pacage()
+    else:
+        data['url'], data['digest'] = info(app['app_package'], "", "")
 
     for _package in requirements:
         pkg, cmp, version = clean_version(_package)
@@ -77,6 +132,17 @@ def build_formula(app, requirements) -> str:
         data['packages'].append((pkg, digest, url))
 
     return template.render(**data)
+
+
+def get_local_pacage():
+    import hashlib, glob
+
+    sha256 = hashlib.sha256()
+
+    files = glob.glob("dist/deadlinks-*.tar.gz")
+    with open(files[0], "rb") as f:
+        data = f.read()
+    return "http://localhost:8878/%s" % files[0], hashlib.sha256(data).hexdigest()
 
 
 def clean_version(package) -> Tuple[str, str, str]:
@@ -134,3 +200,24 @@ def release(releases, pkg_cmp, pkg_ver):
         raise RuntimeError("No matching version found")
 
     return versions[0]
+
+
+if __name__ == "__main__":
+
+    import sys
+
+    data = read_data()
+    options = {
+        'app': data,
+        'requirements': require("install") + require("brew"),
+    }
+
+    # python3.5 patch excuded as brew's python 3.7
+    options['requirements'] = list(
+        filter(lambda x: "python_full_version" not in x, options['requirements']))
+
+    if '--dev' in sys.argv[1:]:
+        options['build_dev'] = True
+
+    with open("{}.rb".format(data['app_package']), 'w') as f:
+        print(build_formula(**options), file=f)

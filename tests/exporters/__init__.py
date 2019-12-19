@@ -1,5 +1,5 @@
 """
-unittests.exporters.__init__.py
+tests.exporters.__init__.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Exporters testing module.

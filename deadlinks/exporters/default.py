@@ -127,13 +127,19 @@ class Default(Export):
 
         while not (self._crawler.crawled or self._crawler.terminated):
             if self._crawler.crawling:
+                self._progress_msg_new = self._get_progress()
+
+                if self._progress_msg_new == self._progress_msg:
+                    sleep(0.1)
+                    continue
+
                 click.echo(BEFORE_BAR, nl=False)
 
                 unstyled_text_len = len(click.unstyle(self._progress_msg))
                 click.echo(' ' * unstyled_text_len, nl=False)
                 click.echo(BEFORE_BAR, nl=False)
 
-                self._progress_msg = self._get_progress()
+                self._progress_msg = self._progress_msg_new
                 click.echo(self._progress_msg, color=self.is_colored(), nl=False)
                 sleep(0.1)
 

@@ -85,6 +85,10 @@ class Router():
     def __call__(self, request_url: str) -> Tuple[int, Optional[str]]:
         """ Implements router logic. """
 
+        end_path = request_url.split("/")[-1]
+        if end_path and "." not in end_path and end_path[-1] != "/":
+            return (301, request_url + "/")
+
         # request_url is redirect
         if request_url in self._redirects:
             return (301, self._redirects[request_url])
