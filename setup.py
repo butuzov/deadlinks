@@ -84,8 +84,6 @@ def readme() -> str:
 # ~~ Version Releases / Start ~~
 
 # PyPi: only releases (x.y.z)
-#
-#
 data = read_data()
 
 branch = os.environ.get('DEADLINKS_BRANCH', None)
@@ -94,7 +92,9 @@ tagged = os.environ.get('DEADLINKS_TAGGED', None)
 
 VERSION = r'^\d{1,}.\d{1,}.\d{1,}$' # type: str
 
-if tagged and not match(VERSION, tagged) and branch and commit:
+if os.environ.get('DEADLINKS_VERSION', None) is not None:
+    data['app_version'] += os.environ.get('DEADLINKS_VERSION', None)
+elif tagged and not match(VERSION, tagged) and branch and commit:
     dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
     dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
     with open(str(dev_version_file), "w") as f:
