@@ -39,7 +39,7 @@ jobs:
     - stage: lints
       name: "Running Linters"
       python: 3.8
-      script: make lints
+      script: make linters
 
     # OK: Documentation Checks -----------------------------------
     - stage: docs

@@ -66,16 +66,16 @@ tests: ## Run PyTest for CI/Localy
 coverage: ## Run PyTest with coverage report
 	pytest . -m "not integration" --cov=$(PACKAGE)
 
-pylint: ## Run Linter: pylint
-	pylint $(PACKAGE)
+linter-pylint: ## Run Linter: pylint
+	pylint $(PACKAGE) --rcfile=.github/configs/pylintrc
 
-pylint-details: ## Run Linter: pylint (with details report)
-	pylint $(PACKAGE) -r y
+linter-pylint-full: ## Run Linter: pylint (with details report)
+	pylint $(PACKAGE) -r y --rcfile=.github/configs/pylintrc
 
-mypy: ## Run Linter: mypy
-	mypy $(PACKAGE)
+linter-mypy: ## Run Linter: mypy
+	mypy $(PACKAGE) --config .github/configs/mypy.ini
 
-lints: pylint mypy ### Run All Linters
+linters: linter-pylint linter-mypy ### Run All Linters
 
 codacy: bandit prospector docker remark ## Codacy: run all codacy linters (bandit, remark, docker, prospector)
 
@@ -91,8 +91,8 @@ prospector: ## Codacy Linter: Prospector (python)
 	codacy-analysis-cli analyse --tool prospector
 
 # https://github.com/hadolint/hadolint
-docker: ## Codacy Linter: hadolint (Dockerfile)
-	codacy-analysis-cli analyse --tool hadolint
+linter-docker: ## Codacy Linter: hadolint (Dockerfile)
+	hadolint --config .github/configs/hadolint.yaml Dockerfile
 
 # Codacy Code Analysis
 # https://github.com/codacy/codacy-analysis-cli#install
