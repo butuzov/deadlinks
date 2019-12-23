@@ -210,7 +210,7 @@ class URL:
                 "empty link"
                 continue
 
-            links.append(link)
+            links.append(link.replace("\n", ""))
 
         self._links = list(links)
         self._links = list(map(CLEANER, self._links))

@@ -306,3 +306,16 @@ def test_not_available_page():
     assert l.status == Status.UNDEFINED
     assert not l.exists()
     assert "Failed to establish a new connection" in l.message
+
+
+def test_link_nl(server):
+    """ browsers ignore new line in links so should do that too. """
+
+    address = server.router({
+        '^/$': Page("<a href='/li\nnk'>a</a>").exists(),
+        '^/link$': Page("ok").exists(),
+    })
+
+    l = Link(address)
+    l.exists()
+    assert "/link" in l.links
