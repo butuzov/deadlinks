@@ -34,7 +34,7 @@ def test_internal_200(tmpdir, runner):
     assert "http://internal/" in result['output']
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
+# @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
 def test_internal_404(tmpdir, runner):
 
     if not runner.supports('fs'):
@@ -43,7 +43,7 @@ def test_internal_404(tmpdir, runner):
     p = tmpdir.mkdir("html").join("index.html")
     p.write("<h1>Hallo World!</h1>")
 
-    result = runner(["internal", '--no-colors', '--no-progress', "-R", tmpdir + '/www-root'])
+    result = runner(["internal", '--no-colors', '--no-progress', "-R", str(tmpdir + '/www-root')])
 
     assert result['code'] == 2
     assert "Document Root" in result['output']
@@ -64,11 +64,10 @@ def test_internal_handler(tmpdir, runner):
             "# comment",
             "/index.html / 301",
         ]))
+
     root.join("index.html").write("<h1><a href='/page-1.html'>Page 1</a></h1>")
     root.join("page-2.html").write("<h1><a href='/index.html'>Index</a></h1>")
 
-    r = runner(["internal", "-R", root, "--no-progress", "--no-colors", "--fiff"])
-
-    print(r['output'])
+    r = runner(["internal", "-R", str(root), "--no-progress", "--no-colors", "--fiff"])
 
     assert r['code'] == 0

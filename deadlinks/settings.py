@@ -128,6 +128,10 @@ class Settings:
         if not isinstance(value, Path):
             raise DeadlinksSettingsRoot("Document Root required to be Path-type.")
 
+        if not value.exists():
+            error = "Document Root ({}) not found."
+            raise DeadlinksSettingsRoot(error.format(value))
+
         if not value.is_dir():
             error = "Document Root ({}) not found."
             raise DeadlinksSettingsRoot(error.format(value.resolve()))
