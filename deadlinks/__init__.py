@@ -31,6 +31,7 @@ from .baseurl import BaseURL
 from .crawler import Crawler
 from .request import request
 from .settings import Settings
+from .status import Status
 
 from .__version__ import __version__ as version
 
@@ -57,6 +58,7 @@ __all__ = [
     'Index',
     'Crawler',
     'request',
+    'Status',
     'Settings',
 
     # Exceptions

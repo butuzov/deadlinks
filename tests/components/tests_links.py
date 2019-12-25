@@ -1,6 +1,6 @@
 """
-tests.test_links.py
-~~~~~~~~~~~~~~~~~~~~~~~
+tests.components.tests_links.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Links object test coverage
 
@@ -14,7 +14,7 @@ Links object test coverage
 
 import pytest
 
-from .helpers import Page
+from ..utils import Page
 
 from deadlinks import (Link, URL)
 from deadlinks.status import Status

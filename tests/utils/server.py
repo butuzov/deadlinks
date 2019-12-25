@@ -1,6 +1,6 @@
 """
-tests.helpers.server.py
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.utils.server.py
+~~~~~~~~~~~~~~~~~~~~~
 
 Simple page emulator.
 

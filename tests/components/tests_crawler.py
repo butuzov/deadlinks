@@ -1,6 +1,6 @@
 """
-tests.test_crawler.py
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.components.tests_crawler.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New webServer logic tests implementation, done in order to introduce new
 concepts to crawler (noindex, nofollow, sitemaps.xml, robots.txt, etc) as
@@ -15,7 +15,7 @@ long as testing currently implemented things.
 import pytest
 from flaky import flaky
 
-from .helpers import Page
+from ..utils import Page
 
 from deadlinks import (Settings, Crawler)
 from deadlinks import (

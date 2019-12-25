@@ -36,6 +36,7 @@ __author_mail__ = "butuzov@made.ua"
 try:
     from .__develop__ import version
     __app_version__ += version
+
 except ImportError:
     pass
 
