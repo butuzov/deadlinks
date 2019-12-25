@@ -1,14 +1,37 @@
 """
 conftest.py
 ~~~~~~~~~~~
-Provides Default fixtures for deadlinks tests
-"""
 
-from textwrap import dedent
+Provides Default fixtures for deadlinks tests
+
+:copyright: (c) 2019 by Oleg Butuzov.
+:license:   Apache2, see LICENSE for more details.
+"""
 
 import pytest
 
-from .helpers import Server, Page
+from textwrap import dedent
+from collections import OrderedDict
+
+from .utils import Server, Page
+from .runners.click import ClickRunner
+from .runners.docker import DockerRunner
+from .runners.brew import BrewRunner
+
+runners = OrderedDict({
+    'click': ClickRunner,
+    'docker': DockerRunner,
+    'brew': BrewRunner,
+})
+
+
+@pytest.fixture(scope="session", params=list(runners.values()), ids=list(runners.keys()))
+def runner(request):
+    """ Invoke standalone/internal cli interface(s) """
+
+    runner = request.param()
+    yield runner
+    del runner
 
 
 @pytest.fixture
@@ -31,12 +54,10 @@ def servers():
 def simple_site(server):
     """ simple configuration for routing and indexation testing
         easy to calculate what addresses will work and whats not.
-
         path       status        external       internal
         /           200          0              2
         /about      200          2              0
         /projects   200          3              1 (not existing)
-
     """
     INDEX_PAGE = dedent(
         """\

@@ -1,6 +1,6 @@
 """
-unittest.test_settings.py
-~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.components.tests_settings.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These tests are covers Settings API.
 

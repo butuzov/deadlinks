@@ -1,6 +1,7 @@
 PYTHON ?= python3
 PACKAGE?= deadlinks
 PYLINT ?= pylint
+PYTEST ?= $(PYTHON) -m pytest
 MYPY   ?= mypy
 BUILD  = build
 DIST   = dist
@@ -34,46 +35,52 @@ requirements: ## Install requirements.txt
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-all: clean install-dev ## Running All Checks
-	@echo "===> Running Standard Lints";
-	$(MAKE) lints;
-	@echo "===> Running Standard Tests";
-	$(MAKE) tests;
+# all: clean install-dev ## Running All Checks
+# 	@echo "===> Running Standard Lints";
 
-	@echo "===> Docker lints"
-	$(MAKE) docker
 
-	@echo "===> Brew Test"
-	$(MAKE) brew-dev-pipeline
-
-	@echo "===> Integrations Tests (Slow)"
-	$(MAKE) integ-slow
-
-integ-slow: ## Integration tests (brew, docker)
-	pytest . -m "integration and slow" --randomly-dont-reorganize -n12 -svrax;\
-
-integ-fast: ## Integration tests (brew, docker) Skipp interfaces creation
-	pytest . -m "integration and fast" --randomly-dont-reorganize -n12 -svrax;\
 
 .PHONY: tests
 tests: ## Run PyTest for CI/Localy
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
-	 	pytest . -m "not integration" -vrax;\
+	 	pytest . -m "not e2e" -vrax --cov=$(PACKAGE);\
 	else\
-	 	pytest . -m "not integration" --cov=$(PACKAGE) -n12 --randomly-dont-reorganize -vrax --ff;\
+	 	pytest . -m "not e2e" -n12  --cov=$(PACKAGE);\
 	fi
 
+all: ## All Tests (w/o integration tests)
+	$(PYTEST) . --randomly-dont-reorganize -n12 \
+		--maxfail=10 -s -vrax --cov=$(PACKAGE);
+
+e2e: ## Integration tests (brew, docker)
+	$(PYTEST) . -m "e2e" -n12  --cov=$(PACKAGE);
+
+
+full-e2e: ## Integration tests (brew, docker) Skipp interfaces creation
+
+	@ $(MAKE) brew-uninstall
+	@ $(MAKE) brew-dev
+	@ $(MAKE) brew-install
+	@ $(MAKE) brew-audit
+
+	@ $(MAKE) docker-build
+
+	@ $(MAKE) e2e
+
+	@ $(MAKE) brew-web-stop
+
+
 coverage: ## Run PyTest with coverage report
-	pytest . -m "not integration" --cov=$(PACKAGE)
+	$(PYTHON) -m pytest . -m "not e2e" --cov=$(PACKAGE)
 
 linter-pylint: ## Run Linter: pylint
-	pylint $(PACKAGE) --rcfile=.github/configs/pylintrc
+	$(PYTHON) -m pylint $(PACKAGE) --rcfile=.github/configs/pylintrc
 
 linter-pylint-full: ## Run Linter: pylint (with details report)
-	pylint $(PACKAGE) -r y --rcfile=.github/configs/pylintrc
+	$(PYTHON) -m pylint $(PACKAGE) -r y --rcfile=.github/configs/pylintrc
 
 linter-mypy: ## Run Linter: mypy
-	mypy $(PACKAGE) --config .github/configs/mypy.ini
+	$(PYTHON) -m mypy $(PACKAGE) --config .github/configs/mypy.ini
 
 linters: linter-pylint linter-mypy ### Run All Linters
 
@@ -219,6 +226,7 @@ deploy-prod: pre-deploy build ## PyPi Deploy (pypi.org)
 docker-clean: ## Clean untagged images
 	@docker ps -q -f "status=exited" | xargs -L1 docker rm
 	@docker images -q -f "dangling=true" | xargs -L1 docker rmi
+	@docker images | grep [b]utuzov/deadlinks | awk '{print $3}' |  xargs -L1 docker rmi
 
 docker-build: clean ## Build Image
 	@docker build . -t butuzov/deadlinks:local

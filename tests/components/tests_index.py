@@ -1,6 +1,6 @@
 """
-tests.test_index.py
-~~~~~~~~~~~~~~~~~~~~~~~
+tests.components.tests_index.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Test(s) for Index (collection of the links) object.
 
@@ -12,7 +12,7 @@ Test(s) for Index (collection of the links) object.
 
 from typing import (List)
 
-from deadlinks import (Link, Index)
+from deadlinks import (Link, Index, Status)
 
 # -- Tests ---------------------------------------------------------------------
 
@@ -43,3 +43,5 @@ def test_index():
     # __iter__ and __contains__ test.
     for link in index:
         assert link in index # __contains__
+
+    index.update(Link("http://google.fr"), Status.UNDEFINED, "no idea")
