@@ -69,4 +69,6 @@ def test_internal_handler(tmpdir, runner):
 
     r = runner(["internal", "-R", root, "--no-progress", "--no-colors", "--fiff"])
 
+    print(r['output'])
+
     assert r['code'] == 0
