@@ -319,3 +319,71 @@ def test_link_nl(server):
     l = Link(address)
     l.exists()
     assert "/link" in l.links
+
+
+@pytest.fixture(
+    params=[
+        ("https://google.com:80", "https://google.com:81"),
+        ("https://google.de", "https://google.es"),
+        ("https://google.de/base/long", "https://google.de/home"),
+    ])
+def params_l1_lt_l2(request):
+    return request.param
+
+
+def test_order_neq(params_l1_lt_l2):
+
+    from operator import lt, gt
+
+    l1, l2 = params_l1_lt_l2
+    assert l1 < l2
+    assert lt(l1, l2)
+    assert l2 > l1
+    assert gt(l2, l1)
+
+    ll1 = Link(l1)
+
+    assert ll1 < l2
+    assert lt(ll1, l2)
+    assert l2 > ll1
+    assert gt(l2, ll1)
+
+    ll2 = Link(l2)
+    assert ll1 < ll2
+    assert lt(ll1, ll2)
+    assert ll2 > ll1
+    assert gt(ll2, ll1)
+
+
+@pytest.fixture(
+    params=[
+        ("https://google.com:80", "https://google.com:80"),
+        ("https://google.de/home", "https://google.de/home"),
+    ])
+def params_l1_eq_l2(request):
+    return request.param
+
+
+def test_order_eq(params_l1_eq_l2):
+    from operator import eq
+
+    l1, l2 = params_l1_eq_l2
+    assert l1 == l2
+    assert eq(l1, l2)
+
+    ll1 = Link(l1)
+    assert ll1 == l2
+    assert eq(ll1, l2)
+
+    ll2 = Link(l2)
+    assert ll1 == ll2
+    assert eq(ll1, ll2)
+
+
+def test_order_nonurl_type():
+
+    with pytest.raises(TypeError):
+        assert Link("https://google.com") == 1
+
+    with pytest.raises(TypeError):
+        assert 1 > Link("https://google.com")

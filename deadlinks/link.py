@@ -25,10 +25,12 @@ Link representation based on URL object.
 # -- Imports -------------------------------------------------------------------
 
 from typing import Union
+from functools import total_ordering
 
 from .url import URL
 
 
+@total_ordering
 class Link(URL):
     """
     Link URL with benefits
@@ -41,6 +43,9 @@ class Link(URL):
     What we can't do is to try catch, python version handling or
     `__future__ import` as this is compile time operation. Therefore,
     lets use Link.
+
+    TODO: 2020-09-13 get rid of python 3.5
+    https://devguide.python.org/#status-of-python-branches
     """
 
     def is_external(self, url: Union[URL, str]) -> bool:
@@ -71,6 +76,19 @@ class Link(URL):
 
         return base != this
 
+    def __gt__(self, other: object) -> bool:
+
+        if isinstance(other, str):
+            other = Link(other)
+
+        if not isinstance(other, URL):
+            raise TypeError("`url` expected to be str or Link ")
+
+        if self.domain != other.domain:
+            return self.domain > other.domain
+
+        return self.path > other.path
+
     def __eq__(self, other: object) -> bool:
         """ Compare two links. """
 
@@ -80,4 +98,7 @@ class Link(URL):
         if not isinstance(other, URL):
             raise TypeError("`url` expected to be str or Link ")
 
-        return self.url() == other.url()
+        if self.domain != other.domain:
+            return False
+
+        return self.path == other.path
