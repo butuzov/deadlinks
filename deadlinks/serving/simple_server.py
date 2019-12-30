@@ -52,16 +52,13 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 class SimpleServer:
 
-    def __init__(self, web_root: Union[str, Path], web_path: Optional[str]) -> None:
+    def __init__(self, web_root: Union[str, Path]) -> None:
         """ Starts simple webserver and handles requests to local folder. """
-        self.web_path = "/" if not web_path else web_path
-        if not self.web_path.startswith("/"):
-            self.web_path = "/" + self.web_path
 
         if not isinstance(web_root, Path):
             web_root = Path(web_root)
 
-        self.router = Router(web_root.resolve(), self.web_path)
+        self.router = Router(web_root.resolve())
 
         _socket = socket(AF_INET, type=SOCK_STREAM)
         _socket.bind(('localhost', 0))
@@ -86,4 +83,4 @@ class SimpleServer:
 
     def url(self) -> str:
         """ Return URL of running server (including path). """
-        return "http://{}:{}{}".format(self._sa[0], self._sa[1], self.web_path)
+        return "http://{}:{}".format(self._sa[0], self._sa[1])

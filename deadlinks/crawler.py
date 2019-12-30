@@ -190,6 +190,12 @@ class Crawler:
     def update(self, url: Link) -> None:
         """ Update state or the url by checking it's data. """
 
+        if isinstance(url, str):
+            url = Link(url)
+
+        if not isinstance(url, Link):
+            raise TypeError("`url` expected to be str or Link ")
+
         # We assume that URL Link that passed to this method is in status
         # Status.UNDEFINED, therefor we can perform required checks.
         if url in self.index:
@@ -268,8 +274,13 @@ class Crawler:
 
     @property
     def redirected(self) -> List[Link]:
-        """ Return URLs failed to exist. """
+        """ Return URLs redirected to somewhere. """
         return self.internal(self.index.redirected())
+
+    @property
+    def undefined(self) -> List[Link]:
+        """ Return undefined URLS. """
+        return self.internal(self.index.undefined())
 
     @property
     def stats(self) -> Dict[Status, int]:

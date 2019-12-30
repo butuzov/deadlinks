@@ -43,14 +43,13 @@ root_web_files = [
 class Router():
     """ Router for the static site  """
 
-    def __init__(self, siteroot: Union[Path, str], sitepath: str) -> None:
+    def __init__(self, siteroot: Union[Path, str]) -> None:
         """ Transform startup params and load redirections. """
 
         if isinstance(siteroot, str):
             siteroot = Path(siteroot)
 
         self._siteroot = siteroot
-        self._sitepath = sitepath
 
         # handle not found error.
         if not self._siteroot.exists():
@@ -100,9 +99,6 @@ class Router():
                 return (200, str(request_file.resolve()))
 
             return (404, None)
-
-        if request_url.startswith(self._sitepath):
-            request_url = request_url[len(self._sitepath):]
 
         request_file = self._siteroot / request_url.lstrip("/")
 
