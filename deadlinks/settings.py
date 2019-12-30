@@ -81,8 +81,8 @@ class Settings:
         if base.domain == "internal":
             self._is_masked = True
             self.root = Path(defaults['root']) # type: ignore
-            web_server = Server(self.root, base.path)
-            base = BaseURL(web_server.url())
+            web_server = Server(self.root)
+            base = BaseURL(web_server.url() + base.path)
 
         self.base = base
 

@@ -26,6 +26,48 @@ from deadlinks import (
 # -- Tests ---------------------------------------------------------------------
 
 
+def test_redirections(server):
+
+    address = server.router({
+        '^/$': Page("<a href='/link-1'></a>").exists(),
+        '^/link-\d{1,}$': Page("ok").exists().redirects(pattern='%s/'),
+        '^/link-\d{1,}/$': Page("ok").exists(),
+    })
+
+    c = Crawler(Settings(address))
+    c.start()
+
+    assert len(c.redirected) == 1, "NOT"
+    assert len(c.succeed) == 2, "OK"
+
+
+def test_crawler_update_link(server):
+
+    address = server.router({
+        '^/$': Page("ok").exists().unlock_after(2),
+        '^/link-\d{1,2}$': Page("").exists().redirects(pattern='%s/'),
+    })
+
+    c = Crawler(Settings(address, retry=1))
+    c.start()
+
+    assert len(c.failed) == 1
+    url = c.failed[0]
+    # print("OUT", url, url.status)
+    c.update(url)
+    assert len(c.failed) == 1
+
+    # доадати в тест url p редіректоv раніше не бачений
+    with pytest.raises(TypeError):
+        c.update(address + 1)
+
+    url = address + "/link-1"
+    c.update(url)
+    assert len(c.failed) == 1
+    assert len(c.index) == 2
+    assert len(c.undefined) == 1
+
+
 @pytest.mark.parametrize(
     'stay_within_path, check_external, results', [
         (True, False, (1, 1, 6)),

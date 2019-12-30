@@ -13,6 +13,7 @@ Testing local files serving using default exporter
 import pytest
 
 import sys
+from textwrap import dedent
 
 # -- Tests -------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ def test_internal_200(tmpdir, runner):
     result = runner(args)
 
     assert result['code'] == 0
-    assert "http://internal/" in result['output']
+    assert "http://internal" in result['output']
 
 
 # @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
@@ -65,9 +66,14 @@ def test_internal_handler(tmpdir, runner):
             "/index.html / 301",
         ]))
 
-    root.join("index.html").write("<h1><a href='/page-1.html'>Page 1</a></h1>")
+    root.join("index.html").write(
+        dedent(
+            """\
+            <h1><a href='/page-1.html'>Page 1</a></h1>
+            <h1><a href='/no-page.html'>No such page</a></h1>
+        """))
     root.join("page-2.html").write("<h1><a href='/index.html'>Index</a></h1>")
 
-    r = runner(["internal", "-R", str(root), "--no-progress", "--no-colors", "--fiff"])
+    r = runner(["internal", "-R", str(root), "--no-progress", "--no-colors", "--fiff", '-s', 'all'])
 
-    assert r['code'] == 0
+    assert r['code'] == 1

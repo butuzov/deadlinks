@@ -35,6 +35,11 @@ class brewRunner(Runner, Driver):
             'output': result.stdout.decode() + result.stderr.decode(),
         }
 
+    def async_call(self, args, queue):
+        result = self.__call__(args)
+        queue.put(('code', result['code']))
+        queue.put(('output'), result['output'])
+
     def supports(self, what: str) -> bool:
         return True
 
