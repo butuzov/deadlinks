@@ -35,6 +35,7 @@ def background_cli_runner(args, queue):
     queue.put(('output', result.output))
 
 
+@flaky(max_runs=3)
 def test_terminition_click(server):
 
     url = server.router({'^/$': Page("").slow().exists()})
