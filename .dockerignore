@@ -16,6 +16,7 @@ deadlinks.egg-info
 
 # artifacts
 .coverage
+.coverage*
 build
 dist
 
@@ -32,6 +33,8 @@ commits.md
 .DS_Store
 .codacy.yml
 .codecov.yml
+codecov.yml
+.git
 .dockerignore
 .editorconfig
 .github

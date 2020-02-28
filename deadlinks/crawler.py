@@ -35,11 +35,14 @@ from time import sleep
 from .link import Link
 from .status import Status
 from .index import Index
+from .robots_txt import RobotsTxt
 from .settings import Settings
 from .exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksRedirectionURL,
 )
+
+from collections import defaultdict
 
 # -- Implementation ------------------------------------------------------------
 
@@ -53,6 +56,7 @@ class Crawler:
         self.settings = settings
         self.retry = settings.retry
         self.index = Index()
+        self.robots = defaultdict(RobotsTxt) # type: Dict[str, RobotsTxt]
 
         # Application state
         self.terminated = False # type: bool
@@ -167,6 +171,8 @@ class Crawler:
 
         # TODO - Site Owner Ask (via robots.txt) to ignore this URL
         # https://www.robotstxt.org/robotstxt.html
+        if not self.robots[url.domain].allowed(url):
+            return (True, "URL rejected by robots.txt")
 
         # We have an external URL and cheking external URL are Off
         if url.is_external(self.settings.base) and not self.settings.external:

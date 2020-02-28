@@ -11,6 +11,7 @@ Terminition (ctrl+C or ^c)
 # -- Imports -------------------------------------------------------------------
 
 import pytest
+from flaky import flaky
 
 import multiprocessing as mp
 from threading import Timer
@@ -35,6 +36,7 @@ def background_cli_runner(args, queue):
     queue.put(('output', result.output))
 
 
+@flaky(max_runs=3)
 def test_terminition_click(server):
 
     url = server.router({'^/$': Page("").slow().exists()})

@@ -6,7 +6,7 @@ COPY  . /app
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git
+    git gcc g++
 
 RUN grep "# install" requirements.txt -A100 > docker.requirments.txt \
     && echo "docker.requirments.txt" >> .dockerignore \
@@ -23,17 +23,16 @@ RUN DEADLINKS_COMMIT=$(git rev-list --abbrev-commit -1 HEAD) \
     && rm -rf build
 
 RUN python3 -m pip uninstall pip wheel -y
-
 RUN ls -la
 
 
 # Uncomment for debug container
-# FROM gcr.io/distroless/python3:debug
 FROM gcr.io/distroless/python3:latest
 COPY --from=build-env /app /app
 
 ENV PYTHONPATH=/usr/local/lib/python3.5/site-packages
 COPY --from=build-env ${PYTHONPATH} ${PYTHONPATH}
+COPY --from=build-env /usr/local/lib/libpython3.5m.so.1.0 /usr/lib/x86_64-linux-gnu/
 
 WORKDIR /app
 

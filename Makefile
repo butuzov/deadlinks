@@ -156,7 +156,7 @@ brew: brew-env build ## Create Formula: Create (Production)
 	@ source .brew/bin/activate;
 	@ $(PYTHON) make_brew_formula.py
 
-brew-dev: brew-web-start brew-env build-dev ## Create Formula: Create (Development)
+brew-dev: brew-web-stop brew-web-start brew-env build-dev ## Create Formula: Create (Development)
 	@ VIRTUAL_ENV=""
 	@ source .brew/bin/activate;
 	@ $(PYTHON) make_brew_formula.py --dev
@@ -229,7 +229,7 @@ docker-clean: ## Clean untagged images
 	@docker images | grep [b]utuzov/deadlinks | awk '{print $3}' |  xargs -L1 docker rmi
 
 docker-build: clean ## Build Image
-	@docker build . -t butuzov/deadlinks:local
+	@docker build . -t butuzov/deadlinks:local --no-cache
 
 docker-local-version:
 	@docker run --rm -it --network=host  butuzov/deadlinks:local --version
