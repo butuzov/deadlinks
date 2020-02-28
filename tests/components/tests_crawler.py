@@ -71,9 +71,9 @@ def test_crawler_update_link(server):
 @pytest.mark.parametrize(
     'stay_within_path, check_external, results', [
         (True, False, (1, 1, 6)),
-        (True, True, (4, 2, 2)),
+        (True, True, (2, 2, 4)),
         (False, False, (3, 1, 6)),
-        (False, True, (8, 2, 0)),
+        (False, True, (5, 2, 3)),
     ])
 def test_index_within_path(simple_site, stay_within_path, check_external, results):
 
@@ -104,13 +104,13 @@ def test_index_within_path(simple_site, stay_within_path, check_external, result
 #   5th arg: Result (total_links_in_index, failed, succeed, ignored)
 
 site_with_links_defaults = [
-    (True, 10, [], [], (30, 6, 21, 0, 3)),
     (False, 10, [], [], (27, 2, 17, 8, 0)),
-    (True, 10, [], ["limk"], (30, 4, 21, 2, 3)),
     (False, 10, [], ["limk"], (27, 0, 17, 10, 0)),
-    (True, 10, ["google.com"], [], (28, 6, 19, 2, 1)),
     (False, 10, ["google.com"], [], (27, 2, 17, 8, 0)),
-    (True, 10, ["google.com"], ["limk"], (28, 4, 19, 4, 1)),
+    (True, 10, [], [], (29, 6, 21, 0, 2)),
+    (True, 10, [], ["limk"], (29, 4, 21, 2, 2)),
+    (True, 10, ["google.com"], [], (27, 6, 20, 1, 0)),
+    (True, 10, ["google.com"], ["limk"], (27, 4, 20, 3, 0)),
 ]
 
 
@@ -271,7 +271,7 @@ def test_mailto(server):
     assert len(c.index) == 2
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(2)
 def test_double_start(simple_site):
 
     c = Crawler(Settings(simple_site, threads=10))

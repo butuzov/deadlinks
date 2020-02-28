@@ -28,9 +28,9 @@ from requests import Session, Response
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from .__version__ import __app_version__ as version
-from .__version__ import __app_website__ as website
-from .__version__ import __app_package__ as package
+from .__version__ import __app_package__
+
+user_agent = __app_package__
 
 
 def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> Response:
@@ -42,7 +42,7 @@ def request(url: str, is_external: bool = False, retries_attempts: int = 1) -> R
     """
 
     _headers = {
-        'User-agent': "{}/v{} ( {} )".format(package, version, website),
+        'User-agent': user_agent,
     }
     _settings = {
         'allow_redirects': False,

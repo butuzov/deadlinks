@@ -11,6 +11,7 @@ Terminition (ctrl+C or ^c)
 # -- Imports -------------------------------------------------------------------
 
 import pytest
+from flaky import flaky
 
 import multiprocessing as mp
 from threading import Timer

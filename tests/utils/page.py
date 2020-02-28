@@ -49,6 +49,10 @@ class Page:
         self._redirects = pattern
         return self
 
+    def mime(self, mime: str):
+        self._mime_type = mime
+        return self
+
     def slow(self):
         self._slow = True
         return self

@@ -29,7 +29,7 @@ from .link import Link
 from .index import Index
 from .baseurl import BaseURL
 from .crawler import Crawler
-from .request import request
+from .request import request, user_agent
 from .settings import Settings
 from .status import Status
 
@@ -59,6 +59,7 @@ __all__ = [
     'Index',
     'Crawler',
     'request',
+    'user_agent',
     'Status',
     'Settings',
 
