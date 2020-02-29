@@ -23,7 +23,7 @@ deadlinks.request
 """
 
 # -- Imports -------------------------------------------------------------------
-from typing import (Union)
+from typing import (Any)
 
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException

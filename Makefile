@@ -8,7 +8,7 @@ DIST   = dist
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
 TAGGED = $(shell git describe)
-
+PROCS  = $(shell nproc)
 
 
 help:
@@ -33,41 +33,54 @@ venv-required:
 		exit 1;\
 	fi
 
+test-venv-required:
+	@if [ -z "${VIRTUAL_ENV}" ]; then\
+		echo ">>>>> You need to run this test in virtual environment. Abort!";\
+		exit 1;\
+	else\
+		echo "${VIRTUAL_ENV};";\
+	fi
+
 ghp:
 	@go get -u github.com/butuzov/ghp
 
 # ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 requirements: venv-required ## Install Development Requirments
 	$(PYTHON) -m pip install -q -r requirements.txt
 
+
 development: venv-required clean requirements ## Install Development Version
-	DEADLINKS_BRANCH=$(BRANCH) \
-	DEADLINKS_COMMIT=$(COMMIT) \
-	DEADLINKS_TAGGED=$(TAGGED) \
-	$(PYTHON) setup.py develop -q 2>&1 1> /dev/null
+	$(PYTHON) -m pip uninstall deadlinks -y
+	pip install -e .
 
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#
+#   make tests -> run tests + click integration
+#   make all -> runs all tests
+#   make docker-tests -> runs docket tests
+#   make brew-tests -> runs installs bre and runs brew tests
+#   make integration -> runs click/docker/brew
+
 .PHONY: tests
 tests: venv-required ## Run package tests (w/o integration tests)
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
-	 	pytest . -m "not e2e" -vrax --cov=$(PACKAGE);\
+	 	pytest . -m "not (docker or brew)" -vrax --cov=$(PACKAGE);\
 	else\
-	 	pytest . -m "not e2e" -n12  --cov=$(PACKAGE);\
+	 	pytest . -m "not (docker or brew)" -n$(PROCS)  --cov=$(PACKAGE);\
 	fi
 
 all: ## All Tests (with integration tests)
-	$(PYTEST) . --randomly-dont-reorganize -n12 \
+	$(PYTEST) . --randomly-dont-reorganize -n$(PROCS) \
 		--maxfail=10 -s -vrax --cov=$(PACKAGE);
 
 
 coverage: tests ## Coverage Report (same as `make tests`)
 
-integration: ## TODO: Integration tests
-	$(PYTEST) . -m "e2e" -n12  --cov=$(PACKAGE);
+integration: ## Integration Tests
+	$(PYTEST) . -m "docker or brew or click" -n$(PROCS)  --cov=$(PACKAGE);
 
 # ~~~ Linting ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -80,7 +93,7 @@ pylint-full: ## Linter: pylint (with details report)
 mypy: ## Linter: mypy
 	$(PYTHON) -m mypy $(PACKAGE) --config .github/configs/mypy.ini
 
-linters: linter-pylint linter-mypy ### All Important Linters (pylint/mypy)
+linters: pylint mypy ### All Important Linters (pylint/mypy)
 
 
 codacy-install: ## Brew Install Codacy Linters (Docker required)
@@ -191,7 +204,8 @@ brew-web-stop:      # Stop Server (Serves dev pacakge)
 	@ps -a | grep '[g]hp -port=8878' --color=never \
 		| awk '{print $$1}' | xargs -L1 kill -9
 
-brew-tests: ## TODO: Brew Integration Testing
+brew-tests: venv-required brew-dev clean development ## TODO: Brew Integration Testing
+	$(PYTEST) . -m "brew" -n$(PROCS)  --cov=$(PACKAGE);
 
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -220,6 +234,12 @@ deploy-test: deploy build-dev ## PyPi Deploy (test.pypi.org)
 deploy-prod: deploy build-prod ## PyPi Deploy (pypi.org)
 	twine upload --repository-url https://upload.pypi.org/legacy/ dist/*;\
 
+pre-depeloy-check: venv-required clean requirements ## Install Development Version
+	$(PYTHON) -m pip uninstall deadlinks -y
+	DEADLINKS_BRANCH=$(BRANCH) \
+	DEADLINKS_COMMIT=$(COMMIT) \
+	DEADLINKS_TAGGED=$(TAGGED) \
+	$(PYTHON) setup.py develop -q 2>&1 1> /dev/null
 
 # ~~~ Docker ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -231,10 +251,10 @@ docker-clean: ## Clean untagged images
 docker-build: clean ## Build Image
 	@docker build . -t butuzov/deadlinks:local --no-cache
 
-docker-test: ## TODO: Docker Integration Tests
+docker-tests: docker-build ## TODO: Docker Integration Tests
+	$(PYTEST) . -m "docker" -n$(PROCS)  --cov=$(PACKAGE);
 
 # @docker run --rm -it --network=host  butuzov/deadlinks:local --version
 # enable `--pull=alway` once it will be available https://github.com/docker/cli/pull/1498
 # status - 19.03 not avaialbe.
-
 
