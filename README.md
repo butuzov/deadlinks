@@ -9,7 +9,7 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/deadlinks)](https://pypi.org/project/deadlinks/)
 
 ---
-Health checks for your documentation links with a **deadlinks**.
+Health checks for your documentation links.
 
 ![](https://i.imgur.com/9Ekznio.gif)
 
