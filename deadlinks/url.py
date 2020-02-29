@@ -53,6 +53,7 @@ class URL:
     """ URL abstraction representation. """
 
     def __init__(self, location: str) -> None:
+        # print(urlparse(location))
         self._url = urlparse(location)
         self._status = Status.UNDEFINED # type: Status
 
@@ -107,7 +108,24 @@ class URL:
     def is_valid(self) -> bool:
         """ Check if url looks "valid". """
 
-        return (self.domain != "" and self.scheme in {"http", "https"})
+        return (self.domain != "" and self.scheme != "") and self.is_crawlable()
+
+    def is_crawlable(self) -> bool:
+        """ is url possible to crawl ? """
+
+        return self.scheme in {"http", "https"}
+
+    def is_schema_valid(self) -> bool:
+        return self._url.scheme in [
+            "http",
+            "https",
+            "ftp",
+            "sftp",
+            "ws",
+            "ssh",
+            "mailto",
+            "news",
+        ]
 
     def add_referrer(self, url: str) -> None:
         """ Add a page that links (referrer) to self object. """

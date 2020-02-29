@@ -23,7 +23,6 @@ class Driver:
             self.execute(command)
 
     def execute(self, command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL):
-        print(command)
         return subprocess.run(command, stdout=stdout, stderr=stderr)
 
     def __del__(self):

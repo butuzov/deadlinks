@@ -130,6 +130,9 @@ class Clicker(Command):
 
             // Running checks for all local links that belong to a domain.
             deadlinks http://localhost:1313/docs/ -n 10 --full-site-check
+
+            // Checking local html files
+            deadlinks internal -n 10 --root=/var/html
         """)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -226,8 +229,18 @@ class Clicker(Command):
 def validate_url(ctx: Context, param: Argument, value: str) -> str:
     """ if received url with no scheme will try to fix it """
 
+    if value.startswith("http://") or value.startswith("https://"):
+        return value
+
     url = Link(value)
+
     if not url.is_valid() and not url.scheme:
-        return "http://{}".format(url)
+        return "http://%s" % value
+
+    if "@" in url.path:
+        return value
+
+    if not url.is_valid() and url.scheme and url.path:
+        return "http://%s:%s" % (url.scheme, url.path)
 
     return value
