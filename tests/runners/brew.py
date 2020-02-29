@@ -28,7 +28,6 @@ class brewRunner(Runner, Driver):
 
     def __call__(self, args: List[str]):
 
-        print("OK!")
         result = super().execute(self.cmd + args, stdout=PIPE, stderr=PIPE)
 
         return {

@@ -15,10 +15,7 @@ RUN grep "# install" requirements.txt -A100 > docker.requirments.txt \
     && python3 -m pip install --no-cache-dir -r docker.requirments.txt  \
     && echo "docker.requirments.txt" >> .dockerignore
 
-RUN DEADLINKS_COMMIT=$(git rev-list --abbrev-commit -1 HEAD) \
-    DEADLINKS_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
-    DEADLINKS_TAGGED=$(git describe) \
-    python3 setup.py install \
+RUN python3 setup.py install \
     && rm -rf dist \
     && rm -rf build
 

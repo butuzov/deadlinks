@@ -80,6 +80,10 @@ class Settings:
         base = BaseURL(url)
         if base.domain == "internal":
             self._is_masked = True
+            if defaults['root'] is None:
+                # Suppose to raise error
+                self.root = defaults['root']
+
             self.root = Path(defaults['root']) # type: ignore
             web_server = Server(self.root)
             base = BaseURL(web_server.url() + base.path)
@@ -122,7 +126,7 @@ class Settings:
             raise DeadlinksSettingsRoot(error.format(self._root))
 
         if value is None:
-            error = "For URL<internal> checks, Document Root is required."
+            error = "For <internal> checks, Document Root (`-R path`) is required."
             raise DeadlinksSettingsRoot(error)
 
         if not isinstance(value, Path):
