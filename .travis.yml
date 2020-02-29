@@ -3,11 +3,6 @@ python: 3.8
 
 cache: { directories: [ $HOME/.cache/pip ] }
 
-matrix:
-  fast_finish: true
-  allow_failures:
-  - env: FAILURES=ALLOWED
-
 install:
 - make requirements
 
