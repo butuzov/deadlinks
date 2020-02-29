@@ -42,7 +42,8 @@ jobs:
       python: 3.8
       script:
       - make development
-      - make docs
+      - make docs-build
+      - make docs-ci
 
     # OK: CodeCoverage -------------------------------------------
     - stage: codecov

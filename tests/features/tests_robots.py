@@ -27,7 +27,7 @@ from deadlinks import (
 )
 
 server_pages = {
-    '^/$': Page("".join([f"<a href='/link-{x}'>{x}</a>" for x in range(1, 101)])).exists(),
+    '^/$': Page("".join(["<a href='/link-%s'>%s</a>" % (x, x) for x in range(1, 101)])).exists(),
     '^/link-\d{1,}$': Page("ok").exists().redirects(pattern='%s/'),
     '^/link-\d{1,}/$': Page("ok").exists(),
 }
@@ -76,10 +76,10 @@ def test_robots_txt_allow_user_agent(server):
 def test_failed_domain():
     """ Some random domain should fails (robots.txt fails to be retrived)"""
 
-    from random import choices
+    from random import choice
     from string import ascii_lowercase
 
-    domain = "http://%s.com/" % ''.join(choices(ascii_lowercase, k=42))
+    domain = "http://%s.com/" % ''.join([choice(ascii_lowercase) for x in range(42)])
     c = Crawler(Settings(domain))
     c.start()
 

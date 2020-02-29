@@ -31,8 +31,6 @@ def test_internal_200(tmpdir, runner):
     args = ["internal", '--no-colors', '--no-progress', "-R", p.dirname, "-s", "all"]
     result = runner(args)
 
-    print(result['output'])
-
     assert result['code'] == 0
     assert "http://internal" in result['output']
 

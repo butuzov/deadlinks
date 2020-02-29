@@ -147,7 +147,7 @@ class Crawler:
                     break
 
                 # and we wait for fraction of second, if there are many threads.
-                sleep(thread_number / 10)
+                sleep((thread_number+1) / 10)
 
     def add(self, link: Link) -> None:
         """ Queue URL. """
@@ -169,7 +169,7 @@ class Crawler:
         # TODO - Site Owner Ask (via meta tag) to ignore this URL
         # https://support.google.com/webmasters/answer/93710?hl=en
 
-        # TODO - Site Owner Ask (via robots.txt) to ignore this URL
+        # Site Owner Ask (via robots.txt) to ignore this URL
         # https://www.robotstxt.org/robotstxt.html
         if not self.robots[url.domain].allowed(url):
             return (True, "URL rejected by robots.txt")
