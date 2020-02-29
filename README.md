@@ -9,14 +9,14 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/deadlinks)](https://pypi.org/project/deadlinks/)
 
 ---
-
-**deadlinks** is a simple cli tool to check your documentation/website for deadlinks.
+Health checks for your documentation links with a **deadlinks**.
 
 ![](https://i.imgur.com/9Ekznio.gif)
 
 ## Features
 
 -   Concurrent and recursive checks
+-   Respect robots.txt restrictions (content only)
 -   External links checks
 -   Checking links within base url path
 -   Retries in the case of `502`, `503` and `504` http errors
@@ -60,12 +60,20 @@ pip install -e .
 See more examples at [docs](https://deadlinks.readthedocs.io/en/stable/)
 
 ```bash
-# run 10 instances of crawler against https://gobyexample.com.ua
-# with the additional check for the external links (except ones that
-# match play.golang.org)
-deadlinks https://gobyexample.com.ua -n 10 -e -d play.golang.org
+# Check links (including external) at http://gobyexample.com/ in 10 threads,
+# but not ones that leading to domains play.golang.org or github.com
+deadlinks gobyexample.com -n 10 -e -d play.golang.org -d github.com
 
-# get more help with
+# Limiting check only to links found within /docs path.
+deadlinks http://localhost:1313/docs
+
+# Running checks for all local links that belong to a domain.
+deadlinks http://localhost:1313/docs/ -n 10 --full-site-check
+
+# Checking local html files
+deadlinks internal -n 10 --root=/var/html
+
+# Help yourself
 deadlinks --help
 ```
 
@@ -80,17 +88,3 @@ Here is a quick start guide to contributing to `deadlinks`
 -   Create `pull request` back to `development` branch.
 
 All your contributions are welcome!
-
-## Alternatives
-
-These are a lot of alternative ways to check your website for dead links errors, you can check a [open software](https://github.com/topics/link-checker) or check other options:
-
-| Platform           | Title                      | Link                                                                |
-|--------------------|----------------------------|---------------------------------------------------------------------|
-| `mac`, `ui`        | Integrity                  | <https://peacockmedia.software/mac/integrity/free.html>             |
-| `win`, `ui`        | Xenu's Link Sleuth         | <http://home.snafu.de/tilman/xenulink.html>                         |
-| `web`              | Online Broken Link Checker | <https://www.brokenlinkcheck.com/>                                  |
-| `web`              | Free Broken Link Tool      | <https://www.deadlinkchecker.com/website-dead-link-checker.asp>     |
-| `win`, `ui`        | InterroBot                 | <https://interro.bot/>                                              |
-| `go`, `cli`        | muffet                     | <https://github.com/raviqqe/muffet>                                 |
-| `cli`, `ui`, `web` | linkchecker                | <https://wummel.github.io/linkchecker>                              |

@@ -27,7 +27,7 @@ __app_version__ = "0.2.1"
 __app_package__ = "deadlinks"
 __app_license__ = "Apache License 2.0"
 __app_website__ = "https://github.com/butuzov/deadlinks"
-__description__ = "CLI/API for links liveness checking."
+__description__ = "Health checks for your documentation links."
 __author_name__ = "Oleg Butuzov"
 __author_mail__ = "butuzov@made.ua"
 
