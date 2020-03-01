@@ -169,14 +169,14 @@ class Crawler:
         # TODO - Site Owner Ask (via meta tag) to ignore this URL
         # https://support.google.com/webmasters/answer/93710?hl=en
 
+        # We have an external URL and cheking external URL are Off
+        if url.is_external(self.settings.base) and not self.settings.external:
+            return (True, "External indexation is Off")
+
         # Site Owner Ask (via robots.txt) to ignore this URL
         # https://www.robotstxt.org/robotstxt.html
         if not self.robots[url.domain].allowed(url):
             return (True, "URL rejected by robots.txt")
-
-        # We have an external URL and cheking external URL are Off
-        if url.is_external(self.settings.base) and not self.settings.external:
-            return (True, "External indexation is Off")
 
         # This is a URL that fits to one of the ignored domains
         if url.match_domains(self.settings.domains):
