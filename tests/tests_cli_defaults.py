@@ -146,10 +146,6 @@ def test_redirection(servers, runner):
         '^/$': Page("<a href='{0}'>{0}</a>".format(linked_domain)).exists(),
     })
 
-    # TODO - fix for docker
-    # if not runner.supports("localnet"):
-    #     pytest.skip("required: Local Network Support")
-
     args = [site_to_index, '-e', '-s', 'all']
 
     result = runner(args)
@@ -167,10 +163,6 @@ def test_redirection(servers, runner):
         (False, True, (5, 2, 3)),
     ])
 def test_full_site(simple_site, runner, stay_within_path, check_external, results):
-
-    # TODO - fix for docker
-    if not runner.supports("localnet"):
-        pytest.skip("required: Local Network Support")
 
     # parameters
     url = "{}/{}".format(simple_site.rstrip("/"), "projects/")
@@ -224,10 +216,6 @@ site_with_links_defaults = [
 @pytest.mark.parametrize("external, threads, domains, pathes, results", site_with_links_defaults)
 def test_cli(site_with_links, runner, external, threads, domains, pathes, results):
 
-    # TODO - fix for docker
-    if not runner.supports("localnet"):
-        pytest.skip("required: Local Network Support")
-
     # parameters
     show_key = choice(['-s', '--show'])
     args = [site_with_links] + make_params(external, threads, domains, pathes) + [show_key, 'none']
@@ -259,10 +247,6 @@ def test_cli(site_with_links, runner, external, threads, domains, pathes, result
 @pytest.mark.parametrize("show", ['failed', 'ok', 'ignored', 'all', 'none'])
 def test_cli_details(site_with_links, runner, external, threads, domains, pathes, results, show):
     """ tests detailed report of default export """
-
-    # TODO - fix for docker
-    if not runner.supports("localnet"):
-        pytest.skip("required: Local Network Support")
 
     # parameters
     show_key = choice(['-s', '--show'])
