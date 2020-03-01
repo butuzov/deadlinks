@@ -11,7 +11,7 @@
 ---
 Health checks for your documentation links.
 
-![](https://i.imgur.com/9Ekznio.gif)
+![](https://butuzov.github.io/deadlinks/deadlinks.gif)
 
 ## Features
 
