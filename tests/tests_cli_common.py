@@ -35,10 +35,6 @@ def test_default_url_no_scheme_issue(server, runner):
 
     address = server.router({'^/$': Page("").exists()})
 
-    # TODO - fix for docker
-    if not runner.supports("localnet"):
-        pytest.skip("required: Local Network Support")
-
     scheme, address = address.split("//")
     args = [address, '-r1', '-s', 'failed', '--no-progress', '--fiff']
     result = runner(args)

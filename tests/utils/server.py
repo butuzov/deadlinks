@@ -14,7 +14,7 @@ from typing import (Optional, Dict)
 
 from functools import partial
 from http.server import HTTPServer
-from socket import (socket, SOCK_STREAM, AF_INET)
+from socket import (socket, SOCK_STREAM, AF_INET, gethostbyname, gethostname)
 from threading import Thread
 
 from .router import Router
@@ -36,8 +36,11 @@ class Server:
     def __init__(self):
 
         _socket = socket(AF_INET, type=SOCK_STREAM)
-        _socket.bind(('localhost', 0))
+        address = gethostbyname(gethostname())
+
+        _socket.bind((address, 0))
         self.sa = _socket.getsockname()
+
         _socket.close()
 
     def __str__(self):

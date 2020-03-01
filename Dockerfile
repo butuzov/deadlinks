@@ -1,38 +1,34 @@
 # initial builder
-FROM docker.io/python:3.5-slim-stretch as build-env
+FROM docker.io/python:3.5-slim-stretch as BUILD
 
-LABEL maintainer "Oleg Butuzov <butuzov@made.ua>"
-COPY  . /app
-WORKDIR /app
+COPY  . /tmp
+WORKDIR /tmp
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git gcc g++
-
-RUN grep "# install" requirements.txt -A100 > docker.requirments.txt \
+    git gcc g++ \
+    && grep "# install" requirements.txt -A100 > docker.requirments.txt \
     && echo "docker.requirments.txt" >> .dockerignore \
     && echo ".git" >> .dockerignore \
     && python3 -m pip install --upgrade pip \
     && python3 -m pip install --no-cache-dir -r docker.requirments.txt  \
-    && echo "docker.requirments.txt" >> .dockerignore
+    && echo "docker.requirments.txt" >> .dockerignore \
+    # deadlinks install
+    && python3 -m pip install . \
+    # cleanups
+    && python3 -m pip uninstall pip wheel setuptools -y \
+    && find / -type f -name "*.pyc" -exec rm -r {} \; \
+    && sed -i 's/\/usr\/local/\/usr/g'  /usr/local/bin/deadlinks
 
-RUN python3 setup.py install \
-    && rm -rf dist \
-    && rm -rf build
 
-RUN python3 -m pip uninstall pip wheel -y
-RUN ls -la
-
-
-# Uncomment for debug container
 FROM gcr.io/distroless/python3:latest
-COPY --from=build-env /app /app
+LABEL maintainer "Oleg Butuzov <butuzov@made.ua>"
 
 ENV PYTHONPATH=/usr/local/lib/python3.5/site-packages
-COPY --from=build-env ${PYTHONPATH} ${PYTHONPATH}
-COPY --from=build-env /usr/local/lib/libpython3.5m.so.1.0 /usr/lib/x86_64-linux-gnu/
 
-WORKDIR /app
+COPY --from=BUILD ${PYTHONPATH} ${PYTHONPATH}
+COPY --from=BUILD /usr/local/lib/libpython3.5m.so.1.0 /usr/lib/x86_64-linux-gnu/
+COPY --from=BUILD /usr/local/bin/deadlinks /usr/local/bin/
 
-ENTRYPOINT [ "python", "-m", "deadlinks" ]
+WORKDIR /github/workspace
 
-
+ENTRYPOINT [ "deadlinks" ]

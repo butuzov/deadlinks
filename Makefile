@@ -249,12 +249,11 @@ docker-clean: ## Clean untagged images
 	@docker images | grep [b]utuzov/deadlinks | awk '{print $3}' |  xargs -L1 docker rmi
 
 docker-build: clean ## Build Image
-	@docker build . -t butuzov/deadlinks:local --no-cache
+	@docker build . -t deadlinks:local --no-cache
 
-docker-tests: docker-build ## TODO: Docker Integration Tests
-	$(PYTEST) . -m "docker" -n$(PROCS)  --cov=$(PACKAGE);
+docker-tests: venv-required ## Docker Integration Testing
+	$(PYTEST) . -m "docker" -n$(PROCS);
 
-# @docker run --rm -it --network=host  butuzov/deadlinks:local --version
-# enable `--pull=alway` once it will be available https://github.com/docker/cli/pull/1498
-# status - 19.03 not avaialbe.
+docker: ## Quick test
+	@docker run --rm -it --network=host  deadlinks:local --version
 
