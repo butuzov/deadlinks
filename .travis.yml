@@ -3,11 +3,6 @@ python: 3.8
 
 cache: { directories: [ $HOME/.cache/pip ] }
 
-matrix:
-  fast_finish: true
-  allow_failures:
-  - env: FAILURES=ALLOWED
-
 install:
 - make requirements
 
@@ -39,15 +34,15 @@ jobs:
     - stage: lints
       name: "Running Linters"
       python: 3.8
-      script: make lints
+      script: make linters
 
     # OK: Documentation Checks -----------------------------------
     - stage: docs
       name: "Docs"
       python: 3.8
       script:
-      - make install-dev
-      - make gen-docs
+      - make development
+      - make docs-build
       - make docs-ci
 
     # OK: CodeCoverage -------------------------------------------

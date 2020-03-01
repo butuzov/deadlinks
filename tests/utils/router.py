@@ -1,6 +1,6 @@
 """
-tests.helpers.page.py
-~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.utils.page.py
+~~~~~~~~~~~~~~~~~~~
 
 Simple page emulator.
 

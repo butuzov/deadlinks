@@ -1,6 +1,6 @@
 """
-unittest.test_settings.py
-~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.components.tests_settings.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These tests are covers Settings API.
 
@@ -20,6 +20,7 @@ from deadlinks.exceptions import (
     DeadlinksSettingsPath,
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
+    DeadlinksSettingsRoot,
     DeadlinksSettingsRetry,
     DeadlinksSettingsChange,
     DeadlinksSettingsDomains,
@@ -35,6 +36,8 @@ def settings():
 
 
 # --- Base Url -----------------------------------------------------------------
+
+
 @pytest.mark.parametrize('base', ["localhost", "1012031023"])
 def test_base_bad(base):
     """ Bad Url form, no scheme. """
@@ -64,7 +67,7 @@ def test_base_update(settings):
         settings.base = Link("http://google.com")
 
 
-# --- Ignore Domains ----------------------------------------------------------
+# --- Ignore Domains -----------------------------------------------------------
 def test_domains_default(settings):
     """ Default values for ignored domains is empty list """
     assert isinstance(settings.domains, list)
@@ -101,7 +104,7 @@ def test_domain_bad(domains):
         Settings("http://localhost", ignore_domains=domains)
 
 
-# --- Ignore Pathes -----------------------------------------------------------
+# --- Ignore Pathes ------------------------------------------------------------
 def test_pathes_default(settings):
     """ Default values for ignored pathes is empty list """
     assert isinstance(settings.pathes, list)
@@ -140,7 +143,7 @@ def test_pathes_ok(pathes):
     assert s.pathes == pathes
 
 
-# --- Stay within path --------------------------------------------------------
+# --- Stay within path ---------------------------------------------------------
 def test_stay_within_path(settings):
     assert settings.stay_within_path
 
@@ -208,7 +211,7 @@ def test_external_defaults(settings):
         del settings.external
 
 
-# --- Retry -------------------------------------------------------------------
+# --- Retry --------------------------------------------------------------------
 @pytest.mark.parametrize('retry', range(0, 11))
 def test_retry(retry):
     """ Setting retry within valid range """
@@ -236,3 +239,33 @@ def test_retry_error_values(retry):
     """ Out of range values provided for retry """
     with pytest.raises(DeadlinksSettingsRetry):
         Settings("http://google.com", retry=retry)
+
+
+# --- Internal -----------------------------------------------------------------
+def test_internal_no_root():
+    """ Do not provide root  """
+
+    with pytest.raises(DeadlinksSettingsRoot):
+        Settings("http://internal", root=None)
+
+
+def test_internal_root_not_found(tmpdir):
+    """ Do not provide existing root  """
+
+    with pytest.raises(DeadlinksSettingsRoot):
+        Settings("http://internal", root="directory/not/exists")
+
+    not_a_directory = tmpdir.join("index.html")
+    not_a_directory.write("<h1>Hallo World!</h1>")
+    with pytest.raises(DeadlinksSettingsRoot):
+        Settings("http://internal", root=str(not_a_directory))
+
+
+def test_internal_root(tmpdir):
+    """ Existing root  """
+
+    s = Settings("http://internal", root=str(tmpdir))
+    assert s.root == tmpdir
+
+    with pytest.raises(DeadlinksSettingsRoot):
+        s.root = tmpdir

@@ -69,14 +69,8 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        try:
-            with open(response, "rb") as file:
-                self.send_response(code)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
-                self.end_headers()
-                self.wfile.write(file.read())
-
-        except FileNotFoundError:
-            self.send_response(404)
+        with open(response, "rb") as file:
+            self.send_response(code)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
-            return
+            self.wfile.write(file.read())

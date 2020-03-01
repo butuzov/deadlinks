@@ -1,6 +1,6 @@
 """
-tests.helpers.page.py
-~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.utils.page.py
+~~~~~~~~~~~~~~~~~~~
 
 Simple page emulator.
 
@@ -47,6 +47,10 @@ class Page:
 
     def redirects(self, pattern):
         self._redirects = pattern
+        return self
+
+    def mime(self, mime: str):
+        self._mime_type = mime
         return self
 
     def slow(self):

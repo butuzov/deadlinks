@@ -35,11 +35,14 @@ from time import sleep
 from .link import Link
 from .status import Status
 from .index import Index
+from .robots_txt import RobotsTxt
 from .settings import Settings
 from .exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksRedirectionURL,
 )
+
+from collections import defaultdict
 
 # -- Implementation ------------------------------------------------------------
 
@@ -53,6 +56,7 @@ class Crawler:
         self.settings = settings
         self.retry = settings.retry
         self.index = Index()
+        self.robots = defaultdict(RobotsTxt) # type: Dict[str, RobotsTxt]
 
         # Application state
         self.terminated = False # type: bool
@@ -143,7 +147,7 @@ class Crawler:
                     break
 
                 # and we wait for fraction of second, if there are many threads.
-                sleep(thread_number / 10)
+                sleep((thread_number+1) / 10)
 
     def add(self, link: Link) -> None:
         """ Queue URL. """
@@ -165,12 +169,14 @@ class Crawler:
         # TODO - Site Owner Ask (via meta tag) to ignore this URL
         # https://support.google.com/webmasters/answer/93710?hl=en
 
-        # TODO - Site Owner Ask (via robots.txt) to ignore this URL
-        # https://www.robotstxt.org/robotstxt.html
-
         # We have an external URL and cheking external URL are Off
         if url.is_external(self.settings.base) and not self.settings.external:
             return (True, "External indexation is Off")
+
+        # Site Owner Ask (via robots.txt) to ignore this URL
+        # https://www.robotstxt.org/robotstxt.html
+        if not self.robots[url.domain].allowed(url):
+            return (True, "URL rejected by robots.txt")
 
         # This is a URL that fits to one of the ignored domains
         if url.match_domains(self.settings.domains):
@@ -189,6 +195,12 @@ class Crawler:
 
     def update(self, url: Link) -> None:
         """ Update state or the url by checking it's data. """
+
+        if isinstance(url, str):
+            url = Link(url)
+
+        if not isinstance(url, Link):
+            raise TypeError("`url` expected to be str or Link ")
 
         # We assume that URL Link that passed to this method is in status
         # Status.UNDEFINED, therefor we can perform required checks.
@@ -268,8 +280,13 @@ class Crawler:
 
     @property
     def redirected(self) -> List[Link]:
-        """ Return URLs failed to exist. """
+        """ Return URLs redirected to somewhere. """
         return self.internal(self.index.redirected())
+
+    @property
+    def undefined(self) -> List[Link]:
+        """ Return undefined URLS. """
+        return self.internal(self.index.undefined())
 
     @property
     def stats(self) -> Dict[Status, int]:

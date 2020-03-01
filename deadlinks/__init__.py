@@ -29,8 +29,9 @@ from .link import Link
 from .index import Index
 from .baseurl import BaseURL
 from .crawler import Crawler
-from .request import request
+from .request import request, user_agent
 from .settings import Settings
+from .status import Status
 
 from .__version__ import __version__ as version
 
@@ -41,6 +42,7 @@ from .exceptions import (
     DeadlinksSettingsThreads,
     DeadlinksSettingsBase,
     DeadlinksSettingsRetry,
+    DeadlinksSettingsRoot,
     DeadlinksSettingsChange,
     DeadlinksSettingsDomains,
     DeadlinksSettingsPathes,
@@ -57,6 +59,8 @@ __all__ = [
     'Index',
     'Crawler',
     'request',
+    'user_agent',
+    'Status',
     'Settings',
 
     # Exceptions
@@ -64,6 +68,7 @@ __all__ = [
     'DeadlinksSettingsThreads',
     'DeadlinksSettingsBase',
     'DeadlinksSettingsRetry',
+    'DeadlinksSettingsRoot',
     'DeadlinksSettingsChange',
     'DeadlinksSettingsDomains',
     'DeadlinksSettingsPathes',

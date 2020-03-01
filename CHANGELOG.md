@@ -1,5 +1,13 @@
 # CHANGELOG
 
+0.3.0 - 01-03-2020
+  * `feature`: #8 `robots.txt` supported (only checking what content allowed to be crawled)
+  * `feature`: github actions supported image (see #28)
+  * `docs`: github actions supported image (see #28)
+  * `bugfix`: #51 links with \n character are working now.
+  * `bugfix`: #46 trailing slash in redirection urls.
+  * `bugfix`: #33 external redirection error
+
 0.2.1 - 09-12-2019
   * `docs`: Added AzurePilelines and CircleCI integration examples (https://deadlinks.readthedocs.io/).
   * `bugfix`: Improved a bit local files checks (https://github.com/butuzov/deadlinks/issues/45).

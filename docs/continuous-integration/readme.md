@@ -18,5 +18,6 @@ If tool you using to create documentation has support for links checking, please
 
 * [Azure Pipelines](azure-pipelines.md)
 * [CircleCI](circleci.md)
+* [GitHub Actions](github-actions.md)
 * [tox](tox.md)
 * [Travis CI](travis-ci.md)

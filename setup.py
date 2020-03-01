@@ -75,8 +75,9 @@ def readme() -> str:
     with open("README.md", encoding="utf8") as f:
         contents = f.read()
 
-    # cutout first header
-    return contents.replace("# deadlinks", "", 1).lstrip()
+    # cutout first 3 lines (header + PiPy version badge)
+    contents = "\n".join(contents.split("\n")[3:])
+    return contents
 
 
 # ------------------------------------------------------------------------------
@@ -106,6 +107,7 @@ elif tagged and not match(VERSION, tagged) and branch and commit:
 # -- Setup ---------------------------------------------------------------------
 
 if __name__ == "__main__":
+
     setup(
         name=data['app_package'],
         version=data['app_version'],
@@ -138,7 +140,7 @@ if __name__ == "__main__":
             "Environment :: Console",
 
             # Status
-            "Development Status :: 2 - Pre-Alpha",
+            "Development Status :: 5 - Production/Stable",
 
             # Audience
             "Intended Audience :: Developers",

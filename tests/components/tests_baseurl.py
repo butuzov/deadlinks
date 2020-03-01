@@ -1,6 +1,6 @@
 """
-tests.test_baseurl.py
-~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.components.tests_baseurl.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We need baseurl as starting point of indexation.
 

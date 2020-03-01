@@ -1,6 +1,6 @@
 """
-tests.helpers.handler.py
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.utils.handler.py
+~~~~~~~~~~~~~~~~~~~~~~
 
 Provides Default fixtures for deadlinks tests
 
