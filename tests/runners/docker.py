@@ -24,7 +24,7 @@ from .utils.driver import Driver
 class dockerRunner(Runner, Driver):
     name = "docker"
 
-    does_not_supports = ['fs', 'localnet']
+    does_not_supports = ['fs']
 
     def __call__(self, args: List[str]):
         result = super().execute(self.cmd + args, stdout=PIPE, stderr=PIPE)
@@ -45,7 +45,7 @@ DockerRunner = pytest.param(
         dockerRunner, **{
             'init': [],
             'destroy': [],
-            'cmd': ["docker", "run", "--rm", "--network=host", "butuzov/deadlinks:local"],
+            'cmd': ["docker", "run", "--rm", "--network=host", "deadlinks:local"],
         }),
     marks=[
         pytest.mark.docker(),

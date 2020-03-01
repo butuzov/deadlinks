@@ -147,8 +147,8 @@ def test_redirection(servers, runner):
     })
 
     # TODO - fix for docker
-    if not runner.supports("localnet"):
-        pytest.skip("required: Local Network Support")
+    # if not runner.supports("localnet"):
+    #     pytest.skip("required: Local Network Support")
 
     args = [site_to_index, '-e', '-s', 'all']
 
