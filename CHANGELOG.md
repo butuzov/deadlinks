@@ -1,5 +1,8 @@
 # CHANGELOG
 
+0.3.1 - 03-03-2020
+  * `docs` : bugfix in documentation.
+
 0.3.0 - 01-03-2020
   * `feature`: #8 `robots.txt` supported (only checking what content allowed to be crawled)
   * `feature`: github actions supported image (see #28)

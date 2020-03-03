@@ -23,7 +23,7 @@ main (cli interface)
 """
 
 # package meta data
-__app_version__ = "0.3.0"
+__app_version__ = "0.3.1"
 __app_package__ = "deadlinks"
 __app_license__ = "Apache License 2.0"
 __app_website__ = "https://github.com/butuzov/deadlinks"
