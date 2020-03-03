@@ -60,5 +60,5 @@ Replace previous `deadlinks checker` step with next one.
     - name: deadlinks checker
       uses: docker://docker.io/butuzov/deadlinks:latest
       with:
-        args: internal -n10 -root=html --no-progress --fiff
+        args: internal -n10 --root=html --no-progress --fiff
 ```
