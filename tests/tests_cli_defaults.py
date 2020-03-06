@@ -12,8 +12,11 @@ Default Exporter of the deadlinks (CLI)
 
 import pytest
 
+from typing import Dict
+
 from collections import Counter
 from random import choice
+from copy import deepcopy as copy
 
 from .utils import Page
 
@@ -39,6 +42,15 @@ def make_params(external, threads, domains, pathes):
 
 
 # -- Tests -------------------------------------------------------------------
+def results(lines) -> Dict:
+    stats = Counter()
+
+    for line in lines[5:]:
+        params = line.split(" ")
+        assert len(params) >= 3
+        stats[params[1]] += 1
+
+    return stats
 
 
 def test_version(runner):
@@ -277,3 +289,46 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
 
     if show in {'ignored', 'all'}:
         assert stats['ignored'] == ignored
+
+
+# robots.txt checks
+
+
+@pytest.fixture
+def pages():
+    index = "".join(["<a href=/link-%s>%s</a>" % (x, x) for x in range(1, 11)])
+    return {
+        '^/$': Page(index).exists(),
+        '^/link-\d{1,}$': Page("ok").exists().redirects(pattern='%s/'),
+        '^/link-\d{1,}/$': Page("ok").exists(),
+    }
+
+
+def test_robots_txt(server, pages, runner):
+    _pages = copy(pages)
+    _pages['^/robots.txt'] = Page("User-agent: *\nDisallow: /").mime('text/plain').exists()
+    address = server.router(_pages)
+
+    result = runner([address, '-s', 'all', '--no-progress', '--no-colors'])
+
+    assert "URL rejected by robots.txt" in result["output"]
+
+
+def test_robots_txt_on(server, pages, runner):
+    _pages = copy(pages)
+    _pages['^/robots.txt'] = Page("User-agent: *\nDisallow: /").mime('text/plain').exists()
+    address = server.router(_pages)
+
+    result = runner([address, '-s', 'all', '--no-progress', '--no-colors'])
+
+    assert "URL rejected by robots.txt" in result["output"]
+
+
+def test_robots_txt_off(server, pages, runner):
+    _pages = copy(pages)
+    _pages['^/robots.txt'] = Page("User-agent: *\nDisallow: /").mime('text/plain').exists()
+    address = server.router(_pages)
+
+    result = runner([address, '-s', 'all', '--no-progress', '--no-colors', '--skip-robots-checks'])
+
+    assert "URL rejected by robots.txt" not in result["output"]

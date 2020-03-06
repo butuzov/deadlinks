@@ -50,6 +50,7 @@ class Settings:
     """ Handles general settings. """
     # pylint: disable=R0902
     _stay_within_path = None # type: Optional[bool]
+    _skip_robots = None # type Optional[bool]
     _external = None # type: Optional[bool]
     _threads = None # type: Optional[int]
     _domains = None # type: Optional[List[str]]
@@ -72,6 +73,10 @@ class Settings:
         self.domains = defaults['ignore_domains']
         self.pathes = defaults['ignore_pathes']
 
+        # robots.txt
+        self.check_robots_txt = defaults['check_robots_txt']
+
+        # do not check root folders if scanning only subpath.
         self.stay_within_path = defaults['stay_within_path']
 
         # next we create base url and check for ignore patterns
@@ -100,6 +105,7 @@ class Settings:
             'ignore_domains': [],
             'ignore_pathes': [],
             'stay_within_path': True,
+            'check_robots_txt': True,
             'retry': None,
             'threads': None,
         }
@@ -141,6 +147,24 @@ class Settings:
             raise DeadlinksSettingsRoot(error.format(value.resolve()))
 
         self._root = value
+
+    # -- Skip Robots --------------------------------------------------------------
+    @property
+    def check_robots_txt(self) -> bool:
+        """ Getter for skip robots option ."""
+        return self._skip_robots
+
+    @check_robots_txt.setter
+    def check_robots_txt(self, value: bool) -> None:
+        if not (self._skip_robots is None): #pylint: disable-msg=C0325
+            error = "SkipRobotsTxt check already set {}"
+            raise DeadlinksSettingsBase(error.format(self._skip_robots))
+
+        if not isinstance(value, bool):
+            error = 'Value "{}" is not a bool.'
+            raise DeadlinksSettingsPathes(error.format(value))
+
+        self._skip_robots = value
 
     # -- Base URL --------------------------------------------------------------
     @property

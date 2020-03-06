@@ -51,6 +51,15 @@ def test_robots_txt_reject_all(server):
         c.start()
 
 
+def test_robots_txt_reject_all_off(server):
+
+    robots_txt = Page("User-agent: *\nDisallow: /").mime('text/plain').exists()
+    address = server.router(pages(robots_txt))
+
+    c = Crawler(Settings(address, check_robots_txt=False))
+    c.start()
+
+
 def test_robots_txt_reject_user_agent(server):
 
     robots_txt = Page("User-agent: deadlinks\nDisallow: /").mime('text/plain').exists()
@@ -59,6 +68,15 @@ def test_robots_txt_reject_user_agent(server):
     with pytest.raises(DeadlinksIgnoredURL):
         c = Crawler(Settings(address))
         c.start()
+
+
+def test_robots_txt_reject_user_agent_off(server):
+
+    robots_txt = Page("User-agent: deadlinks\nDisallow: /").mime('text/plain').exists()
+    address = server.router(pages(robots_txt))
+
+    c = Crawler(Settings(address, check_robots_txt=False))
+    c.start()
 
 
 def test_robots_txt_allow_user_agent(server):
