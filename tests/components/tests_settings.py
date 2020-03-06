@@ -269,3 +269,26 @@ def test_internal_root(tmpdir):
 
     with pytest.raises(DeadlinksSettingsRoot):
         s.root = tmpdir
+
+
+# -- Robots.txt checks -----------------------------------------------------
+
+
+def test_robots_txt_defaults(settings):
+    """ simple settings test for robots.txt  """
+
+    assert settings.check_robots_txt ==True
+
+
+def test_robots_txt_turn_on():
+    """ simple settings test for robots.txt  """
+
+    settings = Settings("http://localhost", check_robots_txt=True)
+    assert settings.check_robots_txt ==True
+
+
+def test_robots_txt_turn_off():
+    """ simple settings test for robots.txt  """
+
+    settings = Settings("http://localhost", check_robots_txt=False)
+    assert settings.check_robots_txt == False

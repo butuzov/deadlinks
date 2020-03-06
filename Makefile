@@ -67,9 +67,9 @@ development: venv-required clean requirements ## Install Development Version
 .PHONY: tests
 tests: venv-required ## Run package tests (w/o integration tests)
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
-	 	pytest . -m "not (docker or brew)" -vrax --cov=$(PACKAGE);\
+		$(PYTEST) . -m "not (docker or brew)" -vrax --cov=$(PACKAGE);\
 	else\
-	 	pytest . -m "not (docker or brew)" -n$(PROCS)  --cov=$(PACKAGE);\
+		$(PYTEST) . -m "not (docker or brew)" -n$(PROCS)  --cov=$(PACKAGE);\
 	fi
 
 all: ## All Tests (with integration tests)
@@ -170,7 +170,7 @@ brew-prod: brew-env ## Create & Install Formula (Production)
 	$(MAKE) brew-audit
 	@echo "Formula ready to be published"
 
-brew-dev: build-dev  brew-env ## Create & Install Formula (Development)
+brew-dev: build-dev  ## Create & Install Formula (Development)
 	@brew uninstall deadlinks -f
 	@echo "Creating formula (dev)..."
 	$(MAKE) brew-web-start
@@ -204,7 +204,7 @@ brew-web-stop:      # Stop Server (Serves dev pacakge)
 	@ps -a | grep '[g]hp -port=8878' --color=never \
 		| awk '{print $$1}' | xargs -L1 kill -9
 
-brew-tests: venv-required brew-dev clean development ## TODO: Brew Integration Testing
+brew-tests: venv-required brew-dev clean development
 	$(PYTEST) . -m "brew" -n$(PROCS)  --cov=$(PACKAGE);
 
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

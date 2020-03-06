@@ -175,7 +175,7 @@ class Crawler:
 
         # Site Owner Ask (via robots.txt) to ignore this URL
         # https://www.robotstxt.org/robotstxt.html
-        if not self.robots[url.domain].allowed(url):
+        if self.settings.check_robots_txt and not self.robots[url.domain].allowed(url):
             return (True, "URL rejected by robots.txt")
 
         # This is a URL that fits to one of the ignored domains

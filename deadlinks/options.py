@@ -101,6 +101,16 @@ default_options.append((
     },
 ))
 
+# Disable path limiting for a local to the domain links.
+default_options.append((
+    ('check_robots_txt', '--skip-robots-checks'),
+    {
+        'default': True,
+        'is_flag': True,
+        'help': 'Disable robots.txt cheking',
+    },
+))
+
 # Show selectors.
 default_options.append((
     ('show', '-s', '--show'),

@@ -11,5 +11,5 @@
 
 <h2>Short Demo</h2>
 
-![](https://i.imgur.com/9Ekznio.gif)
+![](https://butuzov.github.io/deadlinks/deadlinks.gif)
 
