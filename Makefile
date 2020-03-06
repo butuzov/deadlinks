@@ -85,10 +85,10 @@ integration: ## Integration Tests
 # ~~~ Linting ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 pylint: ## Linter: pylint
-	$(PYTHON) -m pylint $(PACKAGE) --rcfile=.github/configs/pylintrc
+	$(PYTHON) -m pylint $(PACKAGE)
 
 pylint-full: ## Linter: pylint (with details report)
-	$(PYTHON) -m pylint $(PACKAGE) -r y --rcfile=.github/configs/pylintrc
+	$(PYTHON) -m pylint $(PACKAGE) -r y
 
 mypy: ## Linter: mypy
 	$(PYTHON) -m mypy $(PACKAGE) --config .github/configs/mypy.ini
