@@ -27,18 +27,10 @@ help:
 		};}'
 	@echo ""
 
-venv-required:
+venv:
 	@if [ -z "${VIRTUAL_ENV}" ]; then\
 		echo ">>>>> You need to run this test in virtual environment. Abort!";\
 		exit 1;\
-	fi
-
-test-venv-required:
-	@if [ -z "${VIRTUAL_ENV}" ]; then\
-		echo ">>>>> You need to run this test in virtual environment. Abort!";\
-		exit 1;\
-	else\
-		echo "${VIRTUAL_ENV};";\
 	fi
 
 ghp:
@@ -46,11 +38,11 @@ ghp:
 
 # ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-requirements: venv-required ## Install Development Requirments
+requirements: venv ## Install Development Requirments
 	$(PYTHON) -m pip install -q -r requirements.txt
 
 
-development: venv-required clean requirements ## Install Development Version
+development: venv clean requirements ## Install Development Version
 	$(PYTHON) -m pip uninstall deadlinks -y
 	pip install -e .
 
@@ -65,7 +57,7 @@ development: venv-required clean requirements ## Install Development Version
 #   make integration -> runs click/docker/brew
 
 .PHONY: tests
-tests: venv-required ## Run package tests (w/o integration tests)
+tests: venv ## Run package tests (w/o integration tests)
 	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
 		$(PYTEST) . -m "not (docker or brew)" -vrax --cov=$(PACKAGE);\
 	else\
@@ -142,13 +134,13 @@ docs-browse: ghp
 	ghp -root=build/html -port=5678 &
 	open http://localhost:5678
 
-docs-build: venv-required ## Generate Documentation
+docs-build: venv ## Generate Documentation
 
 	@$(PYTHON) -m pip install Sphinx sphinx-rtd-theme -q;
 	@$(PYTHON) -m pip install recommonmark sphinx-markdown-tables -q;
 	sphinx-build docs build/html -qW --keep-going;
 
-docs-ci: venv-required ## Documentation CI
+docs-ci: venv ## Documentation CI
 	deadlinks internal --root=build/html --no-progress  --fiff
 
 docs-stop: ## Documentation WebServer: Stop
@@ -204,15 +196,15 @@ brew-web-stop:      # Stop Server (Serves dev pacakge)
 	@ps -a | grep '[g]hp -port=8878' --color=never \
 		| awk '{print $$1}' | xargs -L1 kill -9
 
-brew-tests: venv-required brew-dev clean development
+brew-tests: venv brew-dev clean development
 	$(PYTEST) . -m "brew" -n$(PROCS)  --cov=$(PACKAGE);
 
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-build-prod: venv-required clean ## Build disto (source & wheel) - Production
+build-prod: venv clean ## Build disto (source & wheel) - Production
 	@ $(PYTHON) setup.py sdist bdist_wheel > /dev/null 2>&1
 
-build-dev: venv-required clean ## Build disto (source & wheel) - Development
+build-dev: venv clean ## Build disto (source & wheel) - Development
 	@ \
 	DEADLINKS_BRANCH=$(BRANCH) \
 	DEADLINKS_COMMIT=$(COMMIT) \
@@ -234,7 +226,7 @@ deploy-test: deploy build-dev ## PyPi Deploy (test.pypi.org)
 deploy-prod: deploy build-prod ## PyPi Deploy (pypi.org)
 	twine upload --repository-url https://upload.pypi.org/legacy/ dist/*;\
 
-pre-depeloy-check: venv-required clean requirements ## Install Development Version
+pre-depeloy-check: venv clean requirements ## Install Development Version
 	$(PYTHON) -m pip uninstall deadlinks -y
 	DEADLINKS_BRANCH=$(BRANCH) \
 	DEADLINKS_COMMIT=$(COMMIT) \
@@ -251,7 +243,7 @@ docker-clean: ## Clean untagged images
 docker-build: clean ## Build Image
 	@docker build . -t deadlinks:local --no-cache
 
-docker-tests: venv-required ## Docker Integration Testing
+docker-tests: venv ## Docker Integration Testing
 	$(PYTEST) . -m "docker" -n$(PROCS);
 
 docker: ## Quick test
