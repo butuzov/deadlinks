@@ -149,6 +149,9 @@ if __name__ == "__main__":
             # Topic
             "Topic :: Utilities",
             "Topic :: Documentation",
+            "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+            "Topic :: Internet :: WWW/HTTP :: Site Management",
+            "Topic :: Internet :: WWW/HTTP :: Site Management :: Link Checking",
 
             # Audience and Topic
             "Intended Audience :: Developers",
