@@ -162,7 +162,7 @@ brew-prod: brew-env ## Create & Install Formula (Production)
 	$(MAKE) brew-audit
 	@echo "Formula ready to be published"
 
-brew-dev: build-dev  ## Create & Install Formula (Development)
+brew-dev: build-prod  ## Create & Install Formula (Development)
 	@brew uninstall deadlinks -f
 	@echo "Creating formula (dev)..."
 	$(MAKE) brew-web-start
