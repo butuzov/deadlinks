@@ -1,5 +1,9 @@
 # CHANGELOG
 
+0.3.2 - 18-03-2020
+  * `feature` : new option `--skip-robots-checks` so robots.txt can be skipped
+  * minor testing changes.
+
 0.3.1 - 03-03-2020
   * `docs` : bugfix in documentation.
 
