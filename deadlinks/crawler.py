@@ -35,14 +35,13 @@ from time import sleep
 from .link import Link
 from .status import Status
 from .index import Index
+from .request import user_agent
 from .robots_txt import RobotsTxt
 from .settings import Settings
 from .exceptions import (
     DeadlinksIgnoredURL,
     DeadlinksRedirectionURL,
 )
-
-from collections import defaultdict
 
 # -- Implementation ------------------------------------------------------------
 
@@ -56,7 +55,7 @@ class Crawler:
         self.settings = settings
         self.retry = settings.retry
         self.index = Index()
-        self.robots = defaultdict(RobotsTxt) # type: Dict[str, RobotsTxt]
+        self._robots = RobotsTxt(user_agent=user_agent)
 
         # Application state
         self.terminated = False # type: bool
@@ -125,29 +124,22 @@ class Crawler:
         self.crawling = False
         self.crawled = True
 
-    def indexer(self, thread_number: int = 0) -> None:
+    def indexer(self, thread_count: int = 0) -> None:
         """ Indexation process. """
 
         while True:
             while not self.terminated and not self.queue.empty():
-
                 url = self.queue.get()
                 self.update(url)
                 self.queue.task_done()
 
             else:
-
-                # catching terminated
-                if self.terminated:
+                # pylint: disable=W0120
+                if self.terminated or thread_count == 0:
                     return
 
-                # in case is its only 1 thread we NOT waiting for
-                # new url to come.
-                if thread_number == 0:
-                    break
-
-                # and we wait for fraction of second, if there are many threads.
-                sleep((thread_number+1) / 10)
+            # and we wait for fraction of second, if there are many threads.
+            sleep(0.1)
 
     def add(self, link: Link) -> None:
         """ Queue URL. """
@@ -175,7 +167,7 @@ class Crawler:
 
         # Site Owner Ask (via robots.txt) to ignore this URL
         # https://www.robotstxt.org/robotstxt.html
-        if self.settings.check_robots_txt and not self.robots[url.domain].allowed(url):
+        if self.settings.check_robots_txt and not self._robots.allowed(url):
             return (True, "URL rejected by robots.txt")
 
         # This is a URL that fits to one of the ignored domains
@@ -218,7 +210,7 @@ class Crawler:
             return
 
         try:
-            # TODO - rething short calls implementation.
+            # TODO - rethink short calls implementation.
             is_external = url.is_external(self.settings.base)
             if not url.exists(is_external, retries=self.retry):
                 self.index.update(url, Status.NOT_FOUND, url.message)

@@ -56,7 +56,7 @@ def simple_site(server):
         easy to calculate what addresses will work and whats not.
         path       status        external       internal
         /           200          0              2
-        /about      200          2              0
+        /about      200          1              0
         /projects   200          3              1 (not existing)
     """
     INDEX_PAGE = dedent(
@@ -69,8 +69,7 @@ def simple_site(server):
         """\
         <h1>~ <a href="/">/index</a> - <strong>/about</strong> - <a href="/projects/">/projects</a></h1>
         <hr>
-        <a href="https://github.com/butuzov">github.com</a> -
-        <a href="http://made.ua">made.ua</a>
+        <a href="https://github.com/butuzov">github.com</a>
         </ul>
         """)
 
@@ -78,10 +77,9 @@ def simple_site(server):
         """\
         <h1>~ <a href="/">/index</a> - <a href="/about/">/about</a> - <strong>/projects</strong></h1>
         <hr>
-        <a href="https://github.com/butuzov/deadlinks">deadlinks</a> -
-        <a href="https://gobyexample.com">gobyexample</a> -
-        <a href="http://gobyexample.com.ua">gobyexample</a> -
-        <a href="https://wordpress.org/plugins/debug-bar-rewrite-rules">(wordpress) debug bar rewrite rules</a> -
+        <a href="https://example.net">example1</a> -
+        <a href="https://example.com">example2</a> -
+        <a href="https://example.org">example3</a> -
         <a href="nope-no-such-page">secret project</a>
         </ul>
         """)
@@ -155,10 +153,9 @@ def site_with_links(server):
             <a href='/limk-20'>(25) mistyped  link 2</a>
         """)
 
-    site_with_links = server.router({
+    return server.router({
         '^/$': Page(INDEX_PAGE).exists(),
         'link-\d{1,}': Page("ok").exists(),
         'limk-\d{1,}': Page("typo in path").not_exists(),
         '^/more/links/?$': Page(OTHER_PAGE).exists(),
     })
-    return site_with_links

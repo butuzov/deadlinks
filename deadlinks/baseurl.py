@@ -39,10 +39,12 @@ class BaseURL(Link):
 
     def get_base_path(self) -> str:
         file = self.path.split("/")[-1]
-        if "." in file:
-            return self.path[:(len(self.path) - len(file))]
 
-        return self.path
+        if "." not in file:
+            return self.path
+
+        # path without file
+        return self.path[:(len(self.path) - len(file))]
 
     def within(self, link: Link) -> bool:
         """ determite is `link` argument stays within path of baseurl """

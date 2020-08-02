@@ -23,41 +23,33 @@ deadlinks.request
 """
 
 # -- Imports -------------------------------------------------------------------
-from typing import (Any)
+from typing import Dict, Optional
+from collections import defaultdict
 
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 
-from .request import user_agent
 from .url import URL
 
 
 class RobotsTxt:
 
-    def __init__(self) -> None:
-        self.state = None # type: Any
+    def __init__(self, *, user_agent: str) -> None:
+        self._robots = defaultdict(Robots) # type: Dict[str, Optional[Robots]]
+        self._user_agent = user_agent # type: str
+        # self._robots = None # type: Robots
 
     def allowed(self, url: URL) -> bool:
 
-        # We don't have info about this domain for now, so we going to request
-        # robots.txt
-        if self.state is None:
-            self.request(url.link("/robots.txt"))
+        if url.domain not in self._robots:
+            self._retrieve(url)
 
-        # We actually can't find out is there robots.txt or not
-        # so we going to allow all in this case.
-        if self.state is False:
-            return True
+        return bool(self._robots[url.domain].allowed(str(url), self._user_agent))
 
-        return bool(self.state.allowed(str(url), user_agent))
-
-    def request(self, url: str) -> None:
+    def _retrieve(self, url: URL) -> None:
         """ Perform robots.txt request """
-        if not (self.state is None):
-            return
-
+        robots_txt_link = url.link("/robots.txt")
         try:
-            self.state = Robots.fetch(url)
-
+            self._robots[url.domain] = Robots.fetch(robots_txt_link)
         except ReppyException:
-            self.state = False
+            self._robots[url.domain] = Robots.parse(robots_txt_link, "")

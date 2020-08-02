@@ -24,7 +24,7 @@ URL representation with benefits
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (List, Optional) #pylint: disable-msg=W0611
+from typing import (List, Set, Optional) #pylint: disable-msg=W0611
 
 from urllib.parse import (urlparse, urljoin)
 from html import unescape
@@ -58,7 +58,7 @@ class URL:
         self._status = Status.UNDEFINED # type: Status
 
         # some predefined states
-        self._referrers = [] # type: List[str]
+        self._referrers = set() # type: Set[str]
         self._text = None # type: Optional[str]
         self._links = [] # type: List[str]
 
@@ -129,27 +129,22 @@ class URL:
 
     def add_referrer(self, url: str) -> None:
         """ Add a page that links (referrer) to self object. """
-        if url in self._referrers:
-            return
-        self._referrers.append(url)
+        self._referrers.add(url)
 
-    def get_referrers(self) -> List[str]:
+    @property
+    def referrers(self) -> Set[str]:
         """ Return URL refferers list. """
         return self._referrers
 
     def match_domains(self, domains: List[str]) -> bool:
         """ Match ignored pathes (argument pathes) to `url.netloc`. """
-        for domain in domains:
-            if domain in self._url.netloc:
-                return True
-        return False
+
+        return any(domain in self._url.netloc for domain in domains)
 
     def match_pathes(self, pathes: List[str]) -> bool:
         """ Match ignored pathes (argument pathes) to `url.path`. """
-        for path in pathes:
-            if path in self._url.path:
-                return True
-        return False
+
+        return any(path in self._url.path for path in pathes)
 
     def exists(self, is_external: bool = False, retries: int = 0) -> bool:
         """ Return "found" (or "not found") status of the page as bool. """

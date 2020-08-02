@@ -11,6 +11,7 @@ Default Exporter of the deadlinks (CLI)
 # -- Imports -------------------------------------------------------------------
 
 import pytest
+from flaky import flaky
 
 from typing import Dict
 
@@ -169,10 +170,10 @@ def test_redirection(servers, runner):
 
 @pytest.mark.parametrize(
     'stay_within_path, check_external, results', [
-        (True, False, (1, 1, 6)),
-        (True, True, (2, 2, 4)),
-        (False, False, (3, 1, 6)),
-        (False, True, (5, 2, 3)),
+        (True, False, (1, 1, 5)),
+        (True, True, (4, 1, 2)),
+        (False, False, (3, 1, 4)),
+        (False, True, (7, 1, 0)),
     ])
 def test_full_site(simple_site, runner, stay_within_path, check_external, results):
 
@@ -224,6 +225,7 @@ site_with_links_defaults = [
 ]
 
 
+@flaky(max_runs=3)
 @pytest.mark.timeout(15)
 @pytest.mark.parametrize("external, threads, domains, pathes, results", site_with_links_defaults)
 def test_cli(site_with_links, runner, external, threads, domains, pathes, results):
@@ -254,6 +256,7 @@ def test_cli(site_with_links, runner, external, threads, domains, pathes, result
     assert message == output[3]
 
 
+@flaky(max_runs=3)
 @pytest.mark.timeout(15)
 @pytest.mark.parametrize("external, threads, domains, pathes, results", site_with_links_defaults)
 @pytest.mark.parametrize("show", ['failed', 'ok', 'ignored', 'all', 'none'])

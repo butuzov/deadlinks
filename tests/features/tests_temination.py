@@ -66,6 +66,7 @@ def test_terminition_click(server):
     assert "Results can be inconsistent, as execution was terminated" in results['output']
 
 
+# !!!!!!!!!!!!!! THIS ISN"T WORKING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # -- Test 2 - End 3 End tests --------------------------------------------------
 
 # def test_terminition_e2e(server):
@@ -80,10 +81,10 @@ def test_terminition_click(server):
 #     Timer(1, lambda: kill(proc.pid, SIGINT)).start()
 #     proc.start()
 
-# results = {}
-# while proc.is_alive():
-#     sleep(0.1)
-# else:
-#     while not queue.empty():
-#         key, value = queue.get()
-#         results[key] = value
+#     results = {}
+#     while proc.is_alive():
+#         sleep(0.1)
+#     else:
+#         while not queue.empty():
+#             key, value = queue.get()
+#             results[key] = value

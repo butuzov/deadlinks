@@ -51,13 +51,16 @@ def test_robots_txt_reject_all(server):
         c.start()
 
 
-def test_robots_txt_reject_all_off(server):
+def test_robots_txt_option_is_off_user_agent_reject(server):
 
     robots_txt = Page("User-agent: *\nDisallow: /").mime('text/plain').exists()
     address = server.router(pages(robots_txt))
 
-    c = Crawler(Settings(address, check_robots_txt=False))
-    c.start()
+    try:
+        c = Crawler(Settings(address, check_robots_txt=False))
+        c.start()
+    except DeadlinksIgnoredURL:
+        pytest.fail("User agent chcked by robots.txt")
 
 
 def test_robots_txt_reject_user_agent(server):
@@ -70,13 +73,18 @@ def test_robots_txt_reject_user_agent(server):
         c.start()
 
 
-def test_robots_txt_reject_user_agent_off(server):
+def test_robots_txt_option_is_off_user_agent_reject_specified(server):
 
     robots_txt = Page("User-agent: deadlinks\nDisallow: /").mime('text/plain').exists()
     address = server.router(pages(robots_txt))
 
     c = Crawler(Settings(address, check_robots_txt=False))
     c.start()
+    try:
+        c = Crawler(Settings(address, check_robots_txt=False))
+        c.start()
+    except DeadlinksIgnoredURL:
+        pytest.fail("User agent chcked by robots.txt")
 
 
 def test_robots_txt_allow_user_agent(server):
@@ -117,14 +125,6 @@ def test_failed_google():
     c.start()
 
     assert len(c.succeed) == 1
-
-
-def test_gobyexample():
-    """ special case - aws substitute robots.txt """
-
-    with pytest.raises(DeadlinksIgnoredURL):
-        c = Crawler(Settings("https://gobyexample.com"))
-        c.start()
 
 
 def test_gobyexample():

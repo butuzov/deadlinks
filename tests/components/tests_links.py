@@ -196,23 +196,24 @@ def test_eq():
         Link('http://example.com') == 1 # pylint: disable=expression-not-assigned
 
 
+# FIXME: not descriptive test, property `.referrers` isn't really used.
 def test_referrer():
     """ Test referrer. """
 
-    l = Link("https://made.ua")
+    link = Link("https://made.ua")
     referrer = "https://example.com"
-    l.add_referrer(referrer)
-    l.add_referrer(referrer)
+    link.add_referrer(referrer)
+    link.add_referrer(referrer)
 
-    assert referrer in l.get_referrers()
+    assert referrer in link.referrers
 
 
 def test_match_domain():
     """ Domain matching. """
 
-    l = Link("https://made.ua")
-    assert l.match_domains(["made.ua"])
-    assert not l.match_domains(["example.com"])
+    link = Link("https://made.ua")
+    assert link.match_domains(["made.ua"])
+    assert not link.match_domains(["example.com"])
 
 
 @pytest.mark.timeout(2)

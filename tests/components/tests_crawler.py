@@ -70,10 +70,10 @@ def test_crawler_update_link(server):
 
 @pytest.mark.parametrize(
     'stay_within_path, check_external, results', [
-        (True, False, (1, 1, 6)),
-        (True, True, (2, 2, 4)),
-        (False, False, (3, 1, 6)),
-        (False, True, (5, 2, 3)),
+        (True, False, (1, 1, 5)),
+        (True, True, (4, 1, 2)),
+        (False, False, (3, 1, 4)),
+        (False, True, (7, 1, 0)),
     ])
 def test_index_within_path(simple_site, stay_within_path, check_external, results):
 
@@ -114,6 +114,7 @@ site_with_links_defaults = [
 ]
 
 
+@flaky(max_runs=3)
 @pytest.mark.parametrize(
     'check_external, threads, ignore_domains, ignore_pathes, results', site_with_links_defaults)
 def test_crawling_advanced(
@@ -271,14 +272,13 @@ def test_mailto(server):
     assert len(c.index) == 2
 
 
-# TODO: Fix it later.
-# def test_double_start(simple_site):
+def test_double_start(simple_site):
 
-#     c = Crawler(Settings(simple_site, threads=10))
-#     c.start()
+    c = Crawler(Settings(simple_site, threads=10))
+    c.start()
 
-#     # should not take same time again.
-#     c.start()
+    # should not take same time again.
+    c.start()
 
 
 @flaky(max_runs=3)
