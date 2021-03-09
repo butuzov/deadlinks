@@ -118,4 +118,4 @@ class Index:
 
     def _filter(self, lambda_func: Callable[[Link], bool]) -> List[Link]:
         """ Filters  values according lambda. """
-        return list(sorted(filter(lambda_func, self._index.values())))
+        return list(sorted(filter(lambda_func, self._index.values()))) # type: ignore

@@ -80,7 +80,7 @@ def simple_site(server):
         <hr>
         <a href="https://github.com/butuzov/deadlinks">deadlinks</a> -
         <a href="https://gobyexample.com">gobyexample</a> -
-        <a href="http://gobyexample.com.ua">gobyexample</a> -
+        <a href="https://butuzov.github.io/gobyexample">gobyexample</a> -
         <a href="https://wordpress.org/plugins/debug-bar-rewrite-rules">(wordpress) debug bar rewrite rules</a> -
         <a href="nope-no-such-page">secret project</a>
         </ul>

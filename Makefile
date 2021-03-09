@@ -10,46 +10,47 @@ COMMIT = $(shell git rev-list --abbrev-commit -1 HEAD)
 TAGGED = $(shell git describe)
 PROCS  = $(shell nproc)
 
+export PATH   := $(PWD)/bin:$(PATH)
+export SHELL  := bash
 
-help:
-	@echo "===================================================================="
-	@echo " Makefile: github.com/butuzov/deadlinks - rountine tasks automation "
-	@echo "===================================================================="
-	@echo ""
-	@cat $(MAKEFILE_LIST) | \
+# --- Deadlinks: restarted ---------------------------------------------------------------
+
+help: dep-gawk
+	@ echo "=============================================================================="
+	@ echo " Makefile: github.com/butuzov/deadlinks - links checker                       "
+	@ echo "=============================================================================="
+	@ cat $(MAKEFILE_LIST) | \
 		grep -E '^# ~~~ .*? [~]+$$|^[a-zA-Z0-9_-]+:.*?## .*$$' | \
-		awk '{if ( $$1=="#" ) {\
+		gawk '{if ( $$1=="#" ) { \
 			match($$0, /^# ~~~ (.+?) [~]+$$/, a);\
-			{print "\n", a[1], "\n"}\
+			{print "\n", a[1], ""}\
 		} else { \
-			match($$0, /^([a-zA-Z-]+):.*?## (.*)$$/, a); \
+			match($$0, /^([a-zA-Z/_-]+):.*?## (.*)$$/, a); \
 			{printf "  - \033[32m%-20s\033[0m %s\n",   a[1], a[2]} \
-		};}'
+ 		}}'
 	@echo ""
 
-venv:
-	@if [ -z "${VIRTUAL_ENV}" ]; then\
-		echo ">>>>> You need to run this test in virtual environment. Abort!";\
-		exit 1;\
-	fi
+
 
 ghp:
 	@go get -u github.com/butuzov/ghp
 
 # ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-requirements: venv ## Install Development Requirments
+deps: venv ## install requiements
 	$(PYTHON) -m pip install -q -r requirements.txt
 
 
-development: venv clean requirements ## Install Development Version
+dev-env: deps clean ## Install Development Version
 	$(PYTHON) -m pip uninstall deadlinks -y
 	pip install -e .
 
 
 # ~~~ Tests and Continues Integration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#
+
+
+
 #   make tests -> run tests + click integration
 #   make all -> runs all tests
 #   make docker-tests -> runs docket tests
@@ -196,7 +197,7 @@ brew-web-stop:      # Stop Server (Serves dev pacakge)
 	@ps -a | grep '[g]hp -port=8878' --color=never \
 		| awk '{print $$1}' | xargs -L1 kill -9
 
-brew-tests: venv brew-dev clean development
+brew-tests: venv brew-dev clean dev-env
 	$(PYTEST) . -m "brew" -n$(PROCS)  --cov=$(PACKAGE);
 
 # ~~~ Deployments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,7 +227,7 @@ deploy-test: deploy build-dev ## PyPi Deploy (test.pypi.org)
 deploy-prod: deploy build-prod ## PyPi Deploy (pypi.org)
 	twine upload --repository-url https://upload.pypi.org/legacy/ dist/*;\
 
-pre-depeloy-check: venv clean requirements ## Install Development Version
+pre-depeloy-check: venv clean deps ## Install Development Version
 	$(PYTHON) -m pip uninstall deadlinks -y
 	DEADLINKS_BRANCH=$(BRANCH) \
 	DEADLINKS_COMMIT=$(COMMIT) \
@@ -249,3 +250,49 @@ docker-tests: venv ## Docker Integration Testing
 docker: ## Quick test
 	@docker run --rm -it --network=host  deadlinks:local --version
 
+
+
+# Helper Mehtods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+dep-gawk:
+	@ if [ -z "$(shell command -v gawk)" ]; then  \
+		if [ -x /usr/local/bin/brew ]; then $(MAKE) _brew_gawk_install; exit 0; fi; \
+		if [ -x /usr/bin/apt-get ]; then $(MAKE) _ubuntu_gawk_install; exit 0; fi; \
+		if [ -x /usr/bin/yum ]; then  $(MAKE) _centos_gawk_install; exit 0; fi; \
+		if [ -x /sbin/apk ]; then  $(MAKE) _alpine_gawk_install; exit 0; fi; \
+		echo  "GNU Awk Required.";\
+		exit 1; \
+	fi
+
+_brew_gawk_install:
+	@ echo "Instaling gawk using brew... "
+	@ brew install gawk --quiet
+	@ echo "done"
+
+_ubuntu_gawk_install:
+	@ echo "Instaling gawk using apt-get... "
+	@ apt-get -q install gawk -y
+	@ echo "done"
+
+_alpine_gawk_install:
+	@ echo "Instaling gawk using yum... "
+	@ apk add --update --no-cache gawk
+	@ echo "done"
+
+_centos_gawk_install:
+	@ echo "Instaling gawk using yum... "
+	@ yum install -q -y gawk;
+	@ echo "done"
+
+
+venv:
+	@ if [[ ! -z "${GITHUB_ENV}" ]]; then \
+		echo ">>>>> This is CI. Cplease Continue!";\
+		exit 0;\
+	elif [[   -z "${VIRTUAL_ENV}" ]]; then\
+		echo ">>>>> You need to run this test in virtual environment. Abort!";\
+		exit 1;\
+	else \
+		echo ">>>>> Oh Hi Mark";\
+	fi
