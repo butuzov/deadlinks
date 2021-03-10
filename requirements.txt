@@ -13,7 +13,7 @@ pytest-cov>=2.6.1
 pytest-xdist>=1.29.0
 
 # docs
-Sphinx==2.4.3
+Sphinx==3.5.2
 recommonmark==0.6.0
 sphinx-rtd-theme==0.5.1
 sphinx-markdown-tables==0.0.12
