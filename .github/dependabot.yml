@@ -1,6 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: pip
+    directory: /
     reviewers: [ butuzov ]
     schedule: { interval: weekly }
     target-branch: master
@@ -8,7 +9,7 @@ updates:
 
 
   - package-ecosystem: github-actions
-    directory: "/"
+    directory: /
     reviewers: [ butuzov ]
     schedule: { interval: weekly }
     target-branch: master
