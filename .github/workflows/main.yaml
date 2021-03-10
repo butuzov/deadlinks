@@ -1,0 +1,57 @@
+name: Build & Test
+
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+  pull_request:
+
+  # schedule:
+  #   - cron: "0 0 * * *"
+
+jobs:
+
+  extras:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      # linters
+      - run: make dev-env
+      - run: make pylint-full
+      - run: make mypy
+      # docs
+      - run: make docs-build
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ 3.6, 3.7, 3.8 ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # running dependencies
+      - run: make dev-env
+      # testing dependencies
+      - run: make tests
+
+      - name: codecov.io
+        if: matrix.python-version == 3.8
+        run: bash <(curl -s https://codecov.io/bash)
+
