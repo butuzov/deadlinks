@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    reviewers: [ butuzov ]
+    schedule: { interval: weekly }
+    target-branch: master
+    labels: [ deps, python  ]
+
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    reviewers: [ butuzov ]
+    schedule: { interval: weekly }
+    target-branch: master
+    labels: [ deps, github-actions ]
