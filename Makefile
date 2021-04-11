@@ -42,7 +42,7 @@ deps: venv ## install requiements
 
 
 dev-env: deps clean ## Install Development Version
-	$(PYTHON) -m pip uninstall deadlinks -y
+	pip uninstall deadlinks -y
 	pip install -e .
 
 
