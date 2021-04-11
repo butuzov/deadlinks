@@ -1,12 +1,10 @@
 # initial builder
-FROM docker.io/python:3.5-slim-stretch as BUILD
+FROM docker.io/python:3.7-slim-stretch as BUILD
 
 COPY  . /tmp
 WORKDIR /tmp
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git gcc g++ \
-    && grep "# install" requirements.txt -A100 > docker.requirments.txt \
+RUN grep "# install" requirements.txt -A100 > docker.requirments.txt \
     && echo "docker.requirments.txt" >> .dockerignore \
     && echo ".git" >> .dockerignore \
     && python3 -m pip install --upgrade pip \
@@ -23,10 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM gcr.io/distroless/python3:latest
 LABEL maintainer "Oleg Butuzov <butuzov@made.ua>"
 
-ENV PYTHONPATH=/usr/local/lib/python3.5/site-packages
+ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages
 
 COPY --from=BUILD ${PYTHONPATH} ${PYTHONPATH}
-COPY --from=BUILD /usr/local/lib/libpython3.5m.so.1.0 /usr/lib/x86_64-linux-gnu/
+# COPY --from=BUILD /usr/local/lib/libpython3.7m.so.1.0 /usr/lib/x86_64-linux-gnu/
 COPY --from=BUILD /usr/local/bin/deadlinks /usr/local/bin/
 
 WORKDIR /github/workspace
