@@ -11,20 +11,15 @@ Tests robots.txt integration.
 # -- Imports -------------------------------------------------------------------
 
 import pytest
-from flaky import flaky
 
 from copy import deepcopy as copy
-from typing import (Optional, Dict)
+from typing import Dict
 
 from ..utils import Page
 
 from deadlinks import (Settings, Crawler)
-from deadlinks import user_agent
 
-from deadlinks import (
-    DeadlinksIgnoredURL,
-    DeadlinksSettingsBase,
-)
+from deadlinks import DeadlinksIgnoredURL
 
 server_pages = {
     '^/$': Page("".join(["<a href='/link-%s'>%s</a>" % (x, x) for x in range(1, 101)])).exists(),
@@ -97,13 +92,16 @@ def test_failed_domain():
     from random import choice
     from string import ascii_lowercase
 
-    domain = "http://%s.com/" % ''.join([choice(ascii_lowercase) for x in range(42)])
+    domain = "http://%s.com/" % ''.join(choice(ascii_lowercase) for x in range(42))
     c = Crawler(Settings(domain))
     c.start()
 
     assert len(c.failed) == 1
 
 
+# Allow is Deeper then Disallowed.
+# https://www.contentkingapp.com/blog/implications-of-new-robots-txt-rfc/
+# https://tools.ietf.org/html/draft-koster-rep-04
 def test_failed_google():
 
     c = Crawler(
