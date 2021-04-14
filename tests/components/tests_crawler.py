@@ -344,10 +344,12 @@ def test_within_site_root(server):
         This Test checks a case when url without trailing slash is ignored
         because it's not stays within path.
     """
+
+    addr = server.acquire_new_addr()
     CONTENT = """
         <a href="http://{0}:{1}">link</a>
         <a href="http://{0}:{1}/">link</a>
-    """.format(*server.sa)
+    """.format(*addr)
 
     CONTENT_DOCS = CONTENT.replace('">', '/docs/">').replace('//docs/', '/docs')
 

@@ -123,11 +123,3 @@ def test_gobyexample():
     with pytest.raises(DeadlinksIgnoredURL):
         c = Crawler(Settings("https://gobyexample.com"))
         c.start()
-
-
-def test_gobyexample():
-    """ special case - aws substitute robots.txt """
-
-    with pytest.raises(DeadlinksIgnoredURL):
-        c = Crawler(Settings("https://gobyexample.com"))
-        c.start()

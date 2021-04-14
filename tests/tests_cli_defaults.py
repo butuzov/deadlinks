@@ -152,7 +152,9 @@ def test_redirection(servers, runner):
     )
 
     # external domain with catfished urls
-    linked_domain = servers[0].router({'^/$': Page(CONTENT.format(*external_urls)).exists()})
+    linked_domain = servers[0].router({
+        '^/$': Page(CONTENT.format(*external_urls)).exists(),
+    })
 
     site_to_index = servers[1].router({
         '^/$': Page("<a href='{0}'>{0}</a>".format(linked_domain)).exists(),
@@ -199,8 +201,6 @@ def test_full_site(simple_site, runner, stay_within_path, check_external, result
         params = line.split(" ")
         assert len(params) >= 3
         stats[params[1]] += 1
-
-    [print(i) for i in output]
 
     assert stats['failed'] == failed
     assert stats['succeed'] == exists
