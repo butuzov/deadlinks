@@ -290,8 +290,11 @@ def test_ignored_page(server):
 
 def test_same_url(server):
     page = "<a href='http://{}:{}'>same link</a>, <a href='/'>a</a>"
+
+    addr = server.acquire_new_addr()
+
     address = server.router({
-        '^/$': Page(page.format(*server.sa)).exists(),
+        '^/$': Page(page.format(*addr)).exists(),
         '^/link$': Page("ok").exists(),
     })
     l = Link(address)
