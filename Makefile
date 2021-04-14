@@ -59,7 +59,7 @@ dev-env: deps clean ## Install Development Version
 
 .PHONY: tests
 tests: venv ## Run package tests (w/o integration tests)
-	@if [ ! -z "${TRAVIS_BUILD_NUMBER}" ]; then\
+	@if [ ! -z "${GITHUB_ACTIONS}" ]; then\
 		$(PYTEST) . -m "not (docker or brew)" -vrax --cov=$(PACKAGE);\
 	else\
 		$(PYTEST) . -m "not (docker or brew)" -n$(PROCS)  --cov=$(PACKAGE);\
