@@ -60,9 +60,9 @@ dev-env: deps clean ## Install Development Version
 .PHONY: tests
 tests: venv ## Run package tests (w/o integration tests)
 	@if [ ! -z "${GITHUB_ACTIONS}" ]; then\
-		$(PYTEST) . -m "not (docker or brew)" -vrax --cov=$(PACKAGE);\
+		sleep 5 && $(PYTEST) . -m "not (docker or brew)" -n4 -vrax --cov=$(PACKAGE);\
 	else\
-		$(PYTEST) . -m "not (docker or brew)" -n$(PROCS)  --cov=$(PACKAGE);\
+		$(PYTEST) . -m "not (docker or brew)" -n$(PROCS) --cov=$(PACKAGE);\
 	fi
 
 all: ## All Tests (with integration tests)
