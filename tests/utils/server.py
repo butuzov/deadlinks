@@ -37,7 +37,7 @@ def defaults() -> RouterConfig:
 class Server:
 
     def __init__(self):
-        self.address = socket.gethostbyname(socket.gethostname())
+        self.address = self.host()
         self.port = 0
 
     def __str__(self):
@@ -45,7 +45,8 @@ class Server:
 
     def acquire_new_addr(self):
         _socket = socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)
-        _socket.bind((socket.gethostbyname(socket.gethostname()), 0))
+
+        _socket.bind((self.host(), 0))
         addr = _socket.getsockname()
 
         _socket.close()
@@ -53,6 +54,14 @@ class Server:
         self.address, self.port = addr[0], addr[1]
 
         return self.address, self.port,
+
+    def host(self):
+        # h = socket.gethostbyname(socket.gethostname())
+        # print(f"host: {h}")
+
+        # reporary returning hardcodede string that points home.
+        # https://github.com/actions/virtual-environments/issues/3185
+        return "127.0.0.1"
 
     def router(self, config: RouterConfig = None):
 
@@ -69,4 +78,3 @@ class Server:
 
     def destroy(self):
         self.s.shutdown()
-        # self.s.server_close()

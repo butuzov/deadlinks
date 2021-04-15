@@ -19,6 +19,9 @@ jobs:
           python-version: "3.9"
 
       # linters
+      - run: |
+          IP_ADDR=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}')
+          echo -e "${IP_ADDR} | cut -d/ -f1)\t$(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts
       - run: make dev-env
       - run: make pylint-full
       - run: make mypy
@@ -43,6 +46,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - run: |
+          IP_ADDR=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}')
+          echo -e "${IP_ADDR} | cut -d/ -f1)\t$(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts
       # running dependencies
       - run: make dev-env
       # testing dependencies
