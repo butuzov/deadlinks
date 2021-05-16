@@ -27,7 +27,7 @@ idna>=2.8
 requests>=2.22.0
 click>=7.0
 urllib3>=1.25.6
-six==1.15.0
+six==1.16.0
 PyOpenSSL==19.1.0; python_full_version < '3.6.0'
 
 
