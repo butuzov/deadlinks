@@ -29,7 +29,7 @@ def read_data() -> Dict[str, str]:
         raise RuntimeError("Can not find source for deadlinks/__version__.py")
 
     values = dict() # type: Dict[str, str]
-    with open(str(init)) as fh:
+    with open(init) as fh:
         content = "".join(fh.readlines())
         for match in DUNDER_REGEXP.findall(content):
             values[match[1]] = match[2]
@@ -45,7 +45,7 @@ def require(section: str = "install") -> List[str]:
         return []
 
     requires = defaultdict(list) # type: Dict[str, List[str]]
-    with open(str(require_txt), "rb") as fh:
+    with open(require_txt, "rb") as fh:
         key = "" # type: str
         for line in fh.read().decode("utf-8").split("\n"):
 

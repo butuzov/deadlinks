@@ -56,12 +56,7 @@ class Server:
         return self.address, self.port,
 
     def host(self):
-        # h = socket.gethostbyname(socket.gethostname())
-        # print(f"host: {h}")
-
-        # reporary returning hardcodede string that points home.
-        # https://github.com/actions/virtual-environments/issues/3185
-        return "127.0.0.1"
+        return socket.gethostbyname(socket.gethostname())
 
     def router(self, config: RouterConfig = None):
 
