@@ -10,7 +10,7 @@ on:
 
 jobs:
 
-  extras:
+  Static-Analysis:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,18 +18,23 @@ jobs:
         with:
           python-version: "3.9"
 
-      # linters
-      - run: |
-          IP_ADDR=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}')
-          echo -e "${IP_ADDR} | cut -d/ -f1)\t$(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts
       - run: make dev-env
       - run: make pylint-full
       - run: make mypy
-      # docs
+
+  Docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
       - run: make docs-build
 
-  build:
+  Build:
     runs-on: ubuntu-latest
+    needs: [ Static-Analysis, Docs ]
     strategy:
       fail-fast: false
       matrix:
@@ -46,12 +51,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - run: |
-          IP_ADDR=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}')
-          echo -e "${IP_ADDR} | cut -d/ -f1)\t$(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts
-      # running dependencies
       - run: make dev-env
-      # testing dependencies
       - run: make tests
 
       - name: codecov.io

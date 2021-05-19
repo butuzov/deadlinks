@@ -284,7 +284,7 @@ _centos_gawk_install:
 
 venv:
 	@ if [[ ! -z "${GITHUB_ENV}" ]]; then \
-		echo ">>>>> This is CI. Cplease Continue!";\
+		echo ">>>>> This is CI. Please Continue!";\
 		exit 0;\
 	elif [[   -z "${VIRTUAL_ENV}" ]]; then\
 		echo ">>>>> You need to run this test in virtual environment. Abort!";\
