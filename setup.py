@@ -131,7 +131,7 @@ if __name__ == "__main__":
             deadlinks=deadlinks.__main__:main
         ''',
         zip_safe=False,
-        python_requires='>=3.5',
+        python_requires='>=3.6',
         url=data['app_website'],
         license=data['app_license'],
         platforms=['MacOS', 'Posix', 'Unix'],
@@ -159,10 +159,10 @@ if __name__ == "__main__":
 
             # Python version
             "Programming Language :: Python :: 3 :: Only",
-            "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
 
             # License
             "License :: OSI Approved :: Apache Software License",
