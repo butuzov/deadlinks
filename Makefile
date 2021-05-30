@@ -32,8 +32,6 @@ help: dep-gawk
 
 
 
-ghp:
-	@go get -u github.com/butuzov/ghp
 
 # ~~~ Install ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -225,10 +223,10 @@ deploy-prod: deploy build-prod ## PyPi Deploy (pypi.org)
 
 pre-depeloy-check: venv clean deps ## Install Development Version
 	$(PYTHON) -m pip uninstall deadlinks -y
-	DEADLINKS_BRANCH=$(BRANCH) \
-	DEADLINKS_COMMIT=$(COMMIT) \
-	DEADLINKS_TAGGED=$(TAGGED) \
-	$(PYTHON) setup.py develop -q 2>&1 1> /dev/null
+		DEADLINKS_BRANCH=$(BRANCH) \
+		DEADLINKS_COMMIT=$(COMMIT) \
+		DEADLINKS_TAGGED=$(TAGGED) \
+		$(PYTHON) setup.py develop -q 2>&1 1> /dev/null
 
 # ~~~ Docker ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

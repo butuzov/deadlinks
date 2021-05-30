@@ -38,15 +38,12 @@ class Link(URL):
     Real reason why this exists, it's impossible situation on using class as
     type definition, in one (two) of the methods.
 
-    In Python 3.5 its OK to use quoted class name.
-    In Python 3.6 we can import annotations from __future__
+    In Python 3.6 its OK to use quoted class name.
+    In Python 3.7 we can import annotations from __future__
     What we can't do is to try catch, python version handling or
     `__future__ import` as this is compile time operation. Therefore,
     lets use Link.
-
-    TODO: 2020-09-13 get rid of python 3.5
-    https://devguide.python.org/#status-of-python-branches
-    """
+     """
 
     def is_external(self, url: Union[URL, str]) -> bool:
         """ Check if url is external to Link object. """

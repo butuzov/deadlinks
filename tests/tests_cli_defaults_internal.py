@@ -35,7 +35,6 @@ def test_internal_200(tmpdir, runner):
     assert "http://internal" in result['output']
 
 
-# @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
 def test_internal_404(tmpdir, runner):
 
     if not runner.supports('fs'):

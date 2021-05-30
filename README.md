@@ -43,14 +43,10 @@ brew install butuzov/deadlinks/deadlinks
 # activate virtual environment to keep your local site-packages clean.
 python3 -m venv .venv
 source .venv/bin/activate
-
-# if you using Python 3.5 on the mac, install new version of pip
-curl https://bootstrap.pypa.io/get-pip.py | python3.5
-# if you using other version, just upgrade pip
 pip install --upgrade pip
 
 # in case if you developing within forked repository
-cd /home/user/deadlinks-fork
+cd /home/path/to/deadlinks
 pip install -r requirements.txt
 pip install -e .
 ```

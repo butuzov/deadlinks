@@ -212,7 +212,6 @@ if __name__ == "__main__":
         'requirements': require("install") + require("brew"),
     }
 
-    # python3.5 patch excuded as brew's python 3.7
     options['requirements'] = list(
         filter(lambda x: "python_full_version" not in x, options['requirements']))
 
