@@ -112,7 +112,7 @@ class Default(Export):
             {
                 'default': False,
                 'is_flag': True,
-                'help': 'Disable Proogresion output',
+                'help': 'Disable progression output',
             },
         ))
 
