@@ -4,14 +4,12 @@ deadlinks
 deadlinks checker for your static website. It's better keep house clean, right?
 """
 
-from typing import (Dict, Tuple, Optional, List) #pylint: disable-msg=W0611
-
+import os
 from collections import defaultdict
 from pathlib import Path
-from re import match
 from re import compile as _compile
-
-import os
+from re import match
+from typing import Dict, List  # pylint: disable-msg=W0611
 
 from setuptools import find_packages, setup
 
@@ -163,6 +161,8 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
 
             # License
             "License :: OSI Approved :: Apache Software License",
