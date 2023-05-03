@@ -24,10 +24,9 @@ Export module init file.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import Dict #pylint: disable-msg=W0611
 
-from .export import Export
 from .default import Default
+from .export import Export
 
 # -- Exports -------------------------------------------------------------------
 

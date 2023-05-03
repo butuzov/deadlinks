@@ -24,16 +24,16 @@ Functions related to click package and cli implementation.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, List, Tuple, Union, Any, Callable, Sequence)
-from textwrap import dedent
 from collections import OrderedDict
+from textwrap import dedent
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 
-from click import Option, Argument
-from click import Command, Context
+from click import Argument, Command, Context
 from click import HelpFormatter as Formatter
+from click import Option
 
-from .link import Link
 from .__version__ import __app_package__ as app
+from .link import Link
 
 # -- Typing Decorators -----~---------------------------------------------------
 OptionsValues = Union[str, bool, int, List[str], List[Callable]]

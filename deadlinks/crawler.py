@@ -24,25 +24,20 @@ Crawl the links on from the provided start point.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (List, Tuple, Optional, Dict)
-from types import FrameType
-
-from threading import Thread
-from signal import (signal, SIGINT)
+from collections import defaultdict
 from queue import Queue
+from signal import SIGINT, signal
+from threading import Thread
 from time import sleep
+from types import FrameType
+from typing import Dict, List, Optional, Tuple
 
-from .link import Link
-from .status import Status
+from .exceptions import DeadlinksIgnoredURL, DeadlinksRedirectionURL
 from .index import Index
+from .link import Link
 from .robots_txt import RobotsTxt
 from .settings import Settings
-from .exceptions import (
-    DeadlinksIgnoredURL,
-    DeadlinksRedirectionURL,
-)
-
-from collections import defaultdict
+from .status import Status
 
 # -- Implementation ------------------------------------------------------------
 
@@ -259,7 +254,8 @@ class Crawler:
             return links
 
         domain = self.settings.base.domain
-        mapper = lambda x: x.url().replace(domain, 'internal')
+        def mapper(x):
+            return x.url().replace(domain, "internal")
 
         return list(map(Link, map(mapper, links)))
 

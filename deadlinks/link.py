@@ -24,8 +24,8 @@ Link representation based on URL object.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import Union
 from functools import total_ordering
+from typing import Union
 
 from .url import URL
 

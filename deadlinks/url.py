@@ -24,29 +24,28 @@ URL representation with benefits
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (List, Optional) #pylint: disable-msg=W0611
-
-from urllib.parse import (urlparse, urljoin)
 from html import unescape
 from re import compile as _compile
+from typing import List  # pylint: disable-msg=W0611
+from urllib.parse import urljoin, urlparse
 
 from requests import RequestException
 
+from .exceptions import DeadlinksIgnoredURL, DeadlinksRedirectionURL
 from .request import request
 from .status import Status
-from .exceptions import (
-    DeadlinksIgnoredURL,
-    DeadlinksRedirectionURL,
-)
 
 # -- Constants -----------------------------------------------------------------
 
 __RE_LINKS__ = _compile(r'<a\s{1}([^>]+)>') # pylint: disable=W1401
 
 # filters
-CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
-ANCHORS = lambda x: x.split("#")[0] # removed part after anchor
-UNESCPE = lambda x: unescape(x) # pylint: disable=W0108
+def CLEANER(x):
+    return x.strip('"\'\n ') # removes quotes, spaces and new lines
+def ANCHORS(x):
+    return x.split('#')[0] # removed part after anchor
+def UNESCPE(x):
+    return unescape(x) # pylint: disable=W0108
 
 
 class URL:

@@ -24,23 +24,14 @@ Handles settings passed to crawler.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Optional, List, Dict, Any, Union)
-
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 from .baseurl import BaseURL
+from .exceptions import (DeadlinksSettingsBase, DeadlinksSettingsChange, DeadlinksSettingsDomains,
+                         DeadlinksSettingsPath, DeadlinksSettingsPathes, DeadlinksSettingsRetry,
+                         DeadlinksSettingsRoot, DeadlinksSettingsThreads)
 from .serving import Server
-
-from .exceptions import (
-    DeadlinksSettingsThreads,
-    DeadlinksSettingsBase,
-    DeadlinksSettingsRetry,
-    DeadlinksSettingsChange,
-    DeadlinksSettingsDomains,
-    DeadlinksSettingsPathes,
-    DeadlinksSettingsPath,
-    DeadlinksSettingsRoot,
-)
 
 # -- Implementation ------------------------------------------------------------
 # TODO - Review, and may be somehow simplify arguments
@@ -127,7 +118,7 @@ class Settings:
 
     @root.setter
     def root(self, value: Path) -> None:
-        if not (self._root is None): #pylint: disable-msg=C0325
+        if self._root is not None: #pylint: disable-msg=C0325
             error = "root is already set to {}"
             raise DeadlinksSettingsRoot(error.format(self._root))
 
@@ -156,7 +147,7 @@ class Settings:
 
     @check_robots_txt.setter
     def check_robots_txt(self, value: bool) -> None:
-        if not (self._skip_robots is None): #pylint: disable-msg=C0325
+        if self._skip_robots is not None: #pylint: disable-msg=C0325
             error = "SkipRobotsTxt check already set {}"
             raise DeadlinksSettingsBase(error.format(self._skip_robots))
 
@@ -174,7 +165,7 @@ class Settings:
 
     @base.setter
     def base(self, value: BaseURL) -> None:
-        if not (self._base is None): #pylint: disable-msg=C0325
+        if self._base is not None: #pylint: disable-msg=C0325
             error = "BaseUrl is already set to {}"
             raise DeadlinksSettingsBase(error.format(self._base))
 
@@ -191,7 +182,7 @@ class Settings:
 
     @domains.setter
     def domains(self, values: List[str]) -> None:
-        if not (self._domains is None): #pylint: disable-msg=C0325
+        if self._domains is not None: #pylint: disable-msg=C0325
             error = "Ignored Domains is already defined"
             raise DeadlinksSettingsDomains(error)
 
@@ -219,7 +210,7 @@ class Settings:
 
     @pathes.setter
     def pathes(self, values: List[str]) -> None:
-        if not (self._pathes is None): #pylint: disable-msg=C0325
+        if self._pathes is not None: #pylint: disable-msg=C0325
             error = "Ignored Pathes is already defined."
             raise DeadlinksSettingsPathes(error)
 
@@ -243,7 +234,7 @@ class Settings:
     @stay_within_path.setter
     def stay_within_path(self, value: bool) -> None:
         """ Getter for stay_within_path setting. """
-        if not (self._stay_within_path is None): #pylint: disable-msg=C0325
+        if self._stay_within_path is not None: #pylint: disable-msg=C0325
             error = "Stay within path is already defined."
             raise DeadlinksSettingsPath(error)
 
@@ -281,7 +272,7 @@ class Settings:
 
     @retry.setter
     def retry(self, value: Optional[int]) -> None:
-        if not (self._retry is None): #pylint: disable-msg=C0325
+        if self._retry is not None: #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 
         # retry validation
@@ -314,7 +305,7 @@ class Settings:
 
     @external.setter
     def external(self, value: bool) -> None:
-        if not (self._external is None): #pylint: disable-msg=C0325
+        if self._external is not None: #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 
         self._external = bool(value)
@@ -332,7 +323,7 @@ class Settings:
 
     @threads.setter
     def threads(self, value: Optional[int]) -> None:
-        if not (self._threads is None): #pylint: disable-msg=C0325
+        if self._threads is not None: #pylint: disable-msg=C0325
             raise DeadlinksSettingsChange("Change not allowed")
 
         if value is None:

@@ -24,11 +24,8 @@ Default options to be consumed by click
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import List
 
-from click import IntRange, Choice
-
-from .clicker import OptionRaw #pylint: disable-msg=W0611
+from click import Choice, IntRange
 
 # -- Options -------------------------------------------------------------------
 

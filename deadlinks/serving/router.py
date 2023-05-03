@@ -24,10 +24,9 @@ Implements simple file system lookups for web requests on generated docs.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Union, Dict, Optional, Tuple)
-
-from pathlib import Path
 from collections import OrderedDict
+from pathlib import Path
+from typing import Optional, Tuple, Union
 
 from ..exceptions import DeadlinksSettingsRoot
 
