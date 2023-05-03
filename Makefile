@@ -56,7 +56,7 @@ dev-env: deps clean ## Install Development Version
 #   make integration -> runs click/docker/brew
 
 .PHONY: tests
-tests: venv ## Run package tests (w/o integration tests)
+tests: deps venv ## Run package tests (w/o integration tests)
 	$(PYTEST) . -m "not (docker or brew)" -n$(PROCS) --cov=$(PACKAGE);
 
 all: ## All Tests (with integration tests)
