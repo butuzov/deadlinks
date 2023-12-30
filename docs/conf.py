@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from os import path, getenv
+from os import getenv, path
+
 from recommonmark.parser import CommonMarkParser
 
 sys.path.append(path.dirname(getenv('PWD')))
@@ -96,6 +97,7 @@ extensions = [
     'sphinx_markdown_tables',
 ]
 
+language = "en"
 
 class MyCommonMarkParser(CommonMarkParser):
     # remove this hack once upsteam RecommonMark supports inline code
@@ -104,6 +106,8 @@ class MyCommonMarkParser(CommonMarkParser):
         n = nodes.literal(mdnode.literal, mdnode.literal)
         self.current_node.append(n)
 
+    def visit_document(self, node):
+        pass
 
 def setup(app):
     from recommonmark.transform import AutoStructify
