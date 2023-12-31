@@ -4,19 +4,27 @@ yapf>=0.28.0
 mypy>=0.701
 
 # tests
-pytest>=7.4.3
+pytest>=7.0;   python_version >= '3.9'
+pytest==7.0.0; python_version < '3.9'
 flaky>=3.7.0
-pytest-randomly>=3.15.0
-pytest-timeout>=2.2.0
-coverage>=7.4.0
-pytest-cov>=4.1.0
-pytest-xdist>=3.5.0
+pytest-randomly>=3.15.0; python_version >= '3.9'
+pytest-randomly==3.10.0;  python_version < '3.9'
+pytest-timeout>=2.2.0; python_version >= '3.9'
+pytest-timeout==2.1.0; python_version  < '3.9'
+coverage>=7.4.0; python_version  >= '3.9'
+coverage==6.2;   python_version   < '3.9'
+pytest-cov>=4.1.0; python_version  >= '3.9'
+pytest-cov==4.0.0; python_version  < '3.9'
+pytest-xdist>=3.5.0; python_version  >= '3.9'
+pytest-xdist==3.0.2; python_version  < '3.9'
 
 # docs
-Sphinx==7.2.6
+Sphinx==7.2.6; python_version >= '3.9'
+Sphinx==5.3.0; python_version  < '3.9'
 recommonmark==0.7.1
 sphinx-rtd-theme==2.0.0
-sphinx-markdown-tables>=0.0.17
+sphinx-markdown-tables>=0.0.17; python_version  >= '3.9'
+sphinx-markdown-tables>=0.0.15; python_version   < '3.9'
 
 # brew
 chardet>=3.0.4
@@ -24,7 +32,8 @@ certifi>=2019.9.11
 idna>=2.8
 
 # install
-requests>=2.31.0
+requests>=2.31.0; python_version >= '3.9'
+requests>=2.27.0; python_version  < '3.9'
 click>=8.0
 six==1.16.0
 
