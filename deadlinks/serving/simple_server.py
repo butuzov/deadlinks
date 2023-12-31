@@ -24,20 +24,19 @@ Main (cli interface)
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Union, Optional)
-
 from functools import partial
+from typing import Union
 
 try:
-    from socketserver import ThreadingMixIn
     from http.server import HTTPServer
+    from socketserver import ThreadingMixIn
 except ModuleNotFoundError:
     from SocketServer import ThreadingMixIn # type: ignore
     from BaseHTTPServer import HTTPServer # type: ignore
 
-from socket import (socket, SOCK_STREAM, AF_INET)
-from threading import Thread
 from pathlib import Path
+from socket import AF_INET, SOCK_STREAM, socket
+from threading import Thread
 
 from .handler import Handler
 from .router import Router
@@ -73,6 +72,7 @@ class SimpleServer:
         # https://github.com/python/mypy/issues/1484
         self._handler = partial(Handler, self.router)
         self._server = ThreadedHTTPServer(self._sa, self._handler)
+
         server_thread = Thread(target=self._server.serve_forever, daemon=True)
         server_thread.start()
 
@@ -83,4 +83,5 @@ class SimpleServer:
 
     def url(self) -> str:
         """ Return URL of running server (including path). """
-        return "http://{}:{}".format(self._sa[0], self._sa[1])
+
+        return f"http://{self._sa[0]}:{self._sa[1]}"

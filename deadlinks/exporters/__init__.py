@@ -24,10 +24,10 @@ Export module init file.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import Dict #pylint: disable-msg=W0611
+from typing import Dict
 
-from .export import Export
 from .default import Default
+from .export import Export
 
 # -- Exports -------------------------------------------------------------------
 
@@ -36,6 +36,6 @@ __all__ = [
     'Export',
 ]
 
-exporters = { # type Dict[str, Export]
+exporters: Dict[str, Export] = {
     'default': Default,
 }

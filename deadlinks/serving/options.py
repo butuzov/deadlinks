@@ -28,11 +28,11 @@ from typing import List
 
 from click import Path
 
-from ..clicker import OptionRaw, Options #pylint: disable-msg=W0611
+from ..clicker import OptionRaw  # pylint: disable-msg=W0611
 
 # -- Code ----------------------------------------------------------------------
 
-default_options = [] # type: List[OptionRaw]
+default_options: List[OptionRaw] = []
 # root, in case of URL<internal>, defaults to . (pwd or current directory)
 default_options.append((
     ('root', '-R', '--root'),

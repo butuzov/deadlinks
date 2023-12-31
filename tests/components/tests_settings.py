@@ -14,17 +14,11 @@ These tests are covers Settings API.
 
 import pytest
 
-from deadlinks import (Settings, Link)
-from deadlinks.exceptions import (
-    DeadlinksSettingsPathes,
-    DeadlinksSettingsPath,
-    DeadlinksSettingsThreads,
-    DeadlinksSettingsBase,
-    DeadlinksSettingsRoot,
-    DeadlinksSettingsRetry,
-    DeadlinksSettingsChange,
-    DeadlinksSettingsDomains,
-)
+from deadlinks import Link, Settings
+from deadlinks.exceptions import (DeadlinksSettingsBase, DeadlinksSettingsChange,
+                                  DeadlinksSettingsDomains, DeadlinksSettingsPath,
+                                  DeadlinksSettingsPathes, DeadlinksSettingsRetry,
+                                  DeadlinksSettingsRoot, DeadlinksSettingsThreads)
 
 # -- Tests ---------------------------------------------------------------------
 
@@ -277,18 +271,18 @@ def test_internal_root(tmpdir):
 def test_robots_txt_defaults(settings):
     """ simple settings test for robots.txt  """
 
-    assert settings.check_robots_txt ==True
+    assert settings.check_robots_txt is True
 
 
 def test_robots_txt_turn_on():
     """ simple settings test for robots.txt  """
 
     settings = Settings("http://localhost", check_robots_txt=True)
-    assert settings.check_robots_txt ==True
+    assert settings.check_robots_txt is True
 
 
 def test_robots_txt_turn_off():
     """ simple settings test for robots.txt  """
 
     settings = Settings("http://localhost", check_robots_txt=False)
-    assert settings.check_robots_txt == False
+    assert settings.check_robots_txt is False

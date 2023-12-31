@@ -29,8 +29,8 @@ def read_data() -> Dict[str, str]:
     values = dict() # type: Dict[str, str]
     with open(init) as fh:
         content = "".join(fh.readlines())
-        for match in DUNDER_REGEXP.findall(content):
-            values[match[1]] = match[2]
+        for str_match in DUNDER_REGEXP.findall(content):
+            values[str_match[1]] = str_match[2]
 
     return values
 
@@ -95,9 +95,9 @@ if os.environ.get('DEADLINKS_VERSION', None) is not None:
     data['app_version'] += os.environ.get('DEADLINKS_VERSION', None)
 elif tagged and not match(VERSION, tagged) and branch and commit:
     dev_version_file = Path(__file__).parent / "deadlinks" / "__develop__.py"
-    dev_version_str = ".{}.{}".format(branch, commit).rstrip("+")
+    dev_version_str = f".{branch}.{commit}".rstrip("+")
     with open(str(dev_version_file), "w") as f:
-        print("version = '{}'".format(dev_version_str), file=f)
+        print(f"version = '{dev_version_str}'", file=f)
     data['app_version'] += dev_version_str
 
 # -- Version Releases / End ~~

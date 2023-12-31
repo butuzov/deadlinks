@@ -23,8 +23,7 @@ deadlinks.request
 """
 
 # -- Imports -------------------------------------------------------------------
-from typing import (Any, List, Tuple)
-
+from typing import Any, List, Tuple
 from urllib.robotparser import RobotFileParser
 
 from .request import user_agent

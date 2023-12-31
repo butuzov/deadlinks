@@ -8,15 +8,15 @@ Provides Default fixtures for deadlinks tests
 :license:   Apache2, see LICENSE for more details.
 """
 
+from collections import OrderedDict
+from textwrap import dedent
+
 import pytest
 
-from textwrap import dedent
-from collections import OrderedDict
-
-from .utils import Server, Page
+from .runners.brew import BrewRunner
 from .runners.click import ClickRunner
 from .runners.docker import DockerRunner
-from .runners.brew import BrewRunner
+from .utils import Page, Server
 
 runners = OrderedDict({
     'click': ClickRunner,

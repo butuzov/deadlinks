@@ -12,10 +12,9 @@ Serving local files.
 
 import pytest
 
-from deadlinks.serving.simple_server import SimpleServer
-from deadlinks.serving.router import Router
-
 from deadlinks import DeadlinksSettingsRoot
+from deadlinks.serving.router import Router
+from deadlinks.serving.simple_server import SimpleServer
 
 # -- Tests ---------------------------------------------------------------------
 
@@ -48,7 +47,7 @@ def test_router(tmpdir):
 
     sitemap_txt_request = r('/sitemap.xml')
     assert sitemap_txt_request[0] == 404
-    assert sitemap_txt_request[1] == None
+    assert sitemap_txt_request[1] is None
 
     index_request = r('/index.html')
     assert index_request[0] == 301
@@ -60,7 +59,7 @@ def test_router(tmpdir):
 
     none_request = r('/nope.html')
     assert none_request[0] == 404
-    assert none_request[1] == None
+    assert none_request[1] is None
 
 
 def test_router_dir_non_exists(tmpdir):

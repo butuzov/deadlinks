@@ -24,10 +24,9 @@ Implements simple file system lookups for web requests on generated docs.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Union, Dict, Optional, Tuple)
-
-from pathlib import Path
 from collections import OrderedDict
+from pathlib import Path
+from typing import Dict, Optional, Tuple, Union
 
 from ..exceptions import DeadlinksSettingsRoot
 
@@ -59,7 +58,7 @@ class Router():
             raise DeadlinksSettingsRoot("This is not a directory")
 
         # redirects
-        self._redirects = OrderedDict() # type: Dict[str, str]
+        self._redirects: Dict[str, str] = OrderedDict()
         self.load_redirects()
 
     def load_redirects(self) -> None:

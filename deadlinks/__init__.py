@@ -24,30 +24,21 @@ deadlinks module __init__ file
 
 # -- Imports -------------------------------------------------------------------
 
-from .url import URL
-from .link import Link
-from .index import Index
+from .__version__ import __version__ as version
 from .baseurl import BaseURL
 from .crawler import Crawler
+from .exceptions import (DeadlinksIgnoredURL, DeadlinksSettingsBase, DeadlinksSettingsChange,
+                         DeadlinksSettingsDomains, DeadlinksSettingsPath, DeadlinksSettingsPathes,
+                         DeadlinksSettingsRetry, DeadlinksSettingsRoot, DeadlinksSettingsThreads)
+from .index import Index
+from .link import Link
 from .request import request, user_agent
 from .settings import Settings
 from .status import Status
-
-from .__version__ import __version__ as version
+from .url import URL
 
 # -- Exports  ------------------------------------------------------------------
 
-from .exceptions import (
-    DeadlinksIgnoredURL,
-    DeadlinksSettingsThreads,
-    DeadlinksSettingsBase,
-    DeadlinksSettingsRetry,
-    DeadlinksSettingsRoot,
-    DeadlinksSettingsChange,
-    DeadlinksSettingsDomains,
-    DeadlinksSettingsPathes,
-    DeadlinksSettingsPath,
-)
 
 __all__ = [
     'version',

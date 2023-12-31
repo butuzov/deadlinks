@@ -24,17 +24,16 @@ Export module init file.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, Tuple, List, Sequence, Any) #pylint: disable-msg=W0611
-
-from threading import Thread
 from os import name as os_name
+from threading import Thread
 from time import sleep
+from typing import Dict, List, Sequence, Tuple  # pylint: disable-msg=W0611
 
 import click
 
-from .export import Export
-from ..crawler import Crawler
 from ..clicker import OptionRaw
+from ..crawler import Crawler
+from .export import Export
 
 # -- Implementation ------------------------------------------------------------
 
@@ -180,7 +179,7 @@ class Default(Export):
 
         param_color = click.style(param, fg=self.params_colors[param])
 
-        return '\n'.join(map(lambda x: "[ {} ] {}".format(param_color, x), links))
+        return '\n'.join(map(lambda x: f"[ {param_color} ] {x}", links))
 
     def report(self) -> None:
 
@@ -217,7 +216,7 @@ class Default(Export):
         click.echo(("-"*split_line_len) + "\033[?25h")
 
         # show some url report(s)
-        show = list(self._opts.get('show', [])) # type: Sequence[str]
+        show: Sequence[str] = list(self._opts.get('show', []))
 
         if 'none' in show:
             return

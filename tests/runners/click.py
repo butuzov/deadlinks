@@ -9,15 +9,15 @@ Click runner (using testing.CliRunner)
 """
 # -- Imports -------------------------------------------------------------------
 
-import pytest
-
-from typing import List
 from functools import partial
+from typing import List
 
+import pytest
 from click.testing import CliRunner
-from .utils.runner import Runner
 
 from deadlinks.__main__ import main
+
+from .utils.runner import Runner
 
 # -- Implementation -------------------------------------------------------------------
 

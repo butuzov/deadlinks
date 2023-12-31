@@ -4,13 +4,12 @@ brew.py
 brew py is brew formula generator for the deadlinks package
 
 """
-from typing import (Dict, Tuple, Optional, List) #pylint: disable-msg=W0611
-
+import json
 from collections import defaultdict
 from pathlib import Path
-from textwrap import dedent
 from re import compile as _compile
-import json
+from textwrap import dedent
+from typing import Dict, List, Optional, Tuple  # pylint: disable-msg=W0611
 
 import requests
 from jinja2 import Template
@@ -135,14 +134,14 @@ def build_formula(app, requirements, build_dev=False) -> str:
 
 
 def get_local_pacage():
-    import hashlib, glob
+    import glob
+    import hashlib
 
-    sha256 = hashlib.sha256()
 
     files = glob.glob("dist/deadlinks-*.tar.gz")
     with open(files[0], "rb") as f:
         data = f.read()
-    return "http://localhost:8878/%s" % files[0], hashlib.sha256(data).hexdigest()
+    return f"http://localhost:8878/{files[0]}", hashlib.sha256(data).hexdigest()
 
 
 def clean_version(package) -> Tuple[str, str, str]:
@@ -159,7 +158,7 @@ def clean_version(package) -> Tuple[str, str, str]:
 def info(pkg, cmp: Optional[str], version: Optional[str]) -> Tuple[str, str]:
     """ Return version of package on pypi.python.org using json. """
 
-    package_info = 'https://pypi.python.org/pypi/{}/json'.format(pkg)
+    package_info = f'https://pypi.python.org/pypi/{pkg}/json'
     req = requests.get(package_info)
 
     if req.status_code != requests.codes.ok:
@@ -170,7 +169,8 @@ def info(pkg, cmp: Optional[str], version: Optional[str]) -> Tuple[str, str]:
     versions = releases.keys()
     version = release(versions, cmp, version)
 
-    source = lambda x: x.get("python_version") == "source"
+    def source(x):
+        return x.get('python_version') == 'source'
     version = list(filter(source, releases[str(version)]))[0]
 
     return version['url'], version["digests"]['sha256']
@@ -179,7 +179,8 @@ def info(pkg, cmp: Optional[str], version: Optional[str]) -> Tuple[str, str]:
 def release(releases, pkg_cmp, pkg_ver):
     """ filter available release to pick one included in formula """
 
-    not_prerelease = lambda x: not x.is_prerelease
+    def not_prerelease(x):
+        return not x.is_prerelease
 
     cmps = {
         '!=': lambda x: x != parse(pkg_ver),
@@ -218,5 +219,5 @@ if __name__ == "__main__":
     if '--dev' in sys.argv[1:]:
         options['build_dev'] = True
 
-    with open("{}.rb".format(data['app_package']), 'w') as f:
+    with open(f"{data['app_package']}.rb", 'w') as f:
         print(build_formula(**options), file=f)

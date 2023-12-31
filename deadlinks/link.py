@@ -24,8 +24,8 @@ Link representation based on URL object.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import Union
 from functools import total_ordering
+from typing import Union
 
 from .url import URL
 
@@ -51,7 +51,7 @@ class Link(URL):
         if isinstance(url, str):
             url = URL(url)
         elif not isinstance(url, URL):
-            raise TypeError("url of type {}".format(type(url)))
+            raise TypeError(f"url of type {type(url)}")
 
         base_scheme, this_scheme = url.scheme, self.scheme
         base, this = url.domain, self.domain

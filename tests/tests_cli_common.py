@@ -27,7 +27,7 @@ def test_default_dsn_with_issues(runner, dsn):
 
     assert result['code'] == 2
 
-    assert "Error: URL {} is not valid".format(dsn) in result['output']
+    assert f"Error: URL {dsn} is not valid" in result['output']
 
 
 def test_default_url_no_scheme_issue(server, runner):
@@ -40,7 +40,7 @@ def test_default_url_no_scheme_issue(server, runner):
     result = runner(args)
 
     assert result['code'] == 0
-    assert "{}//{}".format(scheme, address) in result['output']
+    assert f"{scheme}//{address}" in result['output']
 
 
 def test_help(runner):

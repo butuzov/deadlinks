@@ -60,7 +60,7 @@ class Handler(BaseHTTPRequestHandler):
 
         if code == 301:
             self.send_response(code)
-            self.send_header('Location', response)
+            self.send_header('Location', str(response))
             self.end_headers()
             return
 
