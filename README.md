@@ -1,7 +1,7 @@
 # deadlinks
 
 [![PyPI](https://img.shields.io/pypi/v/deadlinks)](https://pypi.org/project/deadlinks/)
-[![Github (CI)](https://img.shields.io/github/actions/workflow/status/butuzov/deadlinks/main.yml?branch=master)](https://github.com/butuzov/deadlinks/actions/workflows/main.yaml)
+[![Github (CI)](https://img.shields.io/github/actions/workflow/status/butuzov/deadlinks/main.yaml?branch=master)](https://github.com/butuzov/deadlinks/actions/workflows/main.yaml)
 [![codecov](https://codecov.io/gh/butuzov/deadlinks/branch/master/graph/badge.svg)](https://codecov.io/gh/butuzov/deadlinks)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/deadlinks)](https://pypi.org/project/deadlinks/)
 [![PyPI - License](https://img.shields.io/badge/license-Apache%202-red)](https://pypi.org/project/deadlinks/)
