@@ -10,16 +10,15 @@ Terminition (ctrl+C or ^c)
 
 # -- Imports -------------------------------------------------------------------
 
-import pytest
-from flaky import flaky
-
 import multiprocessing as mp
-from threading import Timer
 from os import kill
 from signal import SIGINT
+from threading import Timer
 from time import sleep
 
 from click.testing import CliRunner
+from flaky import flaky
+
 from deadlinks.__main__ import main
 
 from ..utils import Page

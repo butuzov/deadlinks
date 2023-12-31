@@ -24,16 +24,16 @@ Functions related to click package and cli implementation.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, List, Tuple, Union, Any, Callable, Sequence)
-from textwrap import dedent
 from collections import OrderedDict
+from textwrap import dedent
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 
-from click import Option, Argument
-from click import Command, Context
+from click import Argument, Command, Context
 from click import HelpFormatter as Formatter
+from click import Option
 
-from .link import Link
 from .__version__ import __app_package__ as app
+from .link import Link
 
 # -- Typing Decorators -----~---------------------------------------------------
 OptionsValues = Union[str, bool, int, List[str], List[Callable]]
@@ -204,7 +204,7 @@ class Clicker(Command):
         with formatter.section('Usage Examples'):
             formatter.write("\n")
             for line in self.EXAMPLES.split("\n"):
-                formatter.write("  {}\n".format(line))
+                formatter.write(f"  {line}\n")
 
     def modify(self, ctx: Context) -> None:
         """ Modifing params based on context. """
@@ -235,12 +235,12 @@ def validate_url(ctx: Context, param: Argument, value: str) -> str:
     url = Link(value)
 
     if not url.is_valid() and not url.scheme:
-        return "http://%s" % value
+        return f"http://{value}"
 
     if "@" in url.path:
         return value
 
     if not url.is_valid() and url.scheme and url.path:
-        return "http://%s:%s" % (url.scheme, url.path)
+        return f"http://{url.scheme}:{url.path}"
 
     return value

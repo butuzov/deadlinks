@@ -12,7 +12,7 @@ We need baseurl as starting point of indexation.
 
 import pytest
 
-from deadlinks import (Link, BaseURL)
+from deadlinks import BaseURL, Link
 
 # -- Tests ---------------------------------------------------------------------
 

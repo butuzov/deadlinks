@@ -15,13 +15,9 @@ long as testing currently implemented things.
 import pytest
 from flaky import flaky
 
-from ..utils import Page
+from deadlinks import Crawler, DeadlinksIgnoredURL, DeadlinksSettingsBase, Settings
 
-from deadlinks import (Settings, Crawler)
-from deadlinks import (
-    DeadlinksIgnoredURL,
-    DeadlinksSettingsBase,
-)
+from ..utils import Page
 
 # -- Tests ---------------------------------------------------------------------
 
@@ -197,9 +193,14 @@ def test_defaults(server, threads):
     # there are 2*3 links on the page, and half of them are working
     links_number = 3
 
-    HTML_FORMATTER = lambda x: "<a href='{}-{{0}}'>{{0}}</a>".format(x) #pylint: disable-msg=W0108
-    LINK_FORMATTER = lambda x: HTML_FORMATTER("link").format(x)
-    LIMK_FORMATTER = lambda x: HTML_FORMATTER("limk").format(x)
+    def HTML_FORMATTER(x):
+        return "<a href='{}-{{0}}'>{{0}}</a>".format(x)
+
+    def LINK_FORMATTER(x):
+        return HTML_FORMATTER('link').format(x)
+
+    def LIMK_FORMATTER(x):
+        return HTML_FORMATTER('limk').format(x)
 
     index_html = "<!-- index page -->"
     index_html += " - ".join(map(LINK_FORMATTER, range(links_number))) # 10 good links
@@ -257,7 +258,7 @@ def test_mailto(server):
     """ Extra mailto test. """
 
     MAILTO = "mailto:name@example.org"
-    CONTENT = """  <a href="{}">mail link</a>""".format(MAILTO)
+    CONTENT = f"""  <a href="{MAILTO}">mail link</a>"""
 
     address = server.router({
         '^/$': Page(CONTENT).exists(),
@@ -290,7 +291,8 @@ def test_redirected_links(server):
     from random import sample
 
     pages = list(range(1, 51))
-    format_link = lambda x: "<a href='/link-%s'>link</a>" % x
+    def format_link(x):
+        return f"<a href='/link-{x}'>link</a>"
 
     routes = {
         '^/$': Page(" / ".join(map(format_link, sample(pages, 4)))).exists(),
@@ -298,7 +300,7 @@ def test_redirected_links(server):
     }
 
     for step in pages:
-        route_key = '^/link-%s/$' % step
+        route_key = f'^/link-{step}/$'
         route_contents = Page(" / ".join(map(format_link, sample(pages, 4)))).exists()
         routes.update({route_key: route_contents})
 
@@ -319,14 +321,15 @@ def test_no_index_page(server):
     from random import sample
 
     pages = list(range(1, 51))
-    format_link = lambda x: "<a href='/link-%s'>link</a>" % x
+    def format_link(x):
+        return f"<a href='/link-{x}'>link</a>"
 
     routes = {
         '^/$': Page("").exists(),
     }
 
     for step in pages:
-        route_key = '^/link-%s/$' % step
+        route_key = f'^/link-{step}/$'
         route_contents = Page(" / ".join(map(format_link, sample(pages, 4)))).exists()
         routes.update({route_key: route_contents})
 

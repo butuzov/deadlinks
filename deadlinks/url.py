@@ -24,29 +24,30 @@ URL representation with benefits
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (List, Optional) #pylint: disable-msg=W0611
-
-from urllib.parse import (urlparse, urljoin)
 from html import unescape
 from re import compile as _compile
+from typing import List, Union  # pylint: disable-msg=W0611
+from urllib.parse import urljoin, urlparse
 
 from requests import RequestException
 
+from .exceptions import DeadlinksIgnoredURL, DeadlinksRedirectionURL
 from .request import request
 from .status import Status
-from .exceptions import (
-    DeadlinksIgnoredURL,
-    DeadlinksRedirectionURL,
-)
 
 # -- Constants -----------------------------------------------------------------
 
 __RE_LINKS__ = _compile(r'<a\s{1}([^>]+)>') # pylint: disable=W1401
 
 # filters
-CLEANER = lambda x: x.strip("\"'\n ") # removes quotes, spaces and new lines
-ANCHORS = lambda x: x.split("#")[0] # removed part after anchor
-UNESCPE = lambda x: unescape(x) # pylint: disable=W0108
+def CLEANER(x:str) -> str:
+    """removes quotes, spaces and new lines"""
+    return x.strip("\"'\n ")
+def ANCHORS(x:str) -> str:
+    """removes anschor"""
+    return x.split("#")[0]
+def UNESCPE(x:str) -> str:
+    return unescape(x)
 
 
 class URL:
@@ -59,7 +60,7 @@ class URL:
 
         # some predefined states
         self._referrers = [] # type: List[str]
-        self._text = None # type: Optional[str]
+        self._text: Union[str, None] = None
         self._links = [] # type: List[str]
 
         # internal error or mesage field, used to store ignore message
@@ -194,7 +195,7 @@ class URL:
     def __repr__(self) -> str:
         """ Object stringer representation. """
 
-        return "{}<{}>".format(self.__class__.__name__, self.url())
+        return f"{self.__class__.__name__}<{self.url()}>"
 
     def _consume_links(self) -> None:
         """ Parse response text into list of links. """
@@ -207,12 +208,10 @@ class URL:
                 continue
 
             href = attr[pos + 5:].strip()
-
             if not href:
                 continue
 
-            link = "" # type: str
-
+            link: str = ""
             quoted = href[0] in {'"', "'"}
             if quoted:
                 end_pos = href[1:].find(href[0])

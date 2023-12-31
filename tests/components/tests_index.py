@@ -10,9 +10,9 @@ Test(s) for Index (collection of the links) object.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (List)
+from typing import List
 
-from deadlinks import (Link, Index, Status)
+from deadlinks import Index, Link, Status
 
 # -- Tests ---------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ def test_index():
 
     assert len(index) == 0
 
-    links = [] # type: List[Link]
+    links: List[Link] = []
 
     links.append(Link("https://google.com"))
     links.append(Link("https://google.com"))

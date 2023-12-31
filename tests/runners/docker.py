@@ -9,14 +9,14 @@ UI for running deadlinks in the docker container.
 """
 # -- Imports -------------------------------------------------------------------
 
-import pytest
-
-from typing import List
 from functools import partial
 from subprocess import PIPE
+from typing import List
 
-from .utils.runner import Runner
+import pytest
+
 from .utils.driver import Driver
+from .utils.runner import Runner
 
 # -- Implementation ------------------------------------------------------------
 

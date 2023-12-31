@@ -24,11 +24,11 @@ Abstract Interface we will ask to implement child classes.
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, Tuple)
 from abc import ABC, abstractmethod
+from typing import Dict, Tuple
 
-from ..crawler import Crawler
 from ..clicker import OptionsList
+from ..crawler import Crawler
 
 # -- Abstract ------------------------------------------------------------------
 

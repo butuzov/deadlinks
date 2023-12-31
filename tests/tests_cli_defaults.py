@@ -10,17 +10,15 @@ Default Exporter of the deadlinks (CLI)
 
 # -- Imports -------------------------------------------------------------------
 
-import pytest
-
+from collections import Counter
+from copy import deepcopy as copy
+from random import choice
 from typing import Dict
 
-from collections import Counter
-from random import choice
-from copy import deepcopy as copy
+import pytest
+from click import unstyle
 
 from .utils import Page
-
-from click import unstyle
 
 
 # -- Helpers  ------------------------------------------------------------------
@@ -60,10 +58,10 @@ def test_version(runner):
 
     assert result['code'] == 0
 
-    from deadlinks.__version__ import __app_version__ as version
     from deadlinks.__version__ import __app_package__ as package
+    from deadlinks.__version__ import __app_version__ as version
 
-    expected_main_version = "{}: v{}".format(package, version)
+    expected_main_version = f"{package}: v{version}"
 
     assert result["output"].rstrip("\n").startswith(expected_main_version)
 
@@ -157,7 +155,7 @@ def test_redirection(servers, runner):
     })
 
     site_to_index = servers[1].router({
-        '^/$': Page("<a href='{0}'>{0}</a>".format(linked_domain)).exists(),
+        '^/$': Page(f"<a href='{linked_domain}'>{linked_domain}</a>").exists(),
     })
 
     args = [site_to_index, '-e', '-s', 'all']
@@ -300,7 +298,7 @@ def test_cli_details(site_with_links, runner, external, threads, domains, pathes
 
 @pytest.fixture
 def pages():
-    index = "".join(["<a href=/link-%s>%s</a>" % (x, x) for x in range(1, 11)])
+    index = "".join([f"<a href=/link-{x}>{x}</a>" for x in range(1, 11)])
     return {
         '^/$': Page(index).exists(),
         '^/link-\d{1,}$': Page("ok").exists().redirects(pattern='%s/'),

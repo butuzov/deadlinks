@@ -26,26 +26,19 @@ Main (cli interface)
 
 import click
 
-from .settings import Settings
+# Version and App.
+from .__version__ import __app_package__ as name
+from .__version__ import __app_version__ as version
+# CLI implementation related
+from .clicker import Clicker, Options, register_exports, register_options, validate_url
 from .crawler import Crawler
 from .exceptions import DeadlinksException
-
-# CLI implementation related
-from .clicker import (register_options, register_exports)
-from .clicker import Options
-from .clicker import (Clicker, validate_url)
-
 # Exporters
-from .exporters import Export #pylint: disable-msg=W0611
 from .exporters import exporters
-
 # Default and Specified Options
 from .options import default_options as general_options
 from .serving.options import default_options as serving_options
-
-# Version and App.
-from .__version__ import __app_version__ as version
-from .__version__ import __app_package__ as name
+from .settings import Settings
 
 # -- Implementation ------------------------------------------------------------
 

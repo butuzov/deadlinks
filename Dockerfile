@@ -1,5 +1,5 @@
 # initial builder
-FROM docker.io/python:3.7-slim-stretch as BUILD
+FROM docker.io/python:3.11-slim as BUILD
 
 COPY  . /tmp
 WORKDIR /tmp
@@ -18,13 +18,12 @@ RUN grep "# install" requirements.txt -A100 > docker.requirments.txt \
     && sed -i 's/\/usr\/local/\/usr/g'  /usr/local/bin/deadlinks
 
 
-FROM gcr.io/distroless/python3:latest
+FROM gcr.io/distroless/python3-debian12:debug
 LABEL maintainer "Oleg Butuzov <butuzov@made.ua>"
 
-ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages
+ENV PYTHONPATH=/usr/local/lib/python3.11/site-packages
 
 COPY --from=BUILD ${PYTHONPATH} ${PYTHONPATH}
-# COPY --from=BUILD /usr/local/lib/libpython3.7m.so.1.0 /usr/lib/x86_64-linux-gnu/
 COPY --from=BUILD /usr/local/bin/deadlinks /usr/local/bin/
 
 WORKDIR /github/workspace

@@ -10,10 +10,9 @@ Testing local files serving using default exporter
 
 # -- Imports -------------------------------------------------------------------
 
-import pytest
-
-import sys
 from textwrap import dedent
+
+import pytest
 
 # -- Tests -------------------------------------------------------------------
 

@@ -26,13 +26,13 @@ Default options to be consumed by click
 
 from typing import List
 
-from click import IntRange, Choice
+from click import Choice, IntRange
 
-from .clicker import OptionRaw #pylint: disable-msg=W0611
+from .clicker import OptionRaw
 
 # -- Options -------------------------------------------------------------------
 
-default_options = [] # type: List[OptionRaw]
+default_options: List[OptionRaw] = []
 
 # Index External URLs ------------------------------------------------------
 default_options.append((

@@ -24,9 +24,8 @@ deadlinks.request
 
 # -- Imports -------------------------------------------------------------------
 
-from requests import Session, Response
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from requests import Response, Session
+from requests.adapters import HTTPAdapter, Retry
 
 from .__version__ import __app_package__
 

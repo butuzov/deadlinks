@@ -24,7 +24,7 @@ Provides a collection interface
 
 # -- Imports -------------------------------------------------------------------
 
-from typing import (Dict, List, Iterator, Callable) #pylint: disable-msg=W0611
+from typing import Callable, Dict, Iterator, List  # pylint: disable-msg=W0611
 
 from .link import Link
 from .status import Status
@@ -69,38 +69,32 @@ class Index:
     def all(self) -> List[Link]:
         """ Return links in the index (but not UNDEFINED). """
 
-        lmbd = lambda x: x.status != Status.UNDEFINED
-        return self._filter(lmbd)
+        return self._filter(lambda x: x.status != Status.UNDEFINED)
 
     def succeed(self) -> List[Link]:
         """ Filters succeed urls from index. """
 
-        lmbd = lambda x: x.status == Status.FOUND
-        return self._filter(lmbd)
+        return self._filter(lambda x: x.status == Status.FOUND)
 
     def redirected(self) -> List[Link]:
         """ Filters succeed urls from index. """
 
-        lmbd = lambda x: x.status == Status.REDIRECTION
-        return self._filter(lmbd)
+        return self._filter(lambda x: x.status == Status.REDIRECTION)
 
     def failed(self) -> List[Link]:
         """ Filters failed urls from index. """
 
-        lmbd = lambda x: x.status == Status.NOT_FOUND
-        return self._filter(lmbd)
+        return self._filter(lambda x: x.status == Status.NOT_FOUND)
 
     def ignored(self) -> List[Link]:
         """ Filters failed urls from index. """
 
-        lmbd = lambda x: x.status == Status.IGNORED
-        return self._filter(lmbd)
+        return self._filter(lambda x: x.status == Status.IGNORED)
 
     def undefined(self) -> List[Link]:
         """ Filters undefined urls from index. """
 
-        lmbd = lambda x: x.status == Status.UNDEFINED
-        return self._filter(lmbd)
+        return self._filter(lambda x: x.status == Status.UNDEFINED)
 
     def update(self, url: Link, status: Status, message: str) -> None:
         """ wraps access to updating url status and gathering stats """
@@ -118,4 +112,4 @@ class Index:
 
     def _filter(self, lambda_func: Callable[[Link], bool]) -> List[Link]:
         """ Filters  values according lambda. """
-        return list(sorted(filter(lambda_func, self._index.values()))) # type: ignore
+        return list(sorted(filter(lambda_func, self._index.values())))

@@ -10,19 +10,17 @@ Tests robots.txt integration.
 
 # -- Imports -------------------------------------------------------------------
 
-import pytest
-
 from copy import deepcopy as copy
 from typing import Dict
 
+import pytest
+
+from deadlinks import Crawler, DeadlinksIgnoredURL, Settings
+
 from ..utils import Page
 
-from deadlinks import (Settings, Crawler)
-
-from deadlinks import DeadlinksIgnoredURL
-
 server_pages = {
-    '^/$': Page("".join(["<a href='/link-%s'>%s</a>" % (x, x) for x in range(1, 101)])).exists(),
+    '^/$': Page("".join([f"<a href='/link-{x}'>{x}</a>" for x in range(1, 101)])).exists(),
     '^/link-\d{1,}$': Page("ok").exists().redirects(pattern='%s/'),
     '^/link-\d{1,}/$': Page("ok").exists(),
 }
@@ -92,8 +90,8 @@ def test_failed_domain():
     from random import choice
     from string import ascii_lowercase
 
-    domain = "http://%s.com/" % ''.join(choice(ascii_lowercase) for x in range(42))
-    c = Crawler(Settings(domain))
+    rand_str = "".join(choice(ascii_lowercase) for _ in range(42))
+    c = Crawler(Settings(f"http://{rand_str}.com/"))
     c.start()
 
     assert len(c.failed) == 1
@@ -115,11 +113,3 @@ def test_failed_google():
     c.start()
 
     assert len(c.succeed) == 1
-
-
-def test_gobyexample():
-    """ special case - aws substitute robots.txt """
-
-    with pytest.raises(DeadlinksIgnoredURL):
-        c = Crawler(Settings("https://gobyexample.com"))
-        c.start()

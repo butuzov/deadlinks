@@ -14,14 +14,11 @@ Links object test coverage
 
 import pytest
 
-from ..utils import Page
-
-from deadlinks import (Link, URL)
+from deadlinks import URL, Link
+from deadlinks.exceptions import DeadlinksIgnoredURL, DeadlinksRedirectionURL
 from deadlinks.status import Status
-from deadlinks.exceptions import (
-    DeadlinksIgnoredURL,
-    DeadlinksRedirectionURL,
-)
+
+from ..utils import Page
 
 # -- Tests ---------------------------------------------------------------------
 
@@ -129,12 +126,12 @@ def test_links(server):
         '^/$': Page('<a href="https://example.com/">test</a>').exists(),
     })
 
-    l = Link(url)
+    link = Link(url)
 
-    assert l.exists()
-    assert len(l.links) == 1
-    assert str(l) == url
-    assert l.url() == url
+    assert link.exists()
+    assert len(link.links) == 1
+    assert str(link) == url
+    assert link.url() == url
 
 
 @pytest.mark.parametrize(
@@ -199,20 +196,20 @@ def test_eq():
 def test_referrer():
     """ Test referrer. """
 
-    l = Link("https://made.ua")
+    link = Link("https://made.ua")
     referrer = "https://example.com"
-    l.add_referrer(referrer)
-    l.add_referrer(referrer)
+    link.add_referrer(referrer)
+    link.add_referrer(referrer)
 
-    assert referrer in l.get_referrers()
+    assert referrer in link.get_referrers()
 
 
 def test_match_domain():
     """ Domain matching. """
 
-    l = Link("https://made.ua")
-    assert l.match_domains(["made.ua"])
-    assert not l.match_domains(["example.com"])
+    link = Link("https://made.ua")
+    assert link.match_domains(["made.ua"])
+    assert not link.match_domains(["example.com"])
 
 
 @pytest.mark.timeout(2)
@@ -223,14 +220,14 @@ def test_existing_page(server):
         '^/$': Page("").slow().exists(),
     })
 
-    l = Link(address)
-    assert l.status == Status.UNDEFINED
-    assert l.exists()
-    l.status = Status.FOUND
-    assert l.exists()
+    link = Link(address)
+    assert link.status == Status.UNDEFINED
+    assert link.exists()
+    link.status = Status.FOUND
+    assert link.exists()
 
     with pytest.raises(TypeError):
-        l.status = 1
+        link.status = 1
 
 
 @pytest.mark.timeout(3)
@@ -241,19 +238,19 @@ def test_not_existing_page(server):
         '^/$': Page("").unlock_after(3).slow().exists(),
     })
 
-    l = Link(address)
-    assert l.status == Status.UNDEFINED
+    link = Link(address)
+    assert link.status == Status.UNDEFINED
 
     # timed out
-    assert not l.exists(retries=2)
+    assert not link.exists(retries=2)
     # setting new status
-    l.status = Status.NOT_FOUND
+    link.status = Status.NOT_FOUND
 
     # page is unlocked, but response is cached!
-    assert not l.exists()
+    assert not link.exists()
 
     with pytest.raises(TypeError):
-        l.status = 2
+        link.status = 2
 
 
 def test_redirected_page(server):
@@ -262,13 +259,13 @@ def test_redirected_page(server):
         '^/$': Page("").redirects(pattern="https://example.com/?%s"),
     })
 
-    l = Link(address)
-    assert l.status == Status.UNDEFINED
+    link = Link(address)
+    assert link.status == Status.UNDEFINED
     with pytest.raises(DeadlinksRedirectionURL):
-        l.exists()
+        link.exists()
 
     with pytest.raises(TypeError):
-        l.status = 0
+        link.status = 0
 
 
 def test_ignored_page(server):
@@ -277,15 +274,15 @@ def test_ignored_page(server):
         '^/$': Page("").exists(),
     })
 
-    l = Link(address)
-    assert l.status == Status.UNDEFINED
-    l.status = Status.IGNORED
-    assert l.status == Status.IGNORED
+    link = Link(address)
+    assert link.status == Status.UNDEFINED
+    link.status = Status.IGNORED
+    assert link.status == Status.IGNORED
     with pytest.raises(DeadlinksIgnoredURL):
-        l.exists()
+        link.exists()
 
     with pytest.raises(TypeError):
-        l.status = 3
+        link.status = 3
 
 
 def test_same_url(server):
@@ -297,18 +294,18 @@ def test_same_url(server):
         '^/$': Page(page.format(*addr)).exists(),
         '^/link$': Page("ok").exists(),
     })
-    l = Link(address)
-    assert l.exists()
-    assert address in l.links
+    link = Link(address)
+    assert link.exists()
+    assert address in link.links
 
 
 def test_not_available_page():
     """ ok server, but ip with error """
 
-    l = Link("http://127.0.0.1:79")
-    assert l.status == Status.UNDEFINED
-    assert not l.exists()
-    assert "Failed to establish a new connection" in l.message
+    link = Link("http://127.0.0.1:79")
+    assert link.status == Status.UNDEFINED
+    assert not link.exists()
+    assert "Failed to establish a new connection" in link.message
 
 
 def test_link_nl(server):
@@ -319,9 +316,9 @@ def test_link_nl(server):
         '^/link$': Page("ok").exists(),
     })
 
-    l = Link(address)
-    l.exists()
-    assert "/link" in l.links
+    link = Link(address)
+    link.exists()
+    assert "/link" in link.links
 
 
 @pytest.fixture(
@@ -336,7 +333,7 @@ def params_l1_lt_l2(request):
 
 def test_order_neq(params_l1_lt_l2):
 
-    from operator import lt, gt
+    from operator import gt, lt
 
     l1, l2 = params_l1_lt_l2
     assert l1 < l2

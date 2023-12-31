@@ -10,19 +10,15 @@ Simple page emulator.
 
 # -- Imports ------------------------------------------------------------------
 
-from typing import (Optional, Dict)
-
-from functools import partial
-from time import sleep
-from http.server import HTTPServer
-
 import socket
-
+from functools import partial
+from http.server import HTTPServer
 from threading import Thread
+from typing import Dict, Optional
 
-from .router import Router
 from .handler import Handler
 from .page import Page
+from .router import Router
 
 # -- Implementation -----------------------------------------------------------
 
